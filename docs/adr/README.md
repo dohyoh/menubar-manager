@@ -12,10 +12,11 @@
 | [0004](0004-reorder-mechanism.md) | 순서 변경 방식: ⌘+드래그 이벤트 합성 | ✅ 채택 — M0 2차 검증 통과 | 2026-11-10 |
 | [0005](0005-backend-abstraction-private-api.md) | OS 접점 격리와 비공개 API 사용 원칙 | ✅ 채택 | 2026-11-10 |
 | [0006](0006-tech-stack-and-project-layout.md) | 기술 스택과 프로젝트 구성 | ✅ 채택 | 2026-11-10 |
-| [0007](0007-distribution.md) | 배포: 샌드박스 없이 직접 배포 | ✅ 채택 | 2026-11-10 |
+| [0007](0007-distribution.md) | 배포: 샌드박스 없이 직접 배포 | ✅ 채택 (외부 배포 방식은 0011 참고) | 2026-11-10 |
 | [0008](0008-docs-system.md) | 문서 체계: Markdown 원본 + 단일 HTML | ✅ 채택 | 2026-11-10 |
 | [0009](0009-interaction-model.md) | 상호작용: 좌클릭 토글, 우클릭 메뉴, 관리는 설정 창 | ✅ 채택 | 2026-11-10 |
 | [0010](0010-install-location.md) | 설치·실행 위치: 항상 `/Applications` | ✅ 채택 | 2026-11-10 |
+| [0011](0011-unnotarized-release.md) | 1.0.0 배포: 공증 없이 임시 서명한 압축 파일을 GitHub Releases에 | ✅ 채택 (0007의 외부 배포 부분을 보완) | 2026-11-10 |
 
 ## 상태
 

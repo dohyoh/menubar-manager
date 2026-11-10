@@ -5,6 +5,12 @@
 
 ## [미출시]
 
+## [1.0.0] - 2026-11-10
+
+### 배포
+- 첫 공개 버전. [GitHub Releases](https://github.com/dohyoh/menubar-manager/releases)에 `MenuBarManager-1.0.0.zip`으로 올림 — 임시 서명 + 강화된 런타임, 범용 바이너리(Apple 실리콘·Intel). 공증은 받지 않아 처음 열 때 경고를 풀어야 함 ([ADR-0011](adr/0011-unnotarized-release.md)).
+- 저장소 루트에 `README.md`(설치·사용 안내), 배포 파일을 만드는 `scripts/release.sh` 추가.
+
 ### 추가 — 제품 코드 (2026-11-10)
 - 저장소·프로젝트 골격: `git init`, XcodeGen `project.yml`, 로컬 패키지 `Packages/MenuBarKit`(Domain / Services / System / PrivateBridge / UI), `scripts/bootstrap.sh`·`build.sh`.
 - 실제 앱 `MenuBarManager` (`/Applications`에 설치):

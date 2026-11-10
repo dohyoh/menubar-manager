@@ -23,6 +23,7 @@
 
 ```
 1110_menubar_manager/
+├── README.md                        # 저장소 소개: 설치·사용 안내 (받는 사람용)
 ├── CLAUDE.md                        # 작업 규칙 요약 (문서 위치, 갱신 규칙)
 ├── project.yml                      # XcodeGen 프로젝트 정의 (.xcodeproj 는 생성물)
 ├── .gitignore
@@ -77,13 +78,14 @@
 ├── scripts/
 │   ├── bootstrap.sh                 # 도구 확인 + Xcode 프로젝트 생성
 │   ├── build.sh                     # 빌드. `install` / `run` 인자로 /Applications 에 설치·실행
+│   ├── release.sh                   # 배포용 zip 만들기 (임시 서명, build/release/ 에 생성)
 │   ├── strings.py                   # 문자열 카탈로그 동기화·번역 누락 검사
 │   └── make-icon.swift              # 앱 아이콘 생성
 │
 └── docs/                            # → docs/README.md 참고
 ```
 
-**아직 없는 것 (예정):** 로그(`os.Logger`), 프로필(M5), `scripts/release.sh`(M6).
+**아직 없는 것 (예정):** 로그(`os.Logger`), 프로필(M5), 공증·자동 업데이트(M6).
 
 ## 3. 모듈 의존 규칙
 

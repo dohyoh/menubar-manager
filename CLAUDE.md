@@ -6,6 +6,7 @@ macOS 메뉴바에 표시할 앱을 고르고 순서를 조정하는 메뉴바 �
 
 - `./scripts/build.sh install` — 빌드 후 `/Applications/MenuBarManager.app`에 설치 (`run`이면 실행까지)
 - `CONFIG=Release ./scripts/build.sh install` — 평소에 쓰는 앱은 이렇게 설치한다. Debug 빌드에는 아래의 명령 채널이 들어 있어, 검증이 끝나면 Release로 다시 설치해 둔다.
+- `./scripts/release.sh` — 배포용 zip 생성 (`build/release/`). 버전은 `project.yml`의 `MARKETING_VERSION` (docs/adr/0011-unnotarized-release.md)
 - `swift test --package-path Packages/MenuBarKit` — 단위 테스트
 - `python3 scripts/strings.py check` — 문자열 번역 누락 검사 (문자열을 추가·수정했으면 `sync` 후 영어 번역을 채운다)
 - Debug 빌드를 `open -n /Applications/MenuBarManager.app --args -automationDir <폴더>`로 실행하면 `<폴더>/cmd`에 명령을 써서 조작하고 `<폴더>/app.log`로 결과를 볼 수 있다 (`App/Debug/AutomationHook.swift`). 메뉴바 아이콘은 프로그램으로 클릭할 수 없으므로 이 방법과 화면 캡처로 확인한다.

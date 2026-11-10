@@ -304,7 +304,7 @@
   <h1>메뉴바에 무엇을 보일지 고르고, 클릭 한 번으로 펼치고 접는 앱</h1>
   <p class="lede">macOS 상단 메뉴바에 상주하면서, 아이콘이 많아 복잡해진 메뉴바를 앱 단위로 숨기고, 필요할 때 펼쳐 보고, 순서를 정리할 수 있게 해 줍니다.</p>
   <div class="chips">
-    <span class="chip state">M4까지 구현 · 단축키·백업·진단 포함</span>
+    <span class="chip state">버전 1.0.0 배포 · M4까지 구현</span>
     <span class="chip">macOS 15+ 실행 · 숨김은 27에서 확인</span>
     <span class="chip">Swift 6 · SwiftUI + AppKit</span>
     <span class="chip">제품 코드 약 3,700줄 · 테스트 80개</span>
@@ -564,7 +564,7 @@
     <li><span class="dot">M3</span><h4>순서 조정 <span class="fr">FR-3</span> <span class="tag ok">구현</span></h4><p>설정 > 순서 탭: 순서 읽기, 목록 드래그, 적용. 숨긴 앱 포함, 시스템 항목은 고정, 모니터 두 대 대응. 직접 드래그해 적용하는 조작까지 확인됨.</p></li>
     <li><span class="dot">M4</span><h4>안정화·편의 <span class="fr">FR-7 ~ FR-9 · FR-19</span> <span class="tag ok">구현</span></h4><p>전역 단축키, 자가진단·진단 정보, 설정 백업, 시스템 아이콘 숨김, 알림 센터 열기, "메뉴바" 필터, 새 앱 "묻기", 응용 프로그램 폴더로 옮기기. 노치·전체 화면·잠자기 같은 환경별 점검은 남음.</p></li>
     <li class="next"><span class="dot">M5</span><h4>확장 <span class="fr">FR-10 ~ FR-13</span> <span class="tag warn">다음</span></h4><p>프로필, 자동 전환, 검색, 조건부 표시. 필요한 것만 골라서.</p></li>
-    <li><span class="dot">M6</span><h4>배포 <span class="fr">FR-15</span></h4><p>배포하기로 결정하면: 서명·공증, 자동 업데이트, 설치 파일.</p></li>
+    <li><span class="dot">M6</span><h4>배포 <span class="fr">FR-15</span> <span class="tag warn">일부</span></h4><p>1.0.0을 <a href="https://github.com/dohyoh/menubar-manager/releases">GitHub Releases</a>에 올림 (공증 없음 — 처음 열 때 경고를 풀어야 함). 공증, 자동 업데이트, 설치 파일(DMG), 라이선스는 남음.</p></li>
   </ol>
 
   <h3>직접 확인이 남은 것</h3>
@@ -600,6 +600,7 @@
         <tr><td class="nowrap"><a href="adr/0008-docs-system.md">0008</a></td><td>Markdown 원본 + HTML 한 장</td><td>개발 중 참조와 한눈에 보기는 필요한 형식이 다름</td><td><span class="tag ok">채택</span></td></tr>
         <tr><td class="nowrap"><a href="adr/0009-interaction-model.md">0009</a></td><td>좌클릭 토글, 우클릭 메뉴(숨기기 스위치·설정·정보), 관리·옵션은 설정 창</td><td>앱이 많으면 패널로 관리하기 어렵고, 가장 흔한 동작은 클릭 한 번이어야 함</td><td><span class="tag ok">채택</span></td></tr>
         <tr><td class="nowrap"><a href="adr/0010-install-location.md">0010</a></td><td>항상 <code>/Applications</code>에서 실행</td><td>그 밖에서는 자기 아이콘이 숨겨짐 (검증에서 확인)</td><td><span class="tag ok">채택</span></td></tr>
+        <tr><td class="nowrap"><a href="adr/0011-unnotarized-release.md">0011</a></td><td>1.0.0은 공증 없이 임시 서명한 zip으로 배포</td><td>Developer ID 인증서가 없어 공증 불가. 개발용 인증서는 개발자 이름이 들어가 쓰지 않음</td><td><span class="tag ok">채택</span></td></tr>
       </tbody>
     </table>
   </div>

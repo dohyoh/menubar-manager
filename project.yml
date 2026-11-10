@@ -32,7 +32,7 @@ targets:
         PRODUCT_NAME: MenuBarManager
         INFOPLIST_FILE: App/Info.plist
         GENERATE_INFOPLIST_FILE: NO
-        MARKETING_VERSION: "0.1.0"
+        MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
         SWIFT_VERSION: "6.0"
         # 비공개 API·접근성 사용 → 샌드박스 불가 (docs/adr/0007-distribution.md)

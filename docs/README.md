@@ -7,6 +7,7 @@
 
 | 항목 | 상태 |
 |---|---|
+| 버전 | **1.0.0** — [GitHub Releases](https://github.com/dohyoh/menubar-manager/releases)에 배포 (공증 없음, [ADR-0011](adr/0011-unnotarized-release.md)) |
 | 단계 | **M0~M4 기능 구현 완료** — 실제 앱(`/Applications/MenuBarManager.app`)에서 숨기기·펼치기·설정·정보·순서 조정·전역 단축키·시스템 아이콘 숨김·백업·진단이 동작. 숨김 중에도 시계를 누르면 알림 센터가 열림 |
 | 코드 | 제품 코드 약 3,600줄 (테스트 80개 통과). 구조는 [project-structure.md](architecture/project-structure.md). 저장소: [dohyoh/menubar-manager](https://github.com/dohyoh/menubar-manager) |
 | 다음 할 일 | ① 직접 써 보며 확인 (단축키 기록, 설정 내보내기/가져오기, 새 앱 "묻기") ② [M4의 남은 점검](plan/roadmap.md#m4--안정화편의) ③ M5(프로필 등) |
