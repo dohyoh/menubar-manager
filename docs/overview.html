@@ -226,9 +226,12 @@
   .mbar { border-radius: var(--radius) var(--radius) 0 0; position: relative; }
   .selfbtn { all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 22px; border-radius: 6px; background: var(--accent); position: relative; }
   .selfbtn:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
-  .selfbtn i { display: block; width: 13px; height: 11px; border: 1.5px solid var(--surface); border-radius: 3px; position: relative; }
-  .selfbtn i::after { content: ""; position: absolute; top: 0; bottom: 0; width: 50%; background: var(--surface); left: 0; transition: left .2s; }
-  .selfbtn.collapsed i::after { left: 50%; }
+  /* 커튼: 숨김 중에는 닫힌 커튼, 펼치면 양옆으로 걷힌 커튼 */
+  .selfbtn i { display: block; width: 14px; height: 12px; border-top: 1.5px solid var(--surface); position: relative; }
+  .selfbtn i::before, .selfbtn i::after { content: ""; position: absolute; top: 1px; bottom: 0; width: 2.5px; background: var(--surface); border-radius: 0 0 1px 1px; transition: width .2s; }
+  .selfbtn i::before { left: 1px; }
+  .selfbtn i::after { right: 1px; }
+  .selfbtn.collapsed i::before, .selfbtn.collapsed i::after { width: 5.5px; }
   .ctx { position: absolute; top: 36px; right: 10px; z-index: 5; min-width: 220px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 14px 34px rgba(0,0,0,.22); padding: 5px; font-size: 13.5px; display: none; }
   .ctx.open { display: block; }
   .ctx button { all: unset; box-sizing: border-box; display: flex; justify-content: space-between; gap: 12px; width: 100%; padding: 5px 10px; border-radius: 6px; cursor: pointer; color: var(--text); }

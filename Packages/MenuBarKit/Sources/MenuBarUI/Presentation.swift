@@ -5,15 +5,18 @@ import MenuBarDomain
 /// 상태를 사용자에게 보여 주는 문구·아이콘. 한곳에 모아 메뉴·설정 창·아이콘이 같은 말을 쓰게 한다.
 public enum StatePresentation {
     /// 메뉴바 아이콘 (SF Symbol 이름)
-    ///  - 숨김 적용 중: 오른쪽 절반이 채워진 네모
-    ///  - 전부 표시 (잠깐 펼침, 또는 숨기기를 끔): 왼쪽 절반이 채워진 네모
+    ///  - 숨김 적용 중: 닫힌 커튼
+    ///  - 전부 표시 (잠깐 펼침, 또는 숨기기를 끔): 열린 커튼
     ///  - 숨김을 켤 수 없는 상태: 느낌표 네모
+    ///
+    /// 펼치면 숨긴 앱이 이 아이콘의 양옆에 나타나므로, 한쪽을 가리키는 화살표 대신
+    /// 가운데에서 양쪽으로 열리는 모양을 쓴다.
     public static func symbolName(for state: ManagerState) -> String {
         switch state {
         case .collapsed:
-            return "square.righthalf.filled"
+            return "curtains.closed"
         case .expanded, .reordering, .paused(.userOff), .paused(.error):
-            return "square.lefthalf.filled"
+            return "curtains.open"
         case .paused(.notInstalledInApplications), .paused(.unsupported):
             return "exclamationmark.square"
         }
