@@ -233,3 +233,25 @@ struct MenuBarFilterTests {
         #expect(out.map(\.bundleID) == ["com.a", "com.b"])
     }
 }
+
+@Suite("단축키 표기")
+struct HotkeyFormatterTests {
+    @Test("조합 키는 ⌃⌥⇧⌘ 순서로, 키는 자판에 적힌 이름으로 보여 준다")
+    func formatsCombination() {
+        let all = HotkeyFormatter.control | HotkeyFormatter.option | HotkeyFormatter.shift | HotkeyFormatter.command
+        #expect(HotkeyFormatter.display(keyCode: 16, modifiers: all) == "⌃⌥⇧⌘Y")
+        #expect(HotkeyFormatter.display(keyCode: 49, modifiers: HotkeyFormatter.option) == "⌥Space")
+        #expect(HotkeyFormatter.display(keyCode: 80, modifiers: HotkeyFormatter.command) == "⌘F19")
+    }
+
+    @Test("입력 소스가 한글이어도 눌린 글자가 아니라 키 이름을 쓴다")
+    func ignoresTypedCharacterForKnownKeys() {
+        #expect(HotkeyFormatter.display(keyCode: 16, modifiers: HotkeyFormatter.command, fallback: "ㅛ") == "⌘Y")
+    }
+
+    @Test("표에 없는 키는 입력된 글자를, 그것도 없으면 키 코드를 보여 준다")
+    func fallsBack() {
+        #expect(HotkeyFormatter.display(keyCode: 10, modifiers: HotkeyFormatter.command, fallback: "§") == "⌘§")
+        #expect(HotkeyFormatter.display(keyCode: 10, modifiers: HotkeyFormatter.command) == "⌘#10")
+    }
+}

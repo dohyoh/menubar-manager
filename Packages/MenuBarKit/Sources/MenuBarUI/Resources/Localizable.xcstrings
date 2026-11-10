@@ -501,6 +501,16 @@
         }
       }
     },
+    "설정 > 일반에서 \"숨긴 앱 펼치기 / 숨기기\"와 \"설정 열기\"에 키 조합을 지정하면, 어느 앱을 쓰는 중이든 그 키로 실행합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Settings > General, assign key combinations to \"Expanding and hiding hidden apps\" and \"Open Settings\" to run them from any app."
+          }
+        }
+      }
+    },
     "설정 > 일반에서 켜 두면, 좌클릭으로 펼친 뒤 지정한 시간이 지나면 자동으로 다시 숨깁니다. 펼친 아이콘의 메뉴를 쓰는 동안에는 숨기지 않습니다.": {
       "localizations": {
         "en": {
@@ -781,6 +791,16 @@
         }
       }
     },
+    "숨김 중에도 메뉴바의 시계를 누르면 알림 센터가 열립니다 (열려 있는 동안 숨긴 아이콘이 잠깐 보입니다). 트랙패드를 쓸어서 여는 경우에는 먼저 이 앱 아이콘을 좌클릭해 펼쳐 주세요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clicking the clock in the menu bar opens Notification Center even while hiding is on (hidden icons show briefly while it is open). If you open it by swiping on the trackpad, click this app's icon first to expand."
+          }
+        }
+      }
+    },
     "스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 목록에는 메뉴바 아이콘이 없는 앱도 포함됩니다 — 순서 탭에서 접근성 권한을 허용하면 메뉴바에 있는 앱만 볼 수 있습니다. 제어 센터에서 메뉴바로 꺼낸 항목(타이머 등)은 숨김 중에는 항상 숨겨집니다.": {
       "localizations": {
         "en": {
@@ -901,6 +921,16 @@
         }
       }
     },
+    "알림 센터": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notification Center"
+          }
+        }
+      }
+    },
     "알아 둘 점": {
       "localizations": {
         "en": {
@@ -951,12 +981,12 @@
         }
       }
     },
-    "우클릭 > 설정…의 \"메뉴바 관리\"에서 앱별 스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 앱이 많으면 검색과 필터로 찾습니다.": {
+    "우클릭 > 설정…의 \"메뉴바 관리\"에서 앱별 스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 앱이 많으면 검색과 필터로 찾습니다. 목록 아래쪽에서 Wi-Fi·배터리 같은 시스템 아이콘도 고를 수 있습니다.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "In right-click > Settings… > \"Menu Bar\", turn off an app's switch to hide its icon. Use search and filters when you have many apps."
+            "value": "In Right-click > Settings…, under \"Menu Bar\", turn off an app's switch to hide its icon. Use search and filters if you have many apps. System icons such as Wi-Fi and Battery are at the bottom of the list."
           }
         }
       }

@@ -327,6 +327,37 @@ struct StoreTests {
         #expect(JSONStateStore(directory: dir).load() == state)
     }
 
+    @Test("깨진 파일은 기본값으로 덮어쓰기 전에 사본으로 남긴다")
+    func corruptFileIsPreserved() throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("mbm-test-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: dir) }
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        try Data("{ broken".utf8).write(to: dir.appendingPathComponent("state.json"))
+        let store = JSONStateStore(directory: dir)
+        #expect(store.load() == PersistedState())
+        store.save(PersistedState())   // 기본값으로 덮어써도
+        #expect(try String(contentsOf: store.unreadableCopyURL, encoding: .utf8) == "{ broken")   // 원래 내용은 남아 있다
+    }
+
+    @Test("더 새로운 버전이 쓴 파일은 읽지 않고 사본으로 남긴다")
+    func newerSchemaIsPreserved() throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("mbm-test-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let store = JSONStateStore(directory: dir)
+        store.save(PersistedState(schemaVersion: PersistedState.currentSchemaVersion + 1, layout: Layout(hiddenApps: ["x"])))
+        #expect(store.load() == PersistedState())
+        #expect(FileManager.default.fileExists(atPath: store.unreadableCopyURL.path))
+    }
+
+    @Test("파일이 없으면(첫 실행) 사본을 만들지 않는다")
+    func firstRunMakesNoCopy() {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("mbm-test-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let store = JSONStateStore(directory: dir)
+        #expect(store.load() == PersistedState())
+        #expect(!FileManager.default.fileExists(atPath: store.unreadableCopyURL.path))
+    }
+
     @Test("깨진 파일이면 기본값으로 시작한다")
     func corruptFileFallsBack() throws {
         let dir = FileManager.default.temporaryDirectory.appendingPathComponent("mbm-test-\(UUID().uuidString)")
@@ -459,6 +490,23 @@ struct M4Tests {
         #expect(target.visibility.restrictCalls.last?.bundleIDs == ["com.b", "me"])
     }
 
+    @Test("더 새로운 형식의 설정 파일은 가져오지 않는다")
+    func importRejectsNewerSchema() async {
+        let rig = Rig(hidden: ["com.a"])
+        await rig.coordinator.start()
+        let newer = PersistedState(schemaVersion: PersistedState.currentSchemaVersion + 1, layout: Layout(hiddenApps: ["com.b"]))
+        #expect(await rig.coordinator.importState(newer) == false)
+        #expect(rig.coordinator.layout.hiddenApps == ["com.a"])
+    }
+
+    @Test("가져온 설정의 잘못된 시간 값은 기본값으로 바꾼다")
+    func importSanitizesSeconds() async {
+        let rig = Rig(hidden: [])
+        await rig.coordinator.start()
+        #expect(await rig.coordinator.importState(PersistedState(options: Options(hidingEnabled: false, autoRehideSeconds: 0))))
+        #expect(rig.coordinator.options.autoRehideSeconds == Options().autoRehideSeconds)
+    }
+
     @Test("단축키를 바꾸면 저장하고 알린다")
     func hotkeyChangeNotifies() async {
         let rig = Rig()
@@ -515,6 +563,24 @@ struct AskPolicyTests {
         #expect(a.coordinator.layout.hiddenApps.isEmpty)          // 정하기 전에는 표시
         #expect(pendingCount == 1)
         #expect(a.coordinator.menuBarApps == ["com.withicon"])
+    }
+
+    @Test("아이콘을 조사하기 전에 허용 목록부터 갱신해 새 앱이 바로 보이게 한다")
+    func reappliesBeforeInvestigating() async {
+        let rig = Rig(hidden: [])
+        let bar = FakeBar(order: [], visibility: rig.visibility)
+        var restrictCallsAtPause = -1
+        let coordinator = MenuBarCoordinator(visibility: rig.visibility, discovery: rig.discovery, presence: rig.presence, store: rig.store,
+                                             scheduler: rig.scheduler, activity: rig.activity, permission: FakePermission(), itemDiscovery: bar,
+                                             pause: { _ in restrictCallsAtPause = rig.visibility.restrictCalls.count })
+        await coordinator.start()
+        let before = rig.visibility.restrictCalls.count
+        coordinator.setNewAppPolicy(.ask)
+        rig.discovery.apps.append(ManagedApp(bundleID: "com.new", name: "New", isRunning: true))
+        rig.discovery.onChange?()
+        await settle()
+        #expect(restrictCallsAtPause == before + 1)
+        #expect(rig.visibility.restrictCalls[before].bundleIDs.contains("com.new"))
     }
 
     @Test("숨김으로 정하면 숨길 앱에 들어가고 목록에서 빠진다")

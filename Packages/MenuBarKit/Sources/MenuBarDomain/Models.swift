@@ -90,6 +90,39 @@ public struct Hotkey: Codable, Equatable, Sendable {
     }
 }
 
+/// 단축키를 화면에 보여 줄 글자로 바꾼다.
+public enum HotkeyFormatter {
+    // Carbon 의 조합 키 값
+    public static let command: UInt32 = 256
+    public static let shift: UInt32 = 512
+    public static let option: UInt32 = 2048
+    public static let control: UInt32 = 4096
+
+    /// 키 코드 → 자판에 적힌 이름. 입력 소스가 한글이어도 "ㅛ"가 아니라 "Y"로 보여 주려고
+    /// 눌린 글자가 아닌 키 위치로 정한다 (미국식 자판 기준).
+    static let keyNames: [UInt32: String] = [
+        0: "A", 1: "S", 2: "D", 3: "F", 4: "H", 5: "G", 6: "Z", 7: "X", 8: "C", 9: "V", 11: "B", 12: "Q", 13: "W", 14: "E", 15: "R",
+        16: "Y", 17: "T", 18: "1", 19: "2", 20: "3", 21: "4", 22: "6", 23: "5", 24: "=", 25: "9", 26: "7", 27: "-", 28: "8", 29: "0",
+        30: "]", 31: "O", 32: "U", 33: "[", 34: "I", 35: "P", 36: "↩", 37: "L", 38: "J", 39: "'", 40: "K", 41: ";", 42: "\\", 43: ",",
+        44: "/", 45: "N", 46: "M", 47: ".", 48: "⇥", 49: "Space", 50: "`", 51: "⌫", 53: "⎋", 117: "⌦",
+        115: "↖", 119: "↘", 116: "⇞", 121: "⇟", 123: "←", 124: "→", 125: "↓", 126: "↑",
+        122: "F1", 120: "F2", 99: "F3", 118: "F4", 96: "F5", 97: "F6", 98: "F7", 100: "F8", 101: "F9", 109: "F10", 103: "F11", 111: "F12",
+        105: "F13", 107: "F14", 113: "F15", 106: "F16", 64: "F17", 79: "F18", 80: "F19", 90: "F20",
+    ]
+
+    /// - Parameter fallback: 표에 없는 키일 때 쓸 글자 (그 키로 입력된 문자)
+    public static func display(keyCode: UInt32, modifiers: UInt32, fallback: String = "") -> String {
+        var text = ""
+        if modifiers & control != 0 { text += "⌃" }
+        if modifiers & option != 0 { text += "⌥" }
+        if modifiers & shift != 0 { text += "⇧" }
+        if modifiers & command != 0 { text += "⌘" }
+        if let name = keyNames[keyCode] { return text + name }
+        let key = fallback.uppercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        return text + (key.isEmpty ? "#\(keyCode)" : key)
+    }
+}
+
 /// 처음 보는 앱이 나타났을 때.
 public enum NewAppPolicy: String, Codable, Sendable, CaseIterable {
     /// 그대로 표시 (기본)

@@ -246,7 +246,7 @@ protocol CompatibilityChecking: Sendable {
 ### 7.4 새 앱 실행 (FR-6)
 
 ```
-앱 실행 알림 (AppDiscovering.onChange)
+실행 중인 앱 목록이 바뀜 (AppDiscovering.onChange — Dock 에 나오지 않는 앱도 잡으려고 목록 자체를 관찰)
   → 정책이 .ask 면 1.5초 기다린 뒤 메뉴바 아이콘을 가진 앱을 조사 (접근성 권한 필요)
   → 처음 보는 앱이면 newAppPolicy 적용   // NewAppRule
        .show: 그대로 / .hide: hiddenApps 에 추가

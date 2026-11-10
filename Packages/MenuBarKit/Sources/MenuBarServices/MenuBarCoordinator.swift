@@ -242,17 +242,22 @@ public final class MenuBarCoordinator {
     }
 
     /// 내보낸 설정을 불러와 적용한다. 숨기기 켜짐/꺼짐도 파일의 값을 따른다.
-    public func importState(_ imported: PersistedState) async {
+    /// - Returns: 적용했으면 true. 이 버전이 모르는 더 새로운 형식이면 아무것도 바꾸지 않고 false.
+    @discardableResult
+    public func importState(_ imported: PersistedState) async -> Bool {
+        guard imported.schemaVersion <= PersistedState.currentSchemaVersion else { return false }
         layout = imported.layout
         var newOptions = imported.options
         newOptions.didShowWelcome = true
+        if newOptions.autoRehideSeconds < 1 { newOptions.autoRehideSeconds = Options().autoRehideSeconds }
         options = newOptions
         persist()
         onHotkeysChange?(options.hotkeys)
         onPendingChange?(layout.pendingApps.count)
         refreshApps()
-        guard state != .reordering else { return }
+        guard state != .reordering else { return true }
         await setHidingEnabled(options.hidingEnabled)
+        return true
     }
 
     public func markWelcomeShown() {
@@ -339,6 +344,8 @@ public final class MenuBarCoordinator {
         // "묻기" 정책은 새 앱이 메뉴바 아이콘을 가졌는지 알아야 한다. 아이콘이 만들어질 시간을 준 뒤 조사한다.
         if layout.newAppPolicy == .ask, itemDiscovery != nil, permission?.isAccessibilityGranted == true,
            !Set(apps.map(\.bundleID)).subtracting(layout.knownApps).isEmpty {
+            // 조사에 몇 초 걸린다. 그동안 새 앱의 아이콘이 가려져 있지 않도록 허용 목록부터 갱신한다.
+            if state == .collapsed { await applyHiding() }
             await pause(Self.newAppSettleMilliseconds)
             await refreshMenuBarApps()
             refreshApps()

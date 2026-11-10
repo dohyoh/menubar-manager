@@ -223,7 +223,8 @@ public final class MenuBarActivityChecker: MenuBarActivityChecking {
     public func isNotificationCenterOpen() -> Bool {
         guard let pid = NSRunningApplication.runningApplications(withBundleIdentifier: Self.notificationCenterBundleID).first?.processIdentifier else { return false }
         let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]] ?? []
-        guard windows.contains(where: { ($0[kCGWindowOwnerPID as String] as? pid_t) == pid }) else { return false }
+        // 데스크탑에 놓인 위젯도 이 프로세스의 창이다. 일반 창보다 위에 뜬 창(패널·배너)만 본다.
+        guard windows.contains(where: { ($0[kCGWindowOwnerPID as String] as? pid_t) == pid && (($0[kCGWindowLayer as String] as? Int) ?? 0) > 0 }) else { return false }
         guard AXIsProcessTrusted() else { return true }
         return Self.containsElement(withIdentifier: "widget-editor-button", inApplication: pid)
     }
@@ -344,9 +345,40 @@ public final class ClockClickMonitor {
             if inBar && inZone {
                 // AppKit 좌표(왼쪽 아래 원점)를 이벤트·접근성 좌표(왼쪽 위 원점)로 바꾼다.
                 let primaryHeight = NSScreen.screens.first?.frame.height ?? screen.frame.height
-                onMouseDown?(CGPoint(x: pointer.x, y: primaryHeight - pointer.y))
+                let point = CGPoint(x: pointer.x, y: primaryHeight - pointer.y)
+                // 전체 화면처럼 메뉴바가 가려져 있으면 그 자리는 다른 앱의 화면이다.
+                guard isMenuBar(at: point) else { return }
+                onMouseDown?(point)
                 return
             }
+        }
+    }
+
+    private static let menuBarBundleID = "com.apple.MenuBarAgent"
+
+    /// 그 지점(왼쪽 위 원점 좌표)에 지금 메뉴바가 그려져 있는가.
+    ///
+    /// 접근성 권한이 있으면 그 자리의 요소가 메뉴바 프로세스의 것인지 본다 (정확).
+    /// 없으면 메뉴바 프로세스의 창이 그 지점을 덮고 있는지로 대신한다.
+    public func isMenuBar(at point: CGPoint) -> Bool {
+        guard let menuBarPID = NSRunningApplication.runningApplications(withBundleIdentifier: Self.menuBarBundleID).first?.processIdentifier else {
+            return true   // 메뉴바 프로세스를 찾지 못하는 macOS 에서는 판단하지 않는다
+        }
+        if AXIsProcessTrusted() {
+            let systemWide = AXUIElementCreateSystemWide()
+            AXUIElementSetMessagingTimeout(systemWide, 0.2)
+            var element: AXUIElement?
+            guard AXUIElementCopyElementAtPosition(systemWide, Float(point.x), Float(point.y), &element) == .success, let element else { return false }
+            var pid: pid_t = 0
+            AXUIElementGetPid(element, &pid)
+            return pid == menuBarPID
+        }
+        let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]] ?? []
+        return windows.contains { window in
+            guard (window[kCGWindowOwnerPID as String] as? pid_t) == menuBarPID,
+                  let bounds = window[kCGWindowBounds as String] as? [String: Any],
+                  let rect = CGRect(dictionaryRepresentation: bounds as CFDictionary) else { return false }
+            return rect.contains(point)
         }
     }
 }

@@ -152,8 +152,9 @@ struct GeneralSettingsView: View {
         do {
             let state = try JSONDecoder().decode(PersistedState.self, from: Data(contentsOf: url))
             Task {
-                await coordinator.importState(state)
-                backupMessage = L("설정을 가져와 적용했습니다.")
+                backupMessage = await coordinator.importState(state)
+                    ? L("설정을 가져와 적용했습니다.")
+                    : L("이 파일은 가져올 수 없습니다. MenuBarManager 에서 내보낸 설정 파일인지 확인해 주세요.")
             }
         } catch {
             backupMessage = L("이 파일은 가져올 수 없습니다. MenuBarManager 에서 내보낸 설정 파일인지 확인해 주세요.")
@@ -210,6 +211,10 @@ private struct HotkeyRecorder: View {
             }
         }
         .onDisappear { stop() }
+        // 기록 중에 창을 닫거나 다른 창으로 가면 기록을 끝낸다 (키 입력을 계속 가로채지 않도록).
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didResignKeyNotification)) { _ in
+            if isRecording { stop() }
+        }
     }
 
     private func start() {
@@ -223,7 +228,9 @@ private struct HotkeyRecorder: View {
                 if Int(keyCode) == kVK_Escape {
                     stop()
                 } else if !flags.intersection([.command, .control, .option]).isEmpty {
-                    onChange(Hotkey(keyCode: UInt32(keyCode), modifiers: Self.carbonModifiers(flags), display: Self.display(keyCode: keyCode, characters: characters, flags: flags)))
+                    let modifiers = Self.carbonModifiers(flags)
+                    onChange(Hotkey(keyCode: UInt32(keyCode), modifiers: modifiers,
+                                    display: HotkeyFormatter.display(keyCode: UInt32(keyCode), modifiers: modifiers, fallback: characters)))
                     stop()
                 }
             }
@@ -244,22 +251,5 @@ private struct HotkeyRecorder: View {
         if flags.contains(.control) { result |= UInt32(controlKey) }
         if flags.contains(.shift) { result |= UInt32(shiftKey) }
         return result
-    }
-
-    private static func display(keyCode: UInt16, characters: String, flags: NSEvent.ModifierFlags) -> String {
-        var text = ""
-        if flags.contains(.control) { text += "⌃" }
-        if flags.contains(.option) { text += "⌥" }
-        if flags.contains(.shift) { text += "⇧" }
-        if flags.contains(.command) { text += "⌘" }
-        let special: [Int: String] = [
-            kVK_Space: "Space", kVK_Return: "↩", kVK_Tab: "⇥", kVK_Delete: "⌫",
-            kVK_LeftArrow: "←", kVK_RightArrow: "→", kVK_UpArrow: "↑", kVK_DownArrow: "↓",
-            kVK_F1: "F1", kVK_F2: "F2", kVK_F3: "F3", kVK_F4: "F4", kVK_F5: "F5", kVK_F6: "F6",
-            kVK_F7: "F7", kVK_F8: "F8", kVK_F9: "F9", kVK_F10: "F10", kVK_F11: "F11", kVK_F12: "F12",
-        ]
-        if let name = special[Int(keyCode)] { return text + name }
-        let key = characters.uppercased().trimmingCharacters(in: .whitespacesAndNewlines)
-        return text + (key.isEmpty ? "#\(keyCode)" : key)
     }
 }

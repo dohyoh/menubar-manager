@@ -17,10 +17,21 @@ public final class JSONStateStore: StateStoring {
         self.init(directory: base.appendingPathComponent("MenuBarManager"))
     }
 
+    /// 읽지 못한 설정 파일을 옮겨 두는 곳. 기본값으로 덮어쓰기 전에 사본을 남긴다.
+    public var unreadableCopyURL: URL { fileURL.deletingLastPathComponent().appendingPathComponent("state.unreadable.json") }
+
     public func load() -> PersistedState {
-        guard let data = try? Data(contentsOf: fileURL),
-              var state = try? JSONDecoder().decode(PersistedState.self, from: data)
-        else { return PersistedState() }
+        // 파일이 없으면 첫 실행이다.
+        guard let data = try? Data(contentsOf: fileURL) else { return PersistedState() }
+        // 깨졌거나 더 새로운 버전이 쓴 파일이면, 기본값으로 시작하되 원래 파일은 사본으로 남긴다.
+        // (그러지 않으면 다음 저장 때 숨길 앱 목록이 조용히 사라진다.)
+        guard var state = try? JSONDecoder().decode(PersistedState.self, from: data),
+              state.schemaVersion <= PersistedState.currentSchemaVersion
+        else {
+            try? FileManager.default.removeItem(at: unreadableCopyURL)
+            try? FileManager.default.copyItem(at: fileURL, to: unreadableCopyURL)
+            return PersistedState()
+        }
         // 손으로 고친 파일 등 비정상 값 방어
         if state.options.autoRehideSeconds < 1 { state.options.autoRehideSeconds = Options().autoRehideSeconds }
         return state

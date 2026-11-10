@@ -10,22 +10,43 @@ public final class WorkspaceAppDiscovery: AppDiscovering {
     public var onChange: (@MainActor () -> Void)?
 
     private let selfBundleID: BundleID
-    private var observers: [NSObjectProtocol] = []
+    private var runningObservation: NSKeyValueObservation?
+    private var lastRunning: Set<BundleID> = []
+    private var pendingNotify: Task<Void, Never>?
+    /// 앱이 여러 개 한꺼번에 뜨고 질 때 한 번만 알리도록 잠깐 모은다.
+    private static let notifyDelayMilliseconds = 300
     /// 설치된 앱 목록은 디스크를 훑어야 하므로 잠깐 캐시한다.
     private var installedCache: (apps: [ManagedApp], at: Date)?
     private static let installedCacheLifetime: TimeInterval = 30
 
     public init(selfBundleID: BundleID) {
         self.selfBundleID = selfBundleID
-        let center = NSWorkspace.shared.notificationCenter
-        for name in [NSWorkspace.didLaunchApplicationNotification, NSWorkspace.didTerminateApplicationNotification] {
-            observers.append(center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
-                MainActor.assumeIsolated { self?.onChange?() }
-            })
+        lastRunning = Self.runningBundleIDs()
+        // 앱 실행 알림(didLaunchApplicationNotification)은 Dock 에 나오지 않는 앱에는 오지 않는다 (검증됨).
+        // 메뉴바 앱은 대부분 그런 앱이라, 실행 중인 앱 목록 자체를 관찰한다. (platform-notes 3.27)
+        runningObservation = NSWorkspace.shared.observe(\.runningApplications) { [weak self] _, _ in
+            Task { @MainActor in self?.runningApplicationsChanged() }
         }
     }
 
-    // 앱이 살아 있는 동안 하나만 유지되므로 관찰자를 따로 해제하지 않는다.
+    // 앱이 살아 있는 동안 하나만 유지되므로 관찰을 따로 해제하지 않는다.
+
+    private static func runningBundleIDs() -> Set<BundleID> {
+        Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
+    }
+
+    private func runningApplicationsChanged() {
+        let now = Self.runningBundleIDs()
+        // 같은 앱의 프로세스가 늘고 주는 것은 허용 목록과 무관하다.
+        guard now != lastRunning else { return }
+        lastRunning = now
+        pendingNotify?.cancel()
+        pendingNotify = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(Self.notifyDelayMilliseconds))
+            guard !Task.isCancelled else { return }
+            self?.onChange?()
+        }
+    }
 
     public func knownBundleIDs() -> [BundleID] {
         // 허용 목록용: 시스템 프로세스까지 전부 포함한다. 빠뜨리면 그 앱의 아이콘이 숨겨진다.

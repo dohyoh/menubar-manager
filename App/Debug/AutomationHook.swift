@@ -134,6 +134,10 @@ final class AutomationHook {
         case "winsize":
             guard parts.count >= 3, let w = Double(parts[1]), let h = Double(parts[2]) else { return log("usage: winsize <w> <h>") }
             delegate?.resizeSettings(to: NSSize(width: w, height: h))
+        case "hit":
+            // hit <x> <y>: 그 지점이 메뉴바로 판정되는지 (시계 클릭 감지 검증용)
+            guard parts.count >= 3, let x = Double(parts[1]), let y = Double(parts[2]) else { return log("usage: hit <x> <y>") }
+            log("HIT (\(Int(x)),\(Int(y))) isMenuBar=\(delegate?.debugIsMenuBar(at: CGPoint(x: x, y: y)) ?? false)")
         case "key":
             // key <keycode>: ⌃⌥⇧⌘ + 그 키를 합성해 누른다 (다른 프로세스의 단축키 실험용)
             guard let code = parts.dropFirst().first.flatMap({ UInt16($0) }) else { return log("usage: key <keycode>") }

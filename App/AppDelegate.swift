@@ -125,7 +125,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 try? await Task.sleep(for: .milliseconds(50))
             }
             try? await Task.sleep(for: .milliseconds(300))
-            guard coordinator.state == .expanded, !activityChecker.isNotificationCenterOpen() else { return }
+            // 한 번 더 누르기 전에, 그 자리에 여전히 메뉴바가 있는지 다시 확인한다 (다른 앱의 버튼을 누르지 않도록).
+            guard coordinator.state == .expanded, !activityChecker.isNotificationCenterOpen(), clockMonitor.isMenuBar(at: point) else { return }
             try? await reorderer.click(at: point)
         }
     }
@@ -142,6 +143,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     #if DEBUG
+    func debugIsMenuBar(at point: CGPoint) -> Bool { clockMonitor.isMenuBar(at: point) }
+
     /// 자동 검증용: 임시 단축키(⌃⌥⇧⌘Y)를 "설정 열기"에 걸고 그 키를 합성해 눌러, 설정 창이 뜨는지 본다.
     /// 저장된 설정은 바꾸지 않고, 끝나면 저장된 단축키로 되돌린다.
     /// (합성한 기능 키 F13~F19 는 단축키로 인식되지 않아 글자 키를 쓴다 — platform-notes 3.25)
