@@ -1,0 +1,1366 @@
+{
+  "sourceLanguage": "ko",
+  "strings": {
+    "\"%@\"에 해당하는 앱이 없습니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No apps match \"%@\"."
+          }
+        }
+      }
+    },
+    "\"메뉴바에서 순서 읽기\"를 눌러 현재 순서를 가져오세요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click \"Read Order from Menu Bar\" to load the current order."
+          }
+        }
+      }
+    },
+    "\"숨김\"으로 두면 앞으로 처음 나타나는 앱이 숨길 앱에 자동으로 추가됩니다. \"묻기\"는 메뉴바 아이콘을 가진 새 앱을 \"메뉴바 관리\"의 \"새로 나타난 앱\"에 올려 두고 정하게 합니다 (접근성 권한이 필요하며, 없으면 \"표시\"처럼 동작합니다). 이미 있는 앱에는 영향이 없습니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Hide\" adds apps that appear for the first time to the hidden apps automatically. \"Ask\" lists new apps that have a menu bar icon under \"New Apps\" in Menu Bar so you can decide (needs Accessibility permission; without it, behaves like \"Show\"). Apps you already have aren't affected."
+          }
+        }
+      }
+    },
+    "%@ 메뉴바에 표시": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show %@ in the menu bar"
+          }
+        }
+      }
+    },
+    "%@ 사용법": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How to use %@"
+          }
+        }
+      }
+    },
+    "%lld개": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        }
+      }
+    },
+    "%lld초": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sec"
+          }
+        }
+      }
+    },
+    "Finder에서 보기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show in Finder"
+          }
+        }
+      }
+    },
+    "Finder에서 앱을 응용 프로그램 폴더로 직접 끌어 옮긴 뒤 다시 실행해 주세요. (%@)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag the app into the Applications folder in Finder, then open it again. (%@)"
+          }
+        }
+      }
+    },
+    "MenuBarManager — 순서 작업 중": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MenuBarManager — Reordering"
+          }
+        }
+      }
+    },
+    "MenuBarManager — 숨기기 꺼짐 (전부 표시)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MenuBarManager — Hiding off (showing all)"
+          }
+        }
+      }
+    },
+    "MenuBarManager — 숨김 적용 중": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MenuBarManager — Hiding"
+          }
+        }
+      }
+    },
+    "MenuBarManager — 숨김을 켤 수 없음": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MenuBarManager — Hiding unavailable"
+          }
+        }
+      }
+    },
+    "MenuBarManager — 펼침": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MenuBarManager — Expanded"
+          }
+        }
+      }
+    },
+    "MenuBarManager는 응용 프로그램 폴더에서 실행해야 숨김 기능을 쓸 수 있습니다. 다른 위치에서는 숨김을 켜면 이 앱의 아이콘도 함께 사라지기 때문에 숨김을 꺼 두었습니다. 응용 프로그램 폴더로 옮기면 그곳에서 다시 실행합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MenuBarManager has to run from the Applications folder to hide icons. Anywhere else, turning hiding on would also hide this app's own icon, so hiding has been turned off. Moving it to Applications relaunches it from there."
+          }
+        }
+      }
+    },
+    "Wi-Fi": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wi-Fi"
+          }
+        }
+      }
+    },
+    "끄면 숨기기가 켜져 있는 동안 그 아이콘도 숨깁니다. 시계와 제어 센터는 숨기지 않습니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When off, that icon is hidden too while hiding is on. The clock and Control Center are never hidden."
+          }
+        }
+      }
+    },
+    "나중에": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not Now"
+          }
+        }
+      }
+    },
+    "내보내지 못했습니다: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't export: %@"
+          }
+        }
+      }
+    },
+    "다시 숨기기까지": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide again after"
+          }
+        }
+      }
+    },
+    "다시 확인": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check Again"
+          }
+        }
+      }
+    },
+    "단축키 기록": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Record Shortcut"
+          }
+        }
+      }
+    },
+    "닫기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        }
+      }
+    },
+    "되돌리기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revert"
+          }
+        }
+      }
+    },
+    "로그인 시 실행": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Launch at login"
+          }
+        }
+      }
+    },
+    "로그인 항목을 바꾸지 못했습니다: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not change the login item: %@"
+          }
+        }
+      }
+    },
+    "로그인할 때 자동으로 실행": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Launch at login"
+          }
+        }
+      }
+    },
+    "로그인할 때 자동으로 실행됩니다": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Launches automatically at login"
+          }
+        }
+      }
+    },
+    "메뉴바": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menu Bar"
+          }
+        }
+      }
+    },
+    "메뉴바 관리": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menu Bar"
+          }
+        }
+      }
+    },
+    "메뉴바 아이콘 옮기기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moving menu bar icons"
+          }
+        }
+      }
+    },
+    "메뉴바 아이콘을 가진 앱": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apps with a Menu Bar Icon"
+          }
+        }
+      }
+    },
+    "메뉴바 아이콘을 좌클릭해 펼친 경우에만 적용됩니다. 펼친 아이콘의 메뉴를 쓰는 동안에는 숨기지 않습니다. 우클릭 메뉴의 숨기기 스위치로 끈 경우에는 다시 켤 때까지 숨기지 않습니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Applies only when you expand by clicking the menu bar icon. Icons are not hidden while you are using an expanded icon's menu. If you turn hiding off with the switch in the right-click menu, nothing is hidden until you turn it back on."
+          }
+        }
+      }
+    },
+    "메뉴바에서 순서 읽기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read Order from Menu Bar"
+          }
+        }
+      }
+    },
+    "메뉴바에서 순서를 읽는 중…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading the order from the menu bar…"
+          }
+        }
+      }
+    },
+    "메뉴바의 이 앱 아이콘을 좌클릭합니다. 한 번 누르면 숨긴 앱이 모두 나타나고, 다시 누르면 숨습니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click this app's icon in the menu bar. One click reveals every hidden app; click again to hide them."
+          }
+        }
+      }
+    },
+    "메뉴바의 현재 순서입니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is the current menu bar order."
+          }
+        }
+      }
+    },
+    "목록을 드래그해 순서를 바꾼 뒤 \"적용\"을 누르세요. 위가 메뉴바의 왼쪽입니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag rows to reorder, then click \"Apply\". The top of the list is the left side of the menu bar."
+          }
+        }
+      }
+    },
+    "묻기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask"
+          }
+        }
+      }
+    },
+    "바꾼 순서는 아직 적용되지 않았습니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your changes have not been applied yet."
+          }
+        }
+      }
+    },
+    "배터리": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Battery"
+          }
+        }
+      }
+    },
+    "백업": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup"
+          }
+        }
+      }
+    },
+    "버전 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@"
+          }
+        }
+      }
+    },
+    "버튼을 누른 뒤 ⌘·⌃·⌥ 중 하나 이상을 포함한 키 조합을 누르세요. Esc 로 취소합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click the button, then press a key combination that includes at least one of ⌘, ⌃, or ⌥. Press Esc to cancel."
+          }
+        }
+      }
+    },
+    "복사했습니다": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied"
+          }
+        }
+      }
+    },
+    "새로 나타난 앱": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Apps"
+          }
+        }
+      }
+    },
+    "새로 나타난 앱 %@개…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ New Apps…"
+          }
+        }
+      }
+    },
+    "새로 설치하거나 처음 실행한 앱": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Newly installed or first-run apps"
+          }
+        }
+      }
+    },
+    "설정": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        }
+      }
+    },
+    "설정 > 순서에서 목록을 드래그해 바꾼 뒤 적용합니다 (접근성 권한 필요). 또는 ⌘(Command) 키를 누른 채 메뉴바의 아이콘을 직접 좌우로 드래그해도 됩니다. 숨긴 앱은 먼저 펼친 다음 옮깁니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Settings > Order, drag rows to reorder and click Apply (requires Accessibility permission). You can also hold ⌘ (Command) and drag an icon left or right directly in the menu bar. To move a hidden app, expand first."
+          }
+        }
+      }
+    },
+    "설정 > 일반에서 켜 두면, 좌클릭으로 펼친 뒤 지정한 시간이 지나면 자동으로 다시 숨깁니다. 펼친 아이콘의 메뉴를 쓰는 동안에는 숨기지 않습니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When enabled in Settings > General, icons hide again automatically a set time after you expand them. They stay visible while you are using an expanded icon's menu."
+          }
+        }
+      }
+    },
+    "설정 가져오기…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import Settings…"
+          }
+        }
+      }
+    },
+    "설정 내보내기…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export Settings…"
+          }
+        }
+      }
+    },
+    "설정 열기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings"
+          }
+        }
+      }
+    },
+    "설정…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings…"
+          }
+        }
+      }
+    },
+    "설정을 가져와 적용했습니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings imported and applied."
+          }
+        }
+      }
+    },
+    "설정을 내보냈습니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings exported."
+          }
+        }
+      }
+    },
+    "설치됨 · 실행 중 아님": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installed · not running"
+          }
+        }
+      }
+    },
+    "순서": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Order"
+          }
+        }
+      }
+    },
+    "순서를 바꾸려면 접근성 권한이 필요합니다": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reordering needs Accessibility permission"
+          }
+        }
+      }
+    },
+    "순서를 바꾸지 못했습니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not change the order."
+          }
+        }
+      }
+    },
+    "순서를 읽거나 바꾸는 중입니다": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading or changing the order"
+          }
+        }
+      }
+    },
+    "순서를 적용했습니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The order has been applied."
+          }
+        }
+      }
+    },
+    "숨기기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide"
+          }
+        }
+      }
+    },
+    "숨기기 끄기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn Hiding Off"
+          }
+        }
+      }
+    },
+    "숨기기 켜고 끄기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turning hiding on and off"
+          }
+        }
+      }
+    },
+    "숨기기 켜기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn Hiding On"
+          }
+        }
+      }
+    },
+    "숨기기가 꺼져 있습니다 (전부 표시)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiding is off (showing all)"
+          }
+        }
+      }
+    },
+    "숨긴 앱": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hidden"
+          }
+        }
+      }
+    },
+    "숨긴 앱 펼치기 / 숨기기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expanding and hiding hidden apps"
+          }
+        }
+      }
+    },
+    "숨길 앱 고르기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choosing apps to hide"
+          }
+        }
+      }
+    },
+    "숨길 앱 목록과 옵션을 파일로 저장하거나 불러옵니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save the hidden apps and options to a file, or load them from one."
+          }
+        }
+      }
+    },
+    "숨길 앱의 스위치를 끈 다음, 메뉴바의 이 앱 아이콘을 우클릭해 \"숨기기\"를 켜세요. 아이콘을 좌클릭하면 숨긴 앱이 잠깐 펼쳐집니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn off the switch for each app you want to hide, then right-click this app's icon in the menu bar and turn on \"Hide\". Click the icon to reveal hidden apps for a moment."
+          }
+        }
+      }
+    },
+    "숨김": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide"
+          }
+        }
+      }
+    },
+    "숨김 %lld개": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hidden (%lld)"
+          }
+        }
+      }
+    },
+    "숨김 기능 사용 가능": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiding Available"
+          }
+        }
+      }
+    },
+    "숨김 적용 중": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiding"
+          }
+        }
+      }
+    },
+    "숨김 적용에 실패했습니다 (전부 표시)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not apply hiding (showing all)"
+          }
+        }
+      }
+    },
+    "스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 목록에는 메뉴바 아이콘이 없는 앱도 포함됩니다 — 순서 탭에서 접근성 권한을 허용하면 메뉴바에 있는 앱만 볼 수 있습니다. 제어 센터에서 메뉴바로 꺼낸 항목(타이머 등)은 숨김 중에는 항상 숨겨집니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn a switch off to hide that app's icon. The list also includes apps without a menu bar icon — allow Accessibility permission in the Order tab to see only apps that are in the menu bar. Items added to the menu bar from Control Center (such as Timer) are always hidden while hiding is on."
+          }
+        }
+      }
+    },
+    "스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 제어 센터에서 메뉴바로 꺼낸 항목(타이머 등)은 숨김 중에는 항상 숨겨집니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn a switch off to hide that app's icon. Items added to the menu bar from Control Center (such as Timer) are always hidden while hiding is on."
+          }
+        }
+      }
+    },
+    "시계·제어 센터·Wi-Fi 등 — 옮길 수 없음": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clock, Control Center, Wi-Fi, etc. — cannot be moved"
+          }
+        }
+      }
+    },
+    "시스템 아이콘": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System Icons"
+          }
+        }
+      }
+    },
+    "시스템 항목": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System item"
+          }
+        }
+      }
+    },
+    "시스템 항목 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System item %@"
+          }
+        }
+      }
+    },
+    "시작하기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Getting started"
+          }
+        }
+      }
+    },
+    "실행 중": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Running"
+          }
+        }
+      }
+    },
+    "아니요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No"
+          }
+        }
+      }
+    },
+    "아이콘을 옮기는 중… %@/%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moving icons… %@/%@"
+          }
+        }
+      }
+    },
+    "아이콘을 우클릭한 뒤 \"숨기기\" 스위치를 사용합니다. 끄면 다시 켤 때까지 모든 아이콘을 표시합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Right-click the icon and use the \"Hide\" switch. While it is off, every icon stays visible until you turn it back on."
+          }
+        }
+      }
+    },
+    "알 수 없음 (접근성 권한 필요)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown (needs Accessibility permission)"
+          }
+        }
+      }
+    },
+    "알아 둘 점": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good to know"
+          }
+        }
+      }
+    },
+    "앱 버전": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App Version"
+          }
+        }
+      }
+    },
+    "앱 이름 검색": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search apps"
+          }
+        }
+      }
+    },
+    "예": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yes"
+          }
+        }
+      }
+    },
+    "옮기지 못했습니다": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't Move the App"
+          }
+        }
+      }
+    },
+    "우클릭 > 설정…의 \"메뉴바 관리\"에서 앱별 스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 앱이 많으면 검색과 필터로 찾습니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In right-click > Settings… > \"Menu Bar\", turn off an app's switch to hide its icon. Use search and filters when you have many apps."
+          }
+        }
+      }
+    },
+    "응용 프로그램 폴더 밖 — 숨김 중에는 표시할 수 없음": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outside the Applications folder — cannot be shown while hiding"
+          }
+        }
+      }
+    },
+    "응용 프로그램 폴더 밖에 있는 앱과 제어 센터에서 꺼낸 항목(타이머 등)은 숨김 중에는 표시되지 않습니다. 이 앱을 종료하면 숨긴 아이콘은 모두 돌아옵니다. 아이콘이 보이지 않을 때는 응용 프로그램 폴더에서 이 앱을 다시 열면 설정 창이 나타납니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apps outside the Applications folder and items added from Control Center (such as Timer) are not shown while hiding is on. Quitting this app brings back every hidden icon. If this app's icon is not visible, open the app again from the Applications folder to show the Settings window."
+          }
+        }
+      }
+    },
+    "응용 프로그램 폴더로 옮겨 주세요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move to the Applications folder"
+          }
+        }
+      }
+    },
+    "응용 프로그램 폴더로 옮기기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move to Applications"
+          }
+        }
+      }
+    },
+    "응용 프로그램 폴더로 옮긴 뒤 다시 실행해 주세요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move it to the Applications folder and reopen"
+          }
+        }
+      }
+    },
+    "응용 프로그램 폴더에 설치됨": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installed in Applications"
+          }
+        }
+      }
+    },
+    "응용 프로그램 폴더에서 실행해야 숨김을 켤 수 있습니다": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiding only works when the app runs from the Applications folder"
+          }
+        }
+      }
+    },
+    "이 macOS 버전에서는 숨김 기능을 쓸 수 없습니다": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiding is not available on this version of macOS"
+          }
+        }
+      }
+    },
+    "이 macOS 버전에서는 숨김을 쓸 수 없습니다": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiding is not available on this macOS version"
+          }
+        }
+      }
+    },
+    "이 앱 — 항상 표시": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This app — always shown"
+          }
+        }
+      }
+    },
+    "이 앱이 ⌘을 누른 채 아이콘을 끄는 동작을 대신 수행하기 때문입니다. 숨기기와 펼치기에는 이 권한이 필요하지 않습니다. 시스템 설정 > 개인정보 보호 및 보안 > 손쉬운 사용에서 MenuBarManager를 켜 주세요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This app performs the ⌘-drag for you. Hiding and expanding do not need this permission. Turn on MenuBarManager in System Settings > Privacy & Security > Accessibility."
+          }
+        }
+      }
+    },
+    "이 조합은 등록하지 못했습니다. 다른 앱이 이미 쓰고 있을 수 있습니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This shortcut couldn't be registered. Another app may already be using it."
+          }
+        }
+      }
+    },
+    "이 파일은 가져올 수 없습니다. MenuBarManager 에서 내보낸 설정 파일인지 확인해 주세요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This file can't be imported. Make sure it's a settings file exported from MenuBarManager."
+          }
+        }
+      }
+    },
+    "일반": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General"
+          }
+        }
+      }
+    },
+    "일부 아이콘을 옮기지 못했습니다. 목록을 실제 순서로 맞췄습니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some icons could not be moved. The list now shows the actual order."
+          }
+        }
+      }
+    },
+    "읽거나 적용하는 동안 숨긴 아이콘이 잠깐 나타나고, 적용 중에는 포인터가 잠깐 움직입니다. 시스템 항목(시계, 제어 센터 등)은 옮길 수 없지만 그 사이로 다른 아이콘을 옮길 수는 있습니다. 메뉴바에서 ⌘을 누른 채 직접 끌어도 됩니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "While reading or applying, hidden icons appear briefly, and the pointer moves for a moment while applying. System items (clock, Control Center, and so on) cannot be moved, but you can move other icons between them. You can also hold ⌘ and drag icons directly in the menu bar."
+          }
+        }
+      }
+    },
+    "자동으로 다시 숨기기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiding again automatically"
+          }
+        }
+      }
+    },
+    "잠깐 펼친 상태": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temporarily expanded"
+          }
+        }
+      }
+    },
+    "적용": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apply"
+          }
+        }
+      }
+    },
+    "전역 단축키": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Global Shortcuts"
+          }
+        }
+      }
+    },
+    "전체": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All"
+          }
+        }
+      }
+    },
+    "전체 %lld개 · 숨김 %lld개": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld apps · %lld hidden"
+          }
+        }
+      }
+    },
+    "접근성 권한 (순서 조정용)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accessibility Permission (for reordering)"
+          }
+        }
+      }
+    },
+    "접근성 권한 요청": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Request Accessibility Permission"
+          }
+        }
+      }
+    },
+    "접근성 권한이 필요합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accessibility permission is required."
+          }
+        }
+      }
+    },
+    "정보": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        }
+      }
+    },
+    "종료": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit"
+          }
+        }
+      }
+    },
+    "지우기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
+          }
+        }
+      }
+    },
+    "진단": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diagnostics"
+          }
+        }
+      }
+    },
+    "진단 정보 복사": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy Diagnostics"
+          }
+        }
+      }
+    },
+    "컴퓨터를 켜고 로그인하면 자동으로 시작합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starts automatically when you log in."
+          }
+        }
+      }
+    },
+    "키 조합을 누르세요…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press a key combination…"
+          }
+        }
+      }
+    },
+    "탭": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tab"
+          }
+        }
+      }
+    },
+    "펼친 뒤 자동으로 다시 숨기기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide again automatically after expanding"
+          }
+        }
+      }
+    },
+    "표시": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show"
+          }
+        }
+      }
+    },
+    "표시 %lld개": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shown (%lld)"
+          }
+        }
+      }
+    },
+    "필터": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filter"
+          }
+        }
+      }
+    },
+    "해당하는 앱이 없습니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No apps to show."
+          }
+        }
+      }
+    },
+    "현재 상태": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current State"
+          }
+        }
+      }
+    },
+    "확인": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

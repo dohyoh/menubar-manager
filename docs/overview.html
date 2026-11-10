@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MenuBarManager 한눈에 보기</title>
+<style>
+  :root {
+    --bg: #f6f5f1;
+    --surface: #ffffff;
+    --surface-2: #efede7;
+    --text: #1d1d1b;
+    --muted: #63615b;
+    --line: #dddad1;
+    --accent: #1f6f66;
+    --accent-soft: #dcefec;
+    --warn: #9a5b00;
+    --warn-soft: #fbeed3;
+    --ok: #1c6b3a;
+    --ok-soft: #dff2e5;
+    --info: #2c5aa0;
+    --info-soft: #e1eaf8;
+    --bad: #a23a2c;
+    --bad-soft: #f9e3df;
+    --bar: rgba(255,255,255,.72);
+    --wall-1: #c9d9d5;
+    --wall-2: #e4d9c6;
+    --radius: 12px;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161715;
+      --surface: #1f201e;
+      --surface-2: #282a27;
+      --text: #ecebe6;
+      --muted: #a3a199;
+      --line: #363834;
+      --accent: #6cc4b8;
+      --accent-soft: #1d3632;
+      --warn: #e8b45a;
+      --warn-soft: #3a2e15;
+      --ok: #7fd09a;
+      --ok-soft: #1b3323;
+      --info: #8fb4ec;
+      --info-soft: #1c2a40;
+      --bad: #ee9a8c;
+      --bad-soft: #3c211d;
+      --bar: rgba(40,42,39,.78);
+      --wall-1: #24403b;
+      --wall-2: #3b3324;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: var(--sans); font-size: 16px; line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all; overflow-wrap: break-word;
+  }
+  a { color: var(--accent); text-underline-offset: 3px; }
+  code, pre { font-family: var(--mono); font-size: .86em; }
+  code { background: var(--surface-2); padding: .1em .4em; border-radius: 5px; }
+  pre { background: var(--surface-2); padding: 16px 18px; border-radius: var(--radius); overflow-x: auto; line-height: 1.55; margin: 0; }
+  pre code { background: none; padding: 0; font-size: 1em; }
+
+  .layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; max-width: 1180px; margin: 0 auto; padding: 40px 24px 96px; }
+  nav.toc { position: sticky; top: 24px; align-self: start; font-size: 14px; }
+  nav.toc .brand { font-weight: 700; font-size: 15px; margin-bottom: 14px; letter-spacing: -.01em; }
+  nav.toc ol { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--line); }
+  nav.toc a { display: block; padding: 5px 14px; color: var(--muted); text-decoration: none; margin-left: -1px; border-left: 2px solid transparent; }
+  nav.toc a:hover { color: var(--text); }
+  nav.toc a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+  nav.toc .meta { margin-top: 18px; color: var(--muted); font-size: 12.5px; line-height: 1.6; }
+
+  main { min-width: 0; }
+  header.hero { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+  .eyebrow { font-size: 13px; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; font-weight: 600; }
+  h1 { font-size: clamp(30px, 4.4vw, 42px); line-height: 1.2; margin: 8px 0 12px; letter-spacing: -.025em; text-wrap: balance; }
+  .lede { font-size: 18px; color: var(--muted); max-width: 62ch; margin: 0 0 18px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; padding: 4px 11px; border-radius: 999px; background: var(--surface-2); color: var(--muted); max-width: 100%; }
+  .chip.state { background: var(--warn-soft); color: var(--warn); font-weight: 600; }
+  .chip.state::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+  section { padding-top: 52px; }
+  h2 { font-size: 25px; letter-spacing: -.02em; margin: 0 0 6px; line-height: 1.3; }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: 10px; font-weight: 600; }
+  .sub { color: var(--muted); margin: 0 0 22px; max-width: 68ch; }
+  h3 { font-size: 17px; margin: 28px 0 10px; letter-spacing: -.01em; }
+  p { margin: 0 0 14px; max-width: 72ch; }
+  .src { font-size: 13.5px; color: var(--muted); margin-top: 14px; }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
+  .grid { display: grid; gap: 14px; }
+  .grid.c2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.c4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .card h4 { margin: 0 0 4px; font-size: 16px; letter-spacing: -.01em; }
+  .card p { margin: 0; font-size: 14.5px; color: var(--muted); line-height: 1.6; }
+  .card .id { font-family: var(--mono); font-size: 12px; color: var(--accent); font-weight: 600; }
+
+  .tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 6px; white-space: nowrap; line-height: 1.7; }
+  .tag.ok { background: var(--ok-soft); color: var(--ok); }
+  .tag.warn { background: var(--warn-soft); color: var(--warn); }
+  .tag.info { background: var(--info-soft); color: var(--info); }
+  .tag.bad { background: var(--bad-soft); color: var(--bad); }
+  .tag.plain { background: var(--surface-2); color: var(--muted); }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12.5px; color: var(--muted); font-weight: 600; background: var(--surface-2); white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  td.nowrap, th.nowrap { white-space: nowrap; }
+  td .small { color: var(--muted); font-size: 13.5px; }
+
+  .callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 14px 18px; border-radius: 0 var(--radius) var(--radius) 0; margin: 18px 0; }
+  .callout.warn { border-color: var(--warn); background: var(--warn-soft); }
+  .callout p { margin: 0; max-width: none; }
+  .callout strong { font-weight: 700; }
+
+  /* 데모 */
+  .demo { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: linear-gradient(135deg, var(--wall-1), var(--wall-2)); }
+  .mbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 34px; padding: 0 12px; background: var(--bar); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); font-size: 13px; }
+  .mbar .left { display: flex; gap: 14px; color: var(--text); white-space: nowrap; overflow: hidden; }
+  .mbar .left b { font-weight: 700; }
+  .mbar .left span { color: var(--muted); }
+  .mbar .right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .mi { display: inline-flex; align-items: center; justify-content: center; height: 22px; min-width: 24px; padding: 0 6px; border-radius: 6px; font-size: 11.5px; font-weight: 700; color: var(--text); background: color-mix(in srgb, var(--text) 10%, transparent); transition: opacity .25s, max-width .3s, padding .3s, margin .3s; max-width: 80px; overflow: hidden; white-space: nowrap; }
+  .mi.gone { max-width: 0; min-width: 0; padding: 0; margin-left: -6px; opacity: 0; }
+  .mi.peek { outline: 1.5px dashed var(--accent); outline-offset: -1.5px; color: var(--accent); background: var(--accent-soft); }
+  .mi.self { background: var(--accent); color: var(--surface); }
+  .mi.sys { background: none; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .stage { display: flex; justify-content: flex-end; padding: 10px 12px 18px; min-height: 250px; }
+  .panel { width: min(300px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,.16); padding: 12px; font-size: 14px; }
+  .panel .ptitle { display: flex; justify-content: space-between; align-items: center; font-weight: 700; margin: 0 4px 8px; }
+  .panel .ptitle small { font-weight: 500; color: var(--muted); font-size: 12px; }
+  .row { display: flex; align-items: center; gap: 10px; padding: 6px; border-radius: 8px; }
+  .row .ic { width: 24px; height: 22px; border-radius: 6px; background: var(--surface-2); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .row .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row.off .nm, .row.off .ic { color: var(--muted); }
+  .sw { appearance: none; -webkit-appearance: none; width: 34px; height: 20px; border-radius: 999px; background: var(--line); position: relative; cursor: pointer; margin: 0; flex-shrink: 0; transition: background .2s; border: 0; }
+  .sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+  .sw:checked { background: var(--accent); }
+  .sw:checked::after { transform: translateX(14px); }
+  .sw:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn { width: 100%; margin-top: 8px; padding: 8px 12px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; position: relative; overflow: hidden; }
+  .btn:hover { border-color: var(--accent); }
+  .btn .prog { position: absolute; left: 0; bottom: 0; height: 3px; width: 0; background: var(--accent); }
+  .btn.on .prog { width: 100%; transition: width 4s linear; }
+  .demo-note { font-size: 13.5px; color: var(--muted); margin-top: 10px; }
+
+  /* 흐름 */
+  .flow { display: grid; gap: 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .flow .card ol { margin: 10px 0 0; padding-left: 20px; font-size: 14.5px; color: var(--muted); }
+  .flow .card li { margin-bottom: 4px; }
+  .flow .card li strong { color: var(--text); font-weight: 600; }
+
+  /* 계층 */
+  .layers { display: grid; gap: 10px; }
+  .layer { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 12px 16px; display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 14px; align-items: baseline; }
+  .layer b { font-family: var(--mono); font-size: 13.5px; }
+  .layer span { font-size: 14.5px; color: var(--muted); }
+  .layer.os { border-style: dashed; border-color: var(--warn); background: var(--warn-soft); }
+  .layer.os b { color: var(--warn); }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .split .layer { grid-template-columns: 1fr; gap: 2px; }
+  .arrow { text-align: center; color: var(--muted); font-size: 13px; line-height: 1; }
+
+  .states { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; }
+  .st { flex: 1 1 150px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; background: var(--surface); }
+  .st b { font-family: var(--mono); font-size: 13.5px; display: block; }
+  .st span { font-size: 13.5px; color: var(--muted); }
+  .st.base { border-color: var(--accent); background: var(--accent-soft); }
+
+  /* 로드맵 */
+  .road { list-style: none; margin: 0; padding: 0; position: relative; }
+  .road::before { content: ""; position: absolute; left: 21px; top: 8px; bottom: 8px; width: 2px; background: var(--line); }
+  .road li { position: relative; padding: 0 0 18px 60px; }
+  .road .dot { position: absolute; left: 0; top: 0; width: 44px; height: 44px; border-radius: 50%; background: var(--surface); border: 2px solid var(--line); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--muted); }
+  .road li.next .dot { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .road h4 { margin: 0; font-size: 16px; padding-top: 8px; }
+  .road p { margin: 2px 0 0; font-size: 14.5px; color: var(--muted); }
+  .road .fr { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+
+  .docmap { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .docmap a { display: block; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 12px 16px; text-decoration: none; color: var(--text); }
+  .docmap a:hover { border-color: var(--accent); }
+  .docmap a b { display: block; font-family: var(--mono); font-size: 13px; color: var(--accent); }
+  .docmap a span { font-size: 14px; color: var(--muted); }
+
+  footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13.5px; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; gap: 20px; padding: 24px 16px 72px; }
+    nav.toc { position: static; }
+    nav.toc ol { display: flex; flex-wrap: wrap; gap: 4px 2px; border-left: 0; }
+    nav.toc a { padding: 3px 10px; border-left: 0; margin: 0; background: var(--surface-2); border-radius: 999px; font-size: 13px; }
+    nav.toc a.active { background: var(--accent-soft); }
+    nav.toc .meta { display: none; }
+    .grid.c4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .flow { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .grid.c2, .grid.c4, .docmap, .split { grid-template-columns: 1fr; }
+    .layer { grid-template-columns: 1fr; gap: 2px; }
+    .mbar .left span { display: none; }
+    .stage { justify-content: center; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .mi, .sw, .sw::after { transition: none; }
+  }
+  @media print {
+    nav.toc { display: none; }
+    .layout { display: block; }
+    section { break-inside: avoid; }
+  }
+
+  /* v2: 설정 창 모형, 우클릭 메뉴, 상태줄 */
+  .grid.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .card .feas { margin-top: 8px; }
+  .demo { overflow: visible; }
+  .mbar { border-radius: var(--radius) var(--radius) 0 0; position: relative; }
+  .selfbtn { all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 22px; border-radius: 6px; background: var(--accent); position: relative; }
+  .selfbtn:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+  .selfbtn i { display: block; width: 13px; height: 11px; border: 1.5px solid var(--surface); border-radius: 3px; position: relative; }
+  .selfbtn i::after { content: ""; position: absolute; top: 0; bottom: 0; width: 50%; background: var(--surface); left: 0; transition: left .2s; }
+  .selfbtn.collapsed i::after { left: 50%; }
+  .ctx { position: absolute; top: 36px; right: 10px; z-index: 5; min-width: 220px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 14px 34px rgba(0,0,0,.22); padding: 5px; font-size: 13.5px; display: none; }
+  .ctx.open { display: block; }
+  .ctx button { all: unset; box-sizing: border-box; display: flex; justify-content: space-between; gap: 12px; width: 100%; padding: 5px 10px; border-radius: 6px; cursor: pointer; color: var(--text); }
+  .ctx button:hover, .ctx button:focus-visible { background: var(--accent); color: var(--surface); }
+  .ctx button[disabled] { color: var(--muted); cursor: default; background: none; }
+  .ctx .swrow { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 5px 10px; cursor: pointer; }
+  .win .foot { display: flex; align-items: center; gap: 8px; padding: 9px 14px 11px; border-top: 1px solid var(--line); font-size: 13px; color: var(--text); cursor: pointer; }
+  .win .foot input { accent-color: var(--accent); width: 15px; height: 15px; margin: 0; }
+  .infobox { display: none; max-width: 560px; margin: 12px auto 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.16); padding: 14px 18px 16px; font-size: 14px; outline: 2px solid transparent; transition: outline-color .25s; }
+  .infobox.open { display: block; }
+  .infobox.flash { outline-color: var(--accent); }
+  .infobox .ihead { display: flex; justify-content: space-between; align-items: baseline; font-weight: 700; margin-bottom: 8px; }
+  .infobox .ihead button { all: unset; cursor: pointer; color: var(--muted); font-size: 13px; font-weight: 500; }
+  .infobox dl { margin: 0; display: grid; gap: 8px; }
+  .infobox dt { font-weight: 600; }
+  .infobox dd { margin: 0; color: var(--muted); line-height: 1.55; }
+  .ctx hr { border: 0; border-top: 1px solid var(--line); margin: 4px 6px; }
+  .ctx .k { opacity: .6; }
+  .stage { display: block; padding: 14px 12px 16px; min-height: 0; }
+  .statusline { font-size: 13px; color: var(--text); background: var(--bar); border-radius: 8px; padding: 6px 12px; margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+  .statusline b { font-family: var(--mono); font-size: 12.5px; }
+  .statusline .hint { color: var(--muted); }
+  .win { max-width: 560px; margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.16); overflow: hidden; font-size: 14px; transition: box-shadow .25s, outline-color .25s; outline: 2px solid transparent; }
+  .win.flash { outline-color: var(--accent); }
+  .win .tbar { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: var(--surface-2); border-bottom: 1px solid var(--line); font-weight: 600; font-size: 13px; }
+  .win .dots { display: inline-flex; gap: 5px; margin-right: 4px; }
+  .win .dots span { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+  .win .tabs { margin-left: auto; display: inline-flex; gap: 2px; font-weight: 500; color: var(--muted); }
+  .win .tabs span { padding: 2px 9px; border-radius: 6px; }
+  .win .tabs span.on { background: var(--surface); color: var(--text); font-weight: 600; }
+  .win .tools { display: flex; gap: 8px; padding: 10px 12px 6px; flex-wrap: wrap; }
+  .win input[type=search] { flex: 1 1 160px; min-width: 0; font: inherit; font-size: 13.5px; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg { flex-shrink: 0; max-width: 100%; }
+  .seg button { all: unset; cursor: pointer; padding: 5px 10px; font-size: 13px; color: var(--muted); white-space: nowrap; }
+  .seg button.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .win .list { padding: 2px 8px 10px; max-height: 268px; overflow-y: auto; }
+  .win .grp { font-size: 12px; color: var(--muted); font-weight: 600; padding: 8px 6px 2px; }
+  .row .nm small { display: block; color: var(--muted); font-size: 12px; line-height: 1.3; }
+  .row .nm { white-space: normal; }
+  .sw:disabled { opacity: .45; cursor: not-allowed; }
+  .empty { padding: 18px 8px; color: var(--muted); font-size: 13.5px; text-align: center; }
+  .touchhelp { all: unset; cursor: pointer; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 900px) { .grid.c3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .grid.c3 { grid-template-columns: 1fr; } .win .tabs { display: none; } }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="toc" aria-label="목차">
+  <div class="brand">MenuBarManager</div>
+  <ol>
+    <li><a href="#what">무엇을 만드나</a></li>
+    <li><a href="#features">기능</a></li>
+    <li><a href="#verify">기술 검증 결과</a></li>
+    <li><a href="#how">동작 방식</a></li>
+    <li><a href="#arch">구조</a></li>
+    <li><a href="#tree">프로젝트 폴더</a></li>
+    <li><a href="#roadmap">개발 계획</a></li>
+    <li><a href="#adr">주요 결정</a></li>
+    <li><a href="#risk">리스크</a></li>
+    <li><a href="#docs">문서 지도</a></li>
+  </ol>
+  <div class="meta">최종 수정 2026-11-10<br>원본: <a href="README.md">docs/README.md</a></div>
+</nav>
+
+<main>
+
+<header class="hero">
+  <div class="eyebrow">프로젝트 개요 · 가칭</div>
+  <h1>메뉴바에 무엇을 보일지 고르고, 클릭 한 번으로 펼치고 접는 앱</h1>
+  <p class="lede">macOS 상단 메뉴바에 상주하면서, 아이콘이 많아 복잡해진 메뉴바를 앱 단위로 숨기고, 필요할 때 펼쳐 보고, 순서를 정리할 수 있게 해 줍니다.</p>
+  <div class="chips">
+    <span class="chip state">M4까지 구현 · 단축키·백업·진단 포함</span>
+    <span class="chip">macOS 15+ 실행 · 숨김은 27에서 확인</span>
+    <span class="chip">Swift 6 · SwiftUI + AppKit</span>
+    <span class="chip">제품 코드 약 3,600줄 · 테스트 71개</span>
+  </div>
+</header>
+
+<!-- 1 -->
+<section id="what">
+  <h2><span class="num">1</span>무엇을 만드나</h2>
+  <p class="sub">완성됐을 때의 사용 방식을 흉내 낸 모형입니다. 메뉴바의 <strong>초록 아이콘</strong>을 좌클릭·우클릭해 보고, 아래 설정 창에서 스위치를 바꿔 보세요.</p>
+
+  <div class="demo" aria-label="동작 모형">
+    <div class="mbar">
+      <div class="left"><b>Finder</b><span>파일</span><span>편집</span><span>보기</span></div>
+      <div class="right" id="bar"></div>
+      <div class="ctx" id="ctx" role="menu" aria-label="우클릭 메뉴"></div>
+    </div>
+    <div class="stage">
+      <div class="statusline" aria-live="polite"><span>상태 <b id="stName"></b></span><span id="stDesc"></span><span class="hint">좌클릭: 펼치기/숨기기 · 우클릭: 숨기기 스위치·설정·정보 (<button class="touchhelp" id="openCtx" type="button">메뉴 열기</button>)</span></div>
+      <div class="win" id="win">
+        <div class="tbar"><span class="dots"><span></span><span></span><span></span></span>설정<span class="tabs"><span class="on">메뉴바 관리</span><span>일반</span></span></div>
+        <div class="tools">
+          <input type="search" id="q" placeholder="앱 이름 검색" aria-label="앱 이름 검색">
+          <div class="seg" role="group" aria-label="필터">
+            <button type="button" data-f="bar" class="on">메뉴바에 있는 앱</button>
+            <button type="button" data-f="hidden">숨긴 앱</button>
+            <button type="button" data-f="all">전체</button>
+          </div>
+        </div>
+        <div class="list" id="rows"></div>
+        <label class="foot"><input type="checkbox" id="autoBox" checked> 펼친 뒤 자동으로 다시 숨기기 <span style="color:var(--muted)">(실제 앱에서는 "일반" 탭, 시간 선택 가능 · 모형에서는 5초)</span></label>
+      </div>
+      <div class="infobox" id="infobox" aria-label="정보 화면 모형">
+        <div class="ihead"><span>정보 — 사용법</span><button type="button" id="infoClose">닫기</button></div>
+        <dl>
+          <div><dt>숨긴 앱 펼치기 / 숨기기</dt><dd>메뉴바의 이 앱 아이콘을 좌클릭합니다. 다시 누르면 숨습니다.</dd></div>
+          <div><dt>숨기기 켜고 끄기</dt><dd>아이콘을 우클릭한 뒤 "숨기기" 스위치를 사용합니다. 끄면 다시 켤 때까지 모두 표시합니다.</dd></div>
+          <div><dt>숨길 앱 고르기</dt><dd>우클릭 &gt; 설정…에서 앱별 스위치를 끕니다. 앱이 많으면 검색과 필터로 찾습니다.</dd></div>
+          <div><dt>자동으로 다시 숨기기</dt><dd>설정 창에서 켜 두면, 좌클릭으로 펼친 뒤 10초가 지나면 다시 숨깁니다.</dd></div>
+          <div><dt>메뉴바 아이콘 옮기기</dt><dd>⌘(Command) 키를 누른 채 메뉴바의 아이콘을 좌우로 드래그합니다. 숨긴 앱은 먼저 펼친 다음 옮깁니다.</dd></div>
+          <div><dt>알아 둘 점</dt><dd>응용 프로그램 폴더 밖의 앱과 제어 센터에서 꺼낸 항목은 숨김 중에는 표시되지 않습니다. 앱을 종료하면 숨긴 아이콘은 모두 돌아옵니다.</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+  <p class="demo-note">모형입니다. 실제 앱의 설정 창에서는 목록을 드래그해 순서도 바꿉니다. 점선 표시는 펼쳤을 때만 보이는 숨긴 아이템입니다.</p>
+
+  <div class="table-wrap" style="margin-top:18px">
+    <table>
+      <thead><tr><th>입력</th><th>동작</th></tr></thead>
+      <tbody>
+        <tr><td class="nowrap"><strong>아이콘 좌클릭</strong></td><td>숨긴 앱 <strong>펼치기 ↔ 숨기기</strong>. 아이콘 모양이 현재 상태를 보여 줍니다.</td></tr>
+        <tr><td class="nowrap"><strong>아이콘 우클릭</strong> <span class="small">Control+클릭</span></td><td>메뉴 — <strong>숨기기 스위치</strong>, 설정…, 정보, 종료. 스위치를 끄면 전부 표시한 채로 유지됩니다 (자동으로 다시 숨기지 않음).</td></tr>
+        <tr><td class="nowrap"><strong>메뉴 &gt; 설정…</strong></td><td>설정 창의 <strong>메뉴바 관리</strong>에서 앱별 표시 여부와 순서를 정합니다. 검색·필터가 있어 앱이 많아도 관리할 수 있습니다. "펼친 뒤 자동으로 다시 숨기기"는 <strong>일반</strong> 탭에서 켜고 끄고, 시간을 고릅니다 (3~60초, 기본 10초).</td></tr>
+        <tr><td class="nowrap"><strong>메뉴 &gt; 정보</strong></td><td>주요 기능을 한두 문장씩 설명합니다. <strong>메뉴바 아이콘 옮기는 방법</strong>(⌘을 누른 채 드래그)도 여기서 안내합니다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <p><strong>"위젯"이라고 부르지만 실제 형태는 메뉴바 상주 앱입니다.</strong> 데스크탑에 놓는 WidgetKit 위젯은 메뉴바를 제어할 수 없습니다 (<a href="adr/0001-menu-bar-agent-app.md">ADR-0001</a>). 처음에는 아이콘을 누르면 패널이 열리는 구조였으나, 앱이 많으면 관리가 어렵다는 검토 의견에 따라 위 방식으로 바꿨습니다 (<a href="adr/0009-interaction-model.md">ADR-0009</a>).</p>
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="features">
+  <h2><span class="num">2</span>기능</h2>
+  <p class="sub">필수 기능과, 함께 넣기를 추천하는 기능입니다. 상세와 수용 기준은 <a href="plan/requirements.md">requirements.md</a>.</p>
+
+  <div class="grid c3">
+    <div class="card"><span class="id">FR-1</span><h4>표시할 앱 선택</h4><p>앱별로 메뉴바 표시 여부를 정합니다.</p><p class="feas"><span class="tag ok">구현됨</span></p></div>
+    <div class="card"><span class="id">FR-2</span><h4>좌클릭: 펼치기/숨기기</h4><p>아이콘을 누르면 숨긴 앱이 전부 나타나고, 다시 누르면 숨습니다. 설정한 시간 뒤 자동으로 다시 숨깁니다.</p><p class="feas"><span class="tag ok">구현됨</span></p></div>
+    <div class="card"><span class="id">FR-16 · FR-20</span><h4>우클릭: 스위치 · 설정 · 정보</h4><p>메뉴에서 숨기기를 스위치로 켜고 끄고, 설정 창과 사용법 설명(정보)을 엽니다.</p><p class="feas"><span class="tag ok">구현됨</span></p></div>
+    <div class="card"><span class="id">FR-17</span><h4>설정 창에서 관리</h4><p>검색·필터가 있는 목록에서 앱을 고릅니다. 접근성 권한이 있으면 메뉴바 아이콘을 가진 앱만 먼저 보여 줍니다.</p><p class="feas"><span class="tag ok">구현됨</span></p></div>
+    <div class="card"><span class="id">FR-3</span><h4>순서 조정</h4><p>설정 > 순서에서 목록을 드래그해 적용하면 메뉴바 순서가 바뀝니다. 숨긴 앱 포함. 접근성 권한이 필요합니다.</p><p class="feas"><span class="tag ok">구현됨</span></p></div>
+    <div class="card"><span class="id">FR-4</span><h4>로그인 시 실행</h4><p>컴퓨터를 켜면 자동으로 시작합니다. 설정 > 일반에서 켭니다.</p><p class="feas"><span class="tag ok">재부팅 후 확인됨</span></p></div>
+  </div>
+
+  <h3>추천 추가 기능</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>기능</th><th>왜 필요한가</th><th class="nowrap">우선순위</th><th class="nowrap">시점</th></tr></thead>
+      <tbody>
+        <tr><td><strong>안전장치</strong> <span class="small">FR-5 · 구현됨</span></td><td>종료·오류 시 모든 아이콘을 즉시 원래대로. 숨김을 켜기 전에 설치 위치를 확인하고, 아이콘이 안 보이면 앱을 다시 열어 설정 창을 띄울 수 있습니다.</td><td><span class="tag bad">P0 필수</span></td><td>M2</td></tr>
+        <tr><td><strong>새 앱 처리</strong> <span class="small">FR-6 · 구현됨</span></td><td>새 앱이 실행되면 목록을 갱신합니다. 처음 보는 앱을 표시할지, 숨길지, 물어볼지는 설정에서 고릅니다. "묻기"는 메뉴바 아이콘을 가진 새 앱만 "새로 나타난 앱"에 올립니다 (접근성 권한 필요).</td><td><span class="tag bad">P0 필수</span></td><td>M2</td></tr>
+        <tr><td><strong>설치 위치 확인</strong> <span class="small">FR-18 · 구현됨</span></td><td>응용 프로그램 폴더 밖에서 실행되면 자기 아이콘이 숨겨지므로, 숨김을 켜지 않고 안내합니다. 안내 창의 버튼으로 바로 옮기고 다시 실행합니다.</td><td><span class="tag bad">P0 필수</span></td><td>M1</td></tr>
+        <tr><td><strong>전역 단축키</strong> <span class="small">FR-7 · 구현됨</span></td><td>키 한 번으로 펼치기/숨기기, 설정 열기. 설정 > 일반에서 조합을 기록합니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
+        <tr><td><strong>OS 호환성 자가진단</strong> <span class="small">FR-8 · 구현됨</span></td><td>필요한 시스템 기능이 없으면 숨김을 켜지 않습니다. 설정 > 일반 > 진단에서 결과를 보고 복사합니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
+        <tr><td><strong>설정 백업/복원</strong> <span class="small">FR-9 · 구현됨</span></td><td>숨길 앱 목록과 옵션을 파일로 내보내고 가져옵니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
+        <tr><td><strong>시스템 아이콘 숨김</strong> <span class="small">FR-19 · 구현됨</span></td><td>Wi-Fi·배터리도 함께 숨길 수 있습니다. 설정 > 메뉴바 관리 목록의 "시스템 아이콘" 구역에서 고릅니다. 시계와 제어 센터는 항상 표시합니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
+        <tr><td><strong>프로필</strong> <span class="small">FR-10·11</span></td><td>업무/개인/발표용 레이아웃을 여러 벌 두고 우클릭 메뉴에서 전환. 외부 모니터·집중 모드에 따라 자동 전환.</td><td><span class="tag info">P2</span></td><td>M5</td></tr>
+        <tr><td><strong>아이템 검색·실행</strong> <span class="small">FR-12</span></td><td>숨긴 아이템을 펼치지 않고 이름으로 찾아 바로 엽니다.</td><td><span class="tag info">P2</span></td><td>M5</td></tr>
+        <tr><td><strong>조건부 표시</strong> · <strong>선반</strong> <span class="small">FR-13·14</span></td><td>"앱이 실행 중일 때만" 같은 규칙, 숨긴 아이템을 별도 패널에 표시. 조사가 먼저입니다.</td><td><span class="tag plain">P3</span></td><td>M5</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="verify">
+  <h2><span class="num">3</span>기술 검증 결과</h2>
+  <p class="sub">macOS에는 다른 앱의 메뉴바 아이콘을 숨기거나 옮기는 공개 API가 없습니다. 그래서 만들기 전에 이 Mac(macOS 27.2.1)에서 실제로 되는지부터 확인했습니다.</p>
+
+  <div class="callout">
+    <p><strong>결론: 요청된 기능이 모두 이 Mac에서 동작합니다.</strong> 숨기기·펼치기는 권한 없이 되고, 앱이 강제 종료돼도 시스템이 아이콘을 자동으로 되돌려 줍니다. 순서 변경은 접근성 권한을 허용하면 됩니다.</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>확인한 것</th><th>결과</th><th class="nowrap">상태</th></tr></thead>
+      <tbody>
+        <tr><td>허용 목록 방식으로 앱 아이콘 숨기기</td><td>목록에 없는 앱의 아이콘이 1초 안에 사라짐. 권한 불필요</td><td><span class="tag ok">통과</span></td></tr>
+        <tr><td>해제·종료·강제 종료 시 복구</td><td>모두 자동 복구 (강제 종료 후 2초 이내)</td><td><span class="tag ok">통과</span></td></tr>
+        <tr><td>숨김 중 자기 아이콘 유지</td><td>유지됨 — 단, 앱이 응용 프로그램 폴더에 있을 때만</td><td><span class="tag ok">통과</span></td></tr>
+        <tr><td>숨김 목록을 깜빡임 없이 변경</td><td>새 제한을 켠 뒤 이전 것을 해제하면 매끄럽게 교체됨</td><td><span class="tag ok">통과</span></td></tr>
+        <tr><td>시스템 아이콘 개별 제어</td><td>배터리·시계·Wi-Fi·제어 센터를 번호로 제어 가능</td><td><span class="tag ok">통과</span></td></tr>
+        <tr><td>좌클릭/우클릭 구분</td><td>검증용 앱 아이콘을 직접 클릭해 확인 — 좌클릭은 토글, 우클릭은 메뉴</td><td><span class="tag ok">통과</span></td></tr>
+        <tr><td>설정 창에서 앱 고르기</td><td>스위치를 끄면 숨김 중에도 즉시 반영. 단, 권한 없이는 아이콘이 없는 일반 앱도 목록에 섞임</td><td><span class="tag ok">통과</span></td></tr>
+        <tr><td>메뉴바 아이템 목록·위치 얻기</td><td>접근성 API로 가능. 표시되지 않는 아이템이 예전 좌표를 돌려줘서, 그 좌표에 실제로 있는지 확인해 걸러 냄</td><td><span class="tag ok">통과</span></td></tr>
+        <tr><td>프로그램으로 순서 변경</td><td>⌘+드래그를 대신 수행해 가능. 천천히 끌어야 정확히 들어감. 숨긴 앱도 잠깐 펼쳐서 옮김</td><td><span class="tag ok">통과</span></td></tr>
+        <tr><td>모니터 두 대에서 순서 읽기</td><td>아이템마다 좌표의 기준 모니터가 달라 순서가 섞였음 → 모니터 오른쪽 끝 기준 거리로 바꿔 해결</td><td><span class="tag ok">통과</span></td></tr>
+        <tr><td>재부팅 후</td><td>자동 실행, 숨김 재적용, 접근성 권한, 아이콘 순서 모두 유지</td><td><span class="tag ok">통과</span></td></tr>
+        <tr><td>숨김 중 시계를 눌러 알림 센터 열기</td><td>숨김 중에는 시스템이 알림 센터를 열지 않음 → 시계를 누르는 순간 숨김을 풀어 해결. 닫으면 다시 숨김. 트랙패드 쓸기·단축키로 여는 경우는 먼저 펼쳐야 함</td><td><span class="tag ok">해결</span></td></tr>
+        <tr><td>전역 단축키 · Wi-Fi 아이콘 숨김</td><td>실제 앱에서 임시 단축키로 설정 창이 열리고, Wi-Fi만 숨겨졌다가 돌아오는 것을 확인</td><td><span class="tag ok">통과</span></td></tr>
+        <tr><td>실제 앱(제품 코드)에서 숨기기·펼치기·자동 숨기기·설정·정보</td><td>동작. 명령 채널로 같은 코드 경로를 실행해 화면 캡처로 확인 — 마우스로 직접 누르는 확인은 남음</td><td><span class="tag ok">통과</span></td></tr>
+        <tr><td>자기 아이콘이 숨겨졌는지 앱이 스스로 알기</td><td>숨겨져도 읽을 수 있는 값이 그대로라 불가능. 설치 위치를 미리 확인하는 방식으로 대체</td><td><span class="tag bad">불가</span></td></tr>
+        <tr><td>시스템의 "메뉴바 앱 목록" 읽기</td><td>보호된 저장소라 읽을 수 없음</td><td><span class="tag bad">불가</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>검증 중 새로 알게 된 제약</h3>
+  <div class="grid c2">
+    <div class="card"><h4>응용 프로그램 폴더 요건</h4><p>앱이 <code>/Applications</code>에 있어야 시스템이 그 앱의 아이콘을 알아봅니다. 다른 위치에서 실행하면 허용해도 숨겨집니다. 이 앱 자신은 반드시 그곳에 설치해야 하고, 그 밖에 있는 사용자의 다른 앱은 숨김 중에 표시할 수 없습니다. (<a href="adr/0010-install-location.md">ADR-0010</a>)</p></div>
+    <div class="card"><h4>제어 센터 모듈은 항상 숨겨짐</h4><p>제어 센터에서 메뉴바로 꺼낸 모듈(타이머 등)은 숨김 중에는 보이지 않습니다. 펼치면 다시 보입니다.</p></div>
+    <div class="card"><h4>기본이 "차단"</h4><p>허용 목록에 없는 앱은 숨겨집니다. 새 앱이 실행되면 목록을 갱신해야 그 아이콘이 보입니다.</p></div>
+    <div class="card"><h4>단위는 앱</h4><p>한 앱이 아이콘을 여러 개 가질 때 일부만 숨길 수는 없습니다.</p></div>
+    <div class="card"><h4>숨김 중에는 알림 센터가 닫혀 있음</h4><p>숨김이 걸려 있으면 시스템이 알림 센터를 열지 않습니다. 시계를 누르면 앱이 숨김을 잠깐 풀어 열리게 하고, 닫으면 다시 숨깁니다. 트랙패드 쓸기·단축키로는 열리지 않으니 먼저 펼쳐야 합니다.</p></div>
+  </div>
+
+  <h3>배경 — macOS 27에서 바뀐 것</h3>
+  <p>macOS 27은 메뉴바 전체를 <code>MenuBarAgent</code> 프로세스의 창 하나로 그립니다. 아이콘마다 창이 따로 있던 예전 구조가 사라져, Ice·Bartender 같은 기존 관리 앱이 쓰던 방법(아이콘 창 옮기기, 긴 구분자로 밀어내기)은 통하지 않습니다. 대신 시스템 안에 "허용한 앱의 아이콘만 남기는" 비공개 기능이 있고, 이것을 사용합니다.</p>
+  <p class="src">상세·출처: <a href="architecture/platform-notes.md">platform-notes.md</a> · 검증용 코드: <a href="../Spikes/README.md">Spikes/README.md</a></p>
+</section>
+
+<!-- 4 -->
+<section id="how">
+  <h2><span class="num">4</span>동작 방식</h2>
+  <p class="sub">핵심 동작이 내부에서 어떻게 처리되는지입니다. 상세 흐름은 <a href="architecture/overview.md">architecture/overview.md</a>.</p>
+
+  <div class="flow">
+    <div class="card">
+      <span class="id">FR-2</span><h4>좌클릭</h4>
+      <ol>
+        <li>숨김 상태면 제한을 <strong>해제</strong> → 전부 보임</li>
+        <li>펼침 상태면 허용 목록을 <strong>적용</strong> → 숨김</li>
+        <li>숨김을 켜기 전에 <strong>설치 위치와 시스템 기능을 확인</strong></li>
+        <li>설정의 자동 숨기기가 켜져 있으면 타이머 후 다시 숨김</li>
+      </ol>
+    </div>
+    <div class="card">
+      <span class="id">FR-1 · FR-17</span><h4>설정에서 앱 숨기기</h4>
+      <ol>
+        <li>메뉴바 관리에서 스위치를 끔</li>
+        <li>"숨길 앱" 목록에 저장</li>
+        <li><strong>허용 목록</strong> = 실행 중·설치된 앱 − 숨길 앱 + 자기 자신</li>
+        <li>숨김 상태면 깜빡임 없이 교체</li>
+      </ol>
+    </div>
+    <div class="card">
+      <span class="id">FR-3</span><h4>순서 바꾸기</h4>
+      <ol>
+        <li>설정 > 순서에서 현재 순서를 읽고 목록을 드래그</li>
+        <li>"적용" → 잠시 전부 펼침</li>
+        <li>최소 이동만 골라 <strong>⌘+드래그를 대신 수행</strong> (시스템 항목은 그대로)</li>
+        <li>옮길 때마다 다시 읽어 확인 → 다시 숨김</li>
+      </ol>
+    </div>
+  </div>
+
+  <h3>필요한 권한</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>권한</th><th>쓰는 곳</th><th>없으면</th></tr></thead>
+      <tbody>
+        <tr><td class="nowrap"><strong>없음</strong></td><td>숨기기, 펼치기, 설정, 로그인 시 실행, 전역 단축키, 시스템 아이콘 숨김, 백업</td><td>—</td></tr>
+        <tr><td class="nowrap"><strong>접근성</strong></td><td>설정 > 순서 (읽기·적용), "메뉴바" 필터, 새 앱 "묻기", 빠르게 누른 시계 클릭 보완</td><td>순서 탭에 권한 안내 표시. 목록은 "실행 중"부터, "묻기"는 "표시"처럼 동작. 나머지는 그대로</td></tr>
+        <tr><td class="nowrap"><strong>화면 기록</strong> <span class="small">선택</span></td><td>목록에 실제 아이콘 이미지 표시</td><td>앱 아이콘으로 대신 표시</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="arch">
+  <h2><span class="num">5</span>구조</h2>
+  <p class="sub">원칙은 하나입니다. <strong>macOS에 닿는 코드는 한 모듈에 가두고, 나머지는 그 모듈을 모른다.</strong> OS가 바뀌면 그 모듈만 고칩니다.</p>
+
+  <div class="layers">
+    <div class="layer"><b>App</b><span>실행 파일. 부품을 조립하고, 메뉴바 아이콘의 좌클릭·우클릭을 받고, 설정 창을 엶</span></div>
+    <div class="arrow">▼</div>
+    <div class="layer"><b>MenuBarUI</b><span>SwiftUI — 우클릭 메뉴, 설정 창(메뉴바 관리·일반), 권한 안내</span></div>
+    <div class="arrow">▼ 의도 전달 · ▲ 상태 읽기</div>
+    <div class="layer"><b>MenuBarServices</b><span>앱의 두뇌. <code>MenuBarCoordinator</code>가 상태를 혼자 소유. 저장, 자동 숨기기 타이머, 앱 목록, 단축키</span></div>
+    <div class="arrow">▼ 프로토콜로만 의존</div>
+    <div class="split">
+      <div class="layer"><b>MenuBarDomain</b><span>모델과 순수 규칙(허용 목록 계산, 검색·필터, 이동 계획), 프로토콜 정의. Foundation만 사용 → 테스트 쉬움</span></div>
+      <div class="layer os"><b>MenuBarSystem</b><span>OS 접점 전부 — 허용 목록 적용, 앱·아이템 조회, 이벤트 합성, 권한, 설치 위치 확인. 비공개 API는 이 안의 브리지에만</span></div>
+    </div>
+  </div>
+
+  <h3>앱의 상태</h3>
+  <div class="states">
+    <div class="st"><b>paused</b><span>전부 표시 유지. 메뉴의 숨기기 스위치 끔·시작 직후·오류</span></div>
+    <div class="st base"><b>collapsed</b><span>숨김 적용 중. 평소 상태</span></div>
+    <div class="st"><b>expanded</b><span>좌클릭으로 잠깐 펼침. 다시 누르거나 타이머로 collapsed로</span></div>
+    <div class="st"><b>reordering</b><span>순서를 읽거나 바꾸는 중. 끝나면 이전 상태로</span></div>
+  </div>
+  <p style="margin-top:14px">어느 상태에서든 문제가 생기면 <code>paused</code>(전부 표시)로 돌아갑니다. 이것이 <strong>fail-open</strong> 원칙입니다. 앱이 죽어도 시스템이 숨김을 풀어 주는 것을 검증에서 확인했습니다. 메뉴바 아이콘이 보이지 않을 때는 응용 프로그램 폴더에서 앱을 다시 열면 설정 창이 뜹니다.</p>
+</section>
+
+<!-- 6 -->
+<section id="tree">
+  <h2><span class="num">6</span>프로젝트 폴더</h2>
+  <p class="sub">실제 구조입니다. 파일 단위 설명과 컨벤션은 <a href="architecture/project-structure.md">project-structure.md</a>.</p>
+<pre><code>1110_menubar_manager/
+├── CLAUDE.md                  작업 규칙 요약
+├── project.yml                XcodeGen 프로젝트 정의 (.xcodeproj는 생성물)
+├── App/                       앱 타깃 — 얇게: 조립, 아이콘 좌/우클릭, 설정 창 열기
+├── Packages/MenuBarKit/       대부분의 코드가 여기 (로컬 Swift Package)
+│   ├── Sources/
+│   │   ├── MenuBarDomain/         모델 · 규칙 · 프로토콜
+│   │   ├── MenuBarServices/       Coordinator · 저장 · 타이머 · 앱 목록
+│   │   ├── MenuBarSystem/         OS 접점 (여기에만 OS 의존 코드)
+│   │   ├── MenuBarPrivateBridge/  비공개 API 호출 (Objective-C)
+│   │   └── MenuBarUI/             우클릭 메뉴 · 설정 창
+│   └── Tests/                 swift test 로 실행
+├── Spikes/                    기술 검증용 코드 (제품에 포함 안 됨)
+│   └── MenuBarSpike/              숨김·좌/우클릭 검증용 앱
+├── scripts/                   bootstrap · build(install/run) · strings · make-icon
+└── docs/                      문서 (이 파일 포함)</code></pre>
+  <p style="margin-top:12px">빌드와 설치는 <code>./scripts/build.sh install</code>, 테스트는 <code>swift test --package-path Packages/MenuBarKit</code>, 번역 누락 검사는 <code>python3 scripts/strings.py check</code> 입니다.</p>
+  <div class="callout warn" style="margin-top:14px">
+    <p><strong>개발할 때 주의:</strong> 숨김 동작은 <code>/Applications</code>에 설치한 빌드로만 확인할 수 있습니다. Xcode에서 바로 실행하면 숨김을 켰을 때 앱 자신의 아이콘이 사라집니다.</p>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="roadmap">
+  <h2><span class="num">7</span>개발 계획</h2>
+  <p class="sub">위험한 것부터 확인하고, 마일스톤마다 직접 써 볼 수 있는 앱이 나오도록 나눴습니다. 체크리스트와 완료 기준은 <a href="plan/roadmap.md">roadmap.md</a>.</p>
+
+  <ol class="road">
+    <li><span class="dot">M0</span><h4>기술 검증 <span class="tag ok">완료</span></h4><p>숨김·복구·자기 아이콘 유지·좌/우클릭, 접근성으로 아이템 위치 읽기, 드래그 합성으로 순서 변경까지 확인.</p></li>
+    <li><span class="dot">M1</span><h4>앱 뼈대 <span class="fr">FR-4 · FR-16 · FR-18 · FR-20</span> <span class="tag ok">구현</span></h4><p>메뉴바 아이콘과 좌/우클릭, 우클릭 메뉴(숨기기 스위치·설정·정보), 설정 창 골격, 정보 화면, 로그인 시 실행, 설치 위치 확인.</p></li>
+    <li><span class="dot">M2</span><h4>표시/숨김 + 펼치기 <span class="fr">FR-1 · FR-2 · FR-5 · FR-6 · FR-17</span> <span class="tag ok">구현</span></h4><p>숨김, 메뉴바 관리 화면(검색·필터·표시/숨김 구역), 새 앱 정책, 사용 중에는 자동 숨기기 미루기, 첫 실행 안내, 한국어·영어 문자열, 앱 아이콘.</p></li>
+    <li><span class="dot">M3</span><h4>순서 조정 <span class="fr">FR-3</span> <span class="tag ok">구현</span></h4><p>설정 > 순서 탭: 순서 읽기, 목록 드래그, 적용. 숨긴 앱 포함, 시스템 항목은 고정, 모니터 두 대 대응. 직접 드래그해 적용하는 조작까지 확인됨.</p></li>
+    <li><span class="dot">M4</span><h4>안정화·편의 <span class="fr">FR-7 ~ FR-9 · FR-19</span> <span class="tag ok">구현</span></h4><p>전역 단축키, 자가진단·진단 정보, 설정 백업, 시스템 아이콘 숨김, 알림 센터 열기, "메뉴바" 필터, 새 앱 "묻기", 응용 프로그램 폴더로 옮기기. 노치·전체 화면·잠자기 같은 환경별 점검은 남음.</p></li>
+    <li class="next"><span class="dot">M5</span><h4>확장 <span class="fr">FR-10 ~ FR-13</span> <span class="tag warn">다음</span></h4><p>프로필, 자동 전환, 검색, 조건부 표시. 필요한 것만 골라서.</p></li>
+    <li><span class="dot">M6</span><h4>배포 <span class="fr">FR-15</span></h4><p>배포하기로 결정하면: 서명·공증, 자동 업데이트, 설치 파일.</p></li>
+  </ol>
+
+  <h3>직접 확인이 남은 것</h3>
+  <p class="sub">프로그램으로는 확인하기 어렵거나, 쓰는 중인 화면을 방해하게 되어 남겨 둔 항목입니다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>확인할 것</th><th>방법</th><th>문제가 있으면</th></tr></thead>
+      <tbody>
+        <tr><td>전역 단축키를 직접 기록해 쓰기</td><td>설정 > 일반 > 전역 단축키에서 조합을 기록하고 눌러 보기</td><td>기록 화면 또는 등록 방식을 조정</td></tr>
+        <tr><td>설정 내보내기·가져오기</td><td>설정 > 일반 > 백업에서 파일로 저장하고 다시 불러오기</td><td>파일 형식·적용 순서를 조정</td></tr>
+        <tr><td>새 앱 "묻기", 응용 프로그램 폴더로 옮기기 버튼</td><td>정책을 "묻기"로 두고 메뉴바 앱을 새로 실행 / 다른 위치에서 앱 실행</td><td>감지 시점·복사 방식을 조정</td></tr>
+        <tr><td>폭이 넓은 아이콘(글자가 있는 것)의 순서 변경</td><td>순서 탭에서 그 아이콘을 옮겨 적용</td><td>놓는 위치 계산을 조정</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="adr">
+  <h2><span class="num">8</span>주요 결정</h2>
+  <p class="sub">"왜 이렇게 했지?"의 답입니다. 제안 상태인 것은 검증이나 확인이 남아 있습니다. 목록·작성 규칙은 <a href="adr/README.md">adr/README.md</a>.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>번호</th><th>결정</th><th>이유 한 줄</th><th class="nowrap">상태</th></tr></thead>
+      <tbody>
+        <tr><td class="nowrap"><a href="adr/0001-menu-bar-agent-app.md">0001</a></td><td>WidgetKit 위젯이 아닌 메뉴바 상주 앱</td><td>위젯은 메뉴바를 제어할 수 없음</td><td><span class="tag ok">채택</span></td></tr>
+        <tr><td class="nowrap"><a href="adr/0002-target-macos-27.md">0002</a></td><td>앱은 macOS 15부터 실행, 숨김은 시스템 기능이 있는 버전에서만</td><td>구버전용 숨김은 구현이 두 벌이라 보류. 기능 유무는 실행 시 확인</td><td><span class="tag ok">채택</span></td></tr>
+        <tr><td class="nowrap"><a href="adr/0003-visibility-mechanism.md">0003</a></td><td>숨김은 시스템 허용 목록 방식으로</td><td>이 Mac에서 동작·자동 복구를 확인</td><td><span class="tag ok">채택 · 검증됨</span></td></tr>
+        <tr><td class="nowrap"><a href="adr/0004-reorder-mechanism.md">0004</a></td><td>순서 변경은 ⌘+드래그를 대신 수행</td><td>시스템이 지원하는 사용자 동작이라 결과가 정상 저장됨</td><td><span class="tag ok">채택 · 검증됨</span></td></tr>
+        <tr><td class="nowrap"><a href="adr/0005-backend-abstraction-private-api.md">0005</a></td><td>OS 접점을 한 모듈에 격리, fail-open</td><td>OS 업데이트로 깨질 것을 전제로 설계</td><td><span class="tag ok">채택</span></td></tr>
+        <tr><td class="nowrap"><a href="adr/0006-tech-stack-and-project-layout.md">0006</a></td><td>Swift 6, SwiftUI+AppKit, XcodeGen + 로컬 Package</td><td>텍스트로 다루기 쉽고 Xcode 없이 테스트 가능</td><td><span class="tag ok">채택</span></td></tr>
+        <tr><td class="nowrap"><a href="adr/0007-distribution.md">0007</a></td><td>샌드박스 없이 직접 배포 (App Store 아님)</td><td>비공개 API·접근성은 샌드박스에서 불가</td><td><span class="tag ok">채택</span></td></tr>
+        <tr><td class="nowrap"><a href="adr/0008-docs-system.md">0008</a></td><td>Markdown 원본 + HTML 한 장</td><td>개발 중 참조와 한눈에 보기는 필요한 형식이 다름</td><td><span class="tag ok">채택</span></td></tr>
+        <tr><td class="nowrap"><a href="adr/0009-interaction-model.md">0009</a></td><td>좌클릭 토글, 우클릭 메뉴(숨기기 스위치·설정·정보), 관리·옵션은 설정 창</td><td>앱이 많으면 패널로 관리하기 어렵고, 가장 흔한 동작은 클릭 한 번이어야 함</td><td><span class="tag ok">채택</span></td></tr>
+        <tr><td class="nowrap"><a href="adr/0010-install-location.md">0010</a></td><td>항상 <code>/Applications</code>에서 실행</td><td>그 밖에서는 자기 아이콘이 숨겨짐 (검증에서 확인)</td><td><span class="tag ok">채택</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="risk">
+  <h2><span class="num">9</span>리스크</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>리스크</th><th class="nowrap">가능성</th><th class="nowrap">영향</th><th>대응</th></tr></thead>
+      <tbody>
+        <tr><td>숨김이 비공개 API에 의존 — macOS 업데이트로 깨질 수 있음</td><td><span class="tag bad">높음</span></td><td><span class="tag bad">높음</span></td><td>OS 접점 격리, 자가진단, fail-open (시스템 자동 복구 확인)</td></tr>
+        <tr><td>드래그 합성이 폭이 넓은 아이콘이나 일부 구성에서 부정확할 수 있음</td><td><span class="tag warn">중간</span></td><td><span class="tag plain">낮음</span></td><td>옮길 때마다 다시 읽어 확인, 안 되면 중단하고 실제 순서 표시</td></tr>
+        <tr><td>응용 프로그램 폴더 요건 같은 문서화되지 않은 규칙이 더 있을 수 있음</td><td><span class="tag warn">중간</span></td><td><span class="tag warn">중간</span></td><td>숨긴 직후 자기 아이콘 확인, 실사용 환경에서 조기 검증</td></tr>
+        <tr><td>숨김 중 시스템 UI 부작용 (타 앱에서 알림 센터 관련 보고)</td><td><span class="tag warn">중간</span></td><td><span class="tag warn">중간</span></td><td>알림 센터는 시계를 누를 때 숨김을 풀어 해결. 다른 부작용은 쓰면서 확인</td></tr>
+        <tr><td>자동 빌드가 키체인 확인 창에서 멈춤 (검증 중 실제 발생)</td><td><span class="tag bad">높음</span></td><td><span class="tag plain">낮음</span></td><td>키 접근 "항상 허용" 또는 개발 중 임시 서명</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 10 -->
+<section id="docs">
+  <h2><span class="num">10</span>문서 지도</h2>
+  <p class="sub">이 페이지는 요약본입니다. 원본은 Markdown이고, 내용이 바뀌면 Markdown을 먼저 고친 뒤 이 페이지를 맞춥니다.</p>
+  <div class="docmap">
+    <a href="README.md"><b>README.md</b><span>현재 상태, 문서 찾기, 관리 규칙</span></a>
+    <a href="CHANGELOG.md"><b>CHANGELOG.md</b><span>무엇이 언제 바뀌었나</span></a>
+    <a href="plan/requirements.md"><b>plan/requirements.md</b><span>요구사항, 수용 기준, 제약</span></a>
+    <a href="plan/roadmap.md"><b>plan/roadmap.md</b><span>마일스톤 체크리스트, 리스크</span></a>
+    <a href="architecture/overview.md"><b>architecture/overview.md</b><span>계층, 모델, 상태 머신, 흐름</span></a>
+    <a href="architecture/project-structure.md"><b>architecture/project-structure.md</b><span>폴더, 빌드, 컨벤션, 테스트</span></a>
+    <a href="architecture/platform-notes.md"><b>architecture/platform-notes.md</b><span>macOS 27 메뉴바 조사·검증 기록</span></a>
+    <a href="adr/README.md"><b>adr/README.md</b><span>결정 목록, 템플릿</span></a>
+    <a href="../Spikes/README.md"><b>Spikes/README.md</b><span>검증용 앱 사용법, 남은 검증</span></a>
+  </div>
+</section>
+
+<footer>MenuBarManager(가칭) 프로젝트 개요 · 최종 수정 2026-11-10 · 검증 환경 macOS 27.2.1, Xcode 27.2, Swift 6.4.2</footer>
+
+</main>
+</div>
+
+<script>
+(function () {
+  // ── 동작 모형 ──
+  // where: bar = 지금 메뉴바에 아이콘이 있는 앱, inst = 설치만 된 앱
+  var apps = [
+    { name: "VPN",            short: "VPN", where: "bar",  on: false },
+    { name: "메모 앱",         short: "메모", where: "bar",  on: false },
+    { name: "클라우드 동기화",  short: "동기", where: "bar",  on: false },
+    { name: "창 정리",         short: "창",  where: "bar",  on: true },
+    { name: "메신저",          short: "톡",  where: "bar",  on: true },
+    { name: "타이머",          short: "⏱",  where: "bar",  on: true, lock: "제어 센터 모듈 — 숨김 중에는 항상 숨겨짐", module: true },
+    { name: "화면 캡처 도구",   short: "캡처", where: "inst", on: true },
+    { name: "음악 플레이어",    short: "음악", where: "inst", on: true },
+    { name: "개발 중인 앱",     short: "dev", where: "inst", on: false, lock: "응용 프로그램 폴더 밖 — 숨김 중 표시 불가" }
+  ];
+  var st = { mode: "collapsed", auto: true, filter: "bar", q: "" };
+  var timer = null;
+  var $ = function (id) { return document.getElementById(id); };
+  var bar = $("bar"), rows = $("rows"), ctx = $("ctx"), win = $("win");
+
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+  function renderBar() {
+    bar.innerHTML = "";
+    apps.filter(function (a) { return a.where === "bar"; }).forEach(function (a) {
+      var hiddenNow = st.mode === "collapsed" && (!a.on || a.module);
+      var peek = st.mode !== "collapsed" && st.mode !== "paused" && !a.on;
+      var e = el("span", "mi" + (hiddenNow ? " gone" : (peek ? " peek" : "")), a.short);
+      e.title = a.name; bar.appendChild(e);
+    });
+    var self = el("button", "selfbtn " + st.mode); self.type = "button"; self.id = "selfIcon";
+    self.setAttribute("aria-label", "MenuBarManager 아이콘: 좌클릭 펼치기/숨기기, 우클릭 메뉴");
+    self.appendChild(el("i"));
+    self.addEventListener("click", function (ev) { if (ev.ctrlKey) { openCtx(); return; } closeCtx(); toggle(); });
+    self.addEventListener("contextmenu", function (ev) { ev.preventDefault(); openCtx(); });
+    bar.appendChild(self);
+    var clock = el("span", "mi sys", "오후 2:30"); clock.title = "시계 (보호 대상)"; bar.appendChild(clock);
+
+    var names = { collapsed: "collapsed", expanded: "expanded", paused: "paused" };
+    $("stName").textContent = names[st.mode];
+    $("stDesc").textContent = st.mode === "collapsed" ? "숨김 적용 중"
+      : st.mode === "expanded" ? (st.auto ? "펼침 — 5초 뒤 자동으로 숨김" : "펼침 — 다시 누를 때까지 유지")
+      : "숨기기 꺼짐 — 전부 표시 유지";
+  }
+
+  function visibleRows() {
+    var q = st.q.trim().toLowerCase();
+    return apps.filter(function (a) {
+      if (q) return a.name.toLowerCase().indexOf(q) >= 0;        // 검색은 전체 대상
+      if (st.filter === "bar") return a.where === "bar";
+      if (st.filter === "hidden") return !a.on;
+      return true;
+    });
+  }
+
+  function renderRows() {
+    rows.innerHTML = "";
+    var list = visibleRows();
+    if (!list.length) { rows.appendChild(el("div", "empty", "해당하는 앱이 없습니다.")); return; }
+    [["표시", true], ["숨김", false]].forEach(function (g) {
+      var part = list.filter(function (a) { return a.on === g[1]; });
+      if (!part.length) return;
+      rows.appendChild(el("div", "grp", g[0] + " " + part.length));
+      part.forEach(function (a) {
+        var row = el("label", "row" + (a.on ? "" : " off"));
+        row.appendChild(el("span", "ic", a.short));
+        var nm = el("span", "nm", a.name);
+        var note = a.lock || (a.where === "inst" ? "설치됨 · 지금은 메뉴바에 없음" : null);
+        if (note) nm.appendChild(el("small", null, note));
+        row.appendChild(nm);
+        var sw = el("input", "sw"); sw.type = "checkbox"; sw.checked = a.on; sw.disabled = !!a.lock;
+        sw.setAttribute("aria-label", a.name + " 메뉴바에 표시");
+        sw.addEventListener("change", function () { a.on = sw.checked; renderRows(); renderBar(); });
+        row.appendChild(sw); rows.appendChild(row);
+      });
+    });
+  }
+
+  function setMode(m) {
+    clearTimeout(timer); st.mode = m;
+    if (m === "expanded" && st.auto) timer = setTimeout(function () { setMode("collapsed"); }, 5000);
+    renderBar();
+  }
+  function toggle() { setMode(st.mode === "collapsed" ? "expanded" : "collapsed"); }
+
+  function openCtx() {
+    ctx.innerHTML = "";
+    // 숨기기: 글자 + 스위치. 켬 = 숨김 적용, 끔 = 전부 표시 유지(자동으로 다시 숨기지 않음)
+    var row = el("label", "swrow"); row.appendChild(el("span", null, "숨기기"));
+    var sw = el("input", "sw"); sw.type = "checkbox"; sw.checked = st.mode === "collapsed";
+    sw.setAttribute("aria-label", "숨기기");
+    sw.addEventListener("change", function () { setMode(sw.checked ? "collapsed" : "paused"); });
+    row.appendChild(sw); ctx.appendChild(row);
+    ctx.appendChild(el("hr"));
+    function item(label, right, fn, disabled) {
+      var b = el("button"); b.type = "button"; b.setAttribute("role", "menuitem");
+      b.appendChild(el("span", null, label)); if (right) b.appendChild(el("span", "k", right));
+      if (disabled) b.disabled = true; else b.addEventListener("click", function () { closeCtx(); fn(); });
+      ctx.appendChild(b);
+    }
+    item("설정…", "⌘,", function () { win.scrollIntoView({ block: "nearest", behavior: "smooth" }); win.classList.add("flash"); setTimeout(function () { win.classList.remove("flash"); }, 900); $("q").focus({ preventScroll: true }); });
+    item("정보", null, function () { var ib = $("infobox"); ib.classList.add("open"); ib.scrollIntoView({ block: "nearest", behavior: "smooth" }); ib.classList.add("flash"); setTimeout(function () { ib.classList.remove("flash"); }, 900); });
+    ctx.appendChild(el("hr"));
+    item("종료", "⌘Q", null, true);
+    ctx.classList.add("open");
+  }
+  function closeCtx() { ctx.classList.remove("open"); }
+  document.addEventListener("click", function (ev) { if (!ctx.contains(ev.target) && ev.target.id !== "openCtx" && !(ev.target.closest && ev.target.closest("#selfIcon"))) closeCtx(); });
+  document.addEventListener("keydown", function (ev) { if (ev.key === "Escape") closeCtx(); });
+  $("openCtx").addEventListener("click", function () { ctx.classList.contains("open") ? closeCtx() : openCtx(); });
+
+  $("infoClose").addEventListener("click", function () { $("infobox").classList.remove("open"); });
+  $("autoBox").addEventListener("change", function () { st.auto = this.checked; setMode(st.mode); });
+  $("q").addEventListener("input", function () { st.q = this.value; renderRows(); });
+  Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function (b) {
+    b.addEventListener("click", function () {
+      st.filter = b.getAttribute("data-f");
+      Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function (x) { x.classList.toggle("on", x === b); });
+      renderRows();
+    });
+  });
+  renderRows(); renderBar();
+
+  // ── 목차 현재 위치 표시 ──
+  var links = Array.prototype.slice.call(document.querySelectorAll("nav.toc a[href^='#']"));
+  var map = {};
+  links.forEach(function (l) { map[l.getAttribute("href").slice(1)] = l; });
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          links.forEach(function (l) { l.classList.remove("active"); });
+          var l = map[e.target.id]; if (l) l.classList.add("active");
+        }
+      });
+    }, { rootMargin: "-10% 0px -75% 0px" });
+    document.querySelectorAll("main section[id]").forEach(function (s) { io.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+# XcodeGen 프로젝트 정의. `xcodegen generate` 로 MenuBarManager.xcodeproj 를 만든다 (생성물은 git 에 넣지 않음).
+# 구조 설명: docs/architecture/project-structure.md
+name: MenuBarManager
+options:
+  deploymentTarget:
+    macOS: "15.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: false
+packages:
+  MenuBarKit:
+    path: Packages/MenuBarKit
+targets:
+  MenuBarManager:
+    type: application
+    platform: macOS
+    sources:
+      - path: App
+        excludes:
+          - Info.plist
+    dependencies:
+      - package: MenuBarKit
+        product: MenuBarDomain
+      - package: MenuBarKit
+        product: MenuBarServices
+      - package: MenuBarKit
+        product: MenuBarSystem
+      - package: MenuBarKit
+        product: MenuBarUI
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.menubarmanager.app
+        PRODUCT_NAME: MenuBarManager
+        INFOPLIST_FILE: App/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "6.0"
+        # 비공개 API·접근성 사용 → 샌드박스 불가 (docs/adr/0007-distribution.md)
+        ENABLE_APP_SANDBOX: NO
+        # 기본은 임시(ad-hoc) 서명. 고정 인증서는 scripts/build.sh 의 CODESIGN_IDENTITY 로 지정.
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "-"
+        DEVELOPMENT_TEAM: ""
+      configs:
+        Release:
+          ENABLE_HARDENED_RUNTIME: YES
+schemes:
+  MenuBarManager:
+    build:
+      targets:
+        MenuBarManager: all
+    run:
+      config: Debug

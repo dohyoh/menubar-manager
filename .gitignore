@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Xcode / XcodeGen (프로젝트 파일은 project.yml 에서 생성)
+*.xcodeproj
+xcuserdata/
+DerivedData/
+build/
+
+# SwiftPM
+.build/
+.swiftpm/
+Package.resolved
+
+# 검증용 앱 빌드 결과
+Spikes/**/build/
