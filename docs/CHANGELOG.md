@@ -5,7 +5,18 @@
 
 ## [미출시]
 
+## [1.0.1] - 2026-11-11
+
+### 배포
+- [GitHub Releases](https://github.com/dohyoh/menubar-manager/releases)에 `MenuBarManager-1.0.1.zip`으로 올림. 만드는 방식은 1.0.0과 같음 ([ADR-0011](adr/0011-unnotarized-release.md)).
+
+### 문서
+- **저장소 README를 영어 기본으로 다시 쓰고 한국어(`README_KR.md`)·중국어(`README_CN.md`) 판을 추가.** 처음 쓰는 사람이 따라 할 수 있게 요약만 두고, 그림·표·흐름도를 넣음.
+- **사용 안내서 추가**: [`docs/guide/user-guide.md`](guide/user-guide.md)(영어) · [`user-guide_KR.md`](guide/user-guide_KR.md) · [`user-guide_CN.md`](guide/user-guide_CN.md) — 설치, 사용법, 옵션, 문제 해결, 업데이트·삭제.
+- README용 이미지를 `docs/images/`에 둠. 메뉴바 전후 비교와 "메뉴바 관리" 화면은 예시 앱으로 그린 그림이고, 일반 탭과 우클릭 메뉴는 실제 화면.
+
 ### 변경
+- **한국어·영어가 아닌 환경에서는 화면이 영어로 나옴.** 이전에는 한국어로 나왔음 (예: 중국어만 설정된 Mac). 한국어 환경은 그대로 한국어 ([platform-notes 3.29](architecture/platform-notes.md)).
 - **"순서" 탭을 "메뉴바 관리"에 합침.** 메뉴바 관리 아래쪽의 "순서 편집"을 누르면 같은 자리의 목록이 메뉴바 순서로 바뀌고, 끌어서 바꾼 뒤 "적용"하면 관리 목록으로 돌아옴. "취소"하거나 다른 탭으로 가면 편집이 끝남.
 - **설정의 "진단"을 별도 탭으로 분리.** 탭은 메뉴바 관리 / 일반 / 진단 세 개.
 - **알림 센터를 닫으면 숨긴 아이콘이 곧바로 다시 숨겨짐.** 이전에는 닫은 뒤 최대 2초가 걸렸고, 포인터가 메뉴바 위에 있으면 더 늦어졌음. 숨김을 유지한 채 알림 센터를 여는 것은 시스템 구조상 불가능함을 확인 ([platform-notes 3.24](architecture/platform-notes.md)).

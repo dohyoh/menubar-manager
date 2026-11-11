@@ -23,7 +23,8 @@
 
 ```
 1110_menubar_manager/
-├── README.md                        # 저장소 소개: 설치·사용 안내 (받는 사람용)
+├── README.md                        # 저장소 소개: 설치·사용 안내 (받는 사람용, 영어)
+├── README_KR.md · README_CN.md      # 같은 내용의 한국어·중국어 판
 ├── CLAUDE.md                        # 작업 규칙 요약 (문서 위치, 갱신 규칙)
 ├── project.yml                      # XcodeGen 프로젝트 정의 (.xcodeproj 는 생성물)
 ├── .gitignore
@@ -32,7 +33,7 @@
 │   ├── main.swift                   # NSApplication 시작
 │   ├── AppDelegate.swift            # 의존성 조립, 생명주기, 창 열기, 설치 위치 안내
 │   ├── StatusItemController.swift   # 메뉴바 아이콘 — 좌클릭 토글 / 우클릭 메뉴
-│   ├── Info.plist                   # LSUIElement = YES, 지원 언어(ko·en), 아이콘
+│   ├── Info.plist                   # LSUIElement = YES, 지원 언어(ko·en, 그 밖의 환경은 en), 아이콘
 │   ├── Resources/AppIcon.icns       # 앱 아이콘 (scripts/make-icon.swift 로 생성)
 │   └── Debug/AutomationHook.swift   # Debug 전용 명령 채널 (자동 검증용)
 │
@@ -81,7 +82,8 @@
 │   ├── build.sh                     # 빌드. `install` / `run` 인자로 /Applications 에 설치·실행
 │   ├── release.sh                   # 배포용 zip 만들기 (임시 서명, build/release/ 에 생성)
 │   ├── strings.py                   # 문자열 카탈로그 동기화·번역 누락 검사
-│   └── make-icon.swift              # 앱 아이콘 생성
+│   ├── make-icon.swift              # 앱 아이콘 생성
+│   └── readme-images/               # README·안내서용 그림 생성 (make.sh → docs/images/)
 │
 └── docs/                            # → docs/README.md 참고
 ```

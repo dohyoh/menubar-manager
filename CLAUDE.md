@@ -24,6 +24,7 @@ macOS 메뉴바에 표시할 앱을 고르고 순서를 조정하는 메뉴바 �
 - 문서 원본은 Markdown. 내용을 바꾸면 같은 작업 안에서 `docs/overview.html`의 해당 섹션도 맞춘다. HTML은 `docs/overview.html` 하나만 유지한다 (필요 시 폴더당 1개까지).
 - 되돌리기 어려운 결정은 `docs/adr/`에 새 ADR로 남긴다. 채택된 ADR은 고치지 않고 새 ADR로 대체한다.
 - 사용자가 체감하는 변경과 문서 구조 변경은 `docs/CHANGELOG.md`에 적는다.
+- 저장소 README는 영어(`README.md`)·한국어(`README_KR.md`)·중국어(`README_CN.md`) 세 개를 함께 고친다. 자세한 내용은 `docs/guide/user-guide*.md`(같은 세 언어)에 두고 README에서는 링크한다. 그림은 `docs/images/`.
 - 마일스톤이 바뀌면 `docs/README.md`의 "지금 상태" 표와 `overview.html`의 상태 표시를 갱신한다.
 - OS 동작에 대한 사실은 `platform-notes.md`에 검증됨 / 보고됨 / 미확인을 구분해 적는다.
 

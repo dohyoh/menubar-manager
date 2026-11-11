@@ -1,45 +1,142 @@
-# MenuBarManager
+<h1 align="center">MenuBarManager</h1>
 
-macOS 메뉴바에 표시할 앱을 고르고, 숨긴 앱을 클릭 한 번으로 펼쳐 보고, 아이콘 순서를 정리하는 메뉴바 상주 앱입니다.
+<p align="center">
+  <b>Hide the menu bar icons you don't need. Bring them back with one click.</b>
+</p>
 
-- 메뉴바 아이콘 **좌클릭**: 숨긴 앱 펼치기 ↔ 숨기기
-- 메뉴바 아이콘 **우클릭**: 숨기기 스위치 · 설정 · 정보 · 종료
-- **설정**: 앱별·시스템 아이콘(Wi-Fi, 배터리) 표시 여부, 순서 조정, 로그인 시 실행, 자동으로 다시 숨기기, 전역 단축키, 설정 백업
+<p align="center">
+  <b>English</b> · <a href="README_KR.md">한국어</a> · <a href="README_CN.md">简体中文</a>
+</p>
 
-## 요구 사항
+<p align="center">
+  <a href="https://github.com/dohyoh/menubar-manager/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/dohyoh/menubar-manager?label=download"></a>
+  <img alt="macOS 15 or later" src="https://img.shields.io/badge/macOS-15%2B-blue">
+  <img alt="Apple silicon and Intel" src="https://img.shields.io/badge/Mac-Apple%20silicon%20%7C%20Intel-lightgrey">
+</p>
 
-- 앱은 macOS 15 이상에서 실행됩니다.
-- **숨김 기능은 macOS 27에서 확인했습니다.** 필요한 시스템 기능이 없는 버전에서는 숨김을 켜지 않고 그 이유를 알려 줍니다.
-- 순서 조정과 일부 편의 기능은 손쉬운 사용(접근성) 권한이 필요합니다. 숨기기·펼치기는 권한 없이 동작합니다.
+<p align="center">
+  <img src="docs/images/menubar-before-after.png" alt="Menu bar before and after clicking the curtain icon" width="820">
+</p>
 
-## 설치
+<p align="center">
+  <sub>Top: hiding is on. Bottom: one click on the curtain icon shows the hidden icons (yellow) again.</sub>
+</p>
 
-1. [Releases](https://github.com/dohyoh/menubar-manager/releases)에서 `MenuBarManager-<버전>.zip`을 받아 압축을 풉니다.
-2. `MenuBarManager.app`을 **응용 프로그램 폴더**로 옮깁니다. 다른 위치에서는 숨김 기능이 동작하지 않습니다.
-3. 앱을 엽니다.
+## What it does
 
-이 앱은 Apple의 공증을 받지 않았습니다. 처음 열 때 macOS가 실행을 막으면 다음 중 하나로 풉니다.
+| | Feature | What you get |
+|---|---|---|
+| 🙈 | **Hide icons** | Pick, app by app, which icons stay in the menu bar. Wi-Fi and Battery can be hidden too. |
+| 👆 | **One-click expand** | Left-click the curtain icon to show everything. Icons hide again by themselves after 10 seconds. |
+| ↔️ | **Reorder icons** | Drag a list into the order you want, hidden apps included. |
+| ⌨️ | **Global shortcuts** | Expand or hide from any app with a key combination. |
+| 💾 | **Backup** | Save your settings to a file and load them back later. |
+| 🔒 | **Private** | No network access. Settings stay in one file on your Mac. |
 
-- 시스템 설정 > 개인정보 보호 및 보안 > 아래쪽의 "그래도 열기"
-- 또는 터미널에서:
+## Quick start
+
+| Step | What to do |
+|:---:|---|
+| **1** | Download `MenuBarManager-<version>.zip` from the [latest release](https://github.com/dohyoh/menubar-manager/releases/latest) and unzip it. |
+| **2** | Move `MenuBarManager.app` into the **Applications** folder. Hiding only works from there. |
+| **3** | Open the app. The Settings window appears the first time. |
+| **4** | In **Menu Bar**, turn off the switch of every app you want to hide. |
+| **5** | Right-click the curtain icon in the menu bar and turn **Hide** on. |
+
+<details>
+<summary><b>macOS says the app can't be opened?</b></summary>
+
+<br>
+
+This app is not notarized by Apple, so macOS blocks it the first time. Unblock it in one of two ways:
+
+- Open **System Settings > Privacy & Security**, scroll down, and click **Open Anyway**.
+- Or run this in Terminal:
 
   ```bash
   xattr -dr com.apple.quarantine /Applications/MenuBarManager.app
   ```
 
-새 버전으로 바꾸면 손쉬운 사용 권한을 다시 허용해야 합니다.
+More detail: [User guide — Install](docs/guide/user-guide.md#1-install).
 
-## 알아 둘 점
+</details>
 
-- 응용 프로그램 폴더 밖에 있는 앱과, 제어 센터에서 메뉴바로 꺼낸 항목(타이머 등)은 숨김 중에는 표시되지 않습니다.
-- 숨김 중에도 시계를 누르면 알림 센터가 열립니다. 트랙패드를 쓸어서 여는 경우에는 먼저 펼쳐야 합니다.
-- 앱을 종료하면 숨긴 아이콘은 모두 돌아옵니다.
-- 숨김은 macOS의 비공개 기능을 사용합니다. macOS 업데이트로 동작이 바뀔 수 있고, Mac App Store에는 올릴 수 없습니다.
-- 네트워크 통신을 하지 않습니다. 설정은 `~/Library/Application Support/MenuBarManager/state.json`에만 저장됩니다.
+## How to use
 
-## 직접 빌드
+```mermaid
+flowchart LR
+    H(["Hiding<br/>closed curtain"])
+    E(["Expanded<br/>open curtain"])
+    O(["Off<br/>everything shown"])
+    H -- "left-click the icon" --> E
+    E -- "click again, or wait 10 s" --> H
+    H -- "right-click, turn Hide off" --> O
+    O -- "turn Hide on" --> H
+```
 
-Xcode와 [XcodeGen](https://github.com/yonaskolb/XcodeGen)이 필요합니다.
+<table>
+<tr>
+<td>
+
+| Action | Result |
+|---|---|
+| **Left-click** the curtain icon | Show hidden icons / hide them again |
+| **Right-click** the curtain icon | Hide switch, Settings, About, Quit |
+| **Click the clock** | Notification Center opens, even while hiding |
+| **Your shortcut** | Expand / hide, or open Settings |
+
+</td>
+<td>
+<img src="docs/images/menu-en.png" alt="Right-click menu" width="250">
+</td>
+</tr>
+</table>
+
+## Settings at a glance
+
+| Menu Bar — choose what to hide | General — options |
+|:---:|:---:|
+| <img src="docs/images/settings-menubar-en.png" alt="Menu Bar tab (illustration with sample apps)" width="400"> | <img src="docs/images/settings-general-en.png" alt="General tab" width="400"> |
+
+| Tab | What you can do |
+|---|---|
+| **Menu Bar** | Show or hide each app and system icon, search and filter the list, **Edit Order** |
+| **General** | Launch at login, hide again automatically, what to do with new apps, global shortcuts, backup |
+| **Diagnostics** | Check why something is not working and copy the details |
+
+<sub>The Menu Bar picture is an illustration with sample apps. The other pictures are real screenshots.</sub>
+
+## Requirements
+
+| Item | Detail |
+|---|---|
+| **macOS** | Runs on macOS 15 or later. **Hiding was verified on macOS 27.** On a version without the required system feature, hiding stays off and the app tells you why. |
+| **Mac** | Apple silicon and Intel (universal). Not yet tested on an Intel Mac. |
+| **Location** | The app must be in the Applications folder. |
+| **Accessibility permission** | Optional. Needed for reordering and a few conveniences. Hiding and expanding work without it. |
+| **Language** | English and Korean. |
+
+## Good to know
+
+- Apps that live outside the Applications folder, and items added from Control Center (such as Timer), are not shown while hiding is on.
+- Quitting MenuBarManager brings every hidden icon back.
+- Hiding uses a private macOS feature. A macOS update may change how it works, and the app cannot be distributed on the Mac App Store.
+- After you replace the app with a new version, allow the Accessibility permission again.
+
+## Learn more
+
+| I want to… | Read |
+|---|---|
+| Follow the install step by step, or fix a problem | [User guide](docs/guide/user-guide.md) |
+| See what changed in each version | [Changelog](docs/CHANGELOG.md) (Korean) |
+| Understand how it works inside | [Project overview](docs/overview.html) · [Document map](docs/README.md) (Korean) |
+
+<details>
+<summary><b>Build from source</b></summary>
+
+<br>
+
+You need Xcode and [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 
 ```bash
 ./scripts/bootstrap.sh
@@ -49,14 +146,10 @@ Xcode와 [XcodeGen](https://github.com/yonaskolb/XcodeGen)이 필요합니다.
 CONFIG=Release ./scripts/build.sh install
 ```
 
-단위 테스트:
+Unit tests:
 
 ```bash
 swift test --package-path Packages/MenuBarKit
 ```
 
-## 문서
-
-- 한눈에 보기: [docs/overview.html](docs/overview.html)
-- 문서 지도와 현재 상태: [docs/README.md](docs/README.md)
-- 변경 이력: [docs/CHANGELOG.md](docs/CHANGELOG.md)
+</details>
