@@ -5,6 +5,11 @@
 
 ## [미출시]
 
+## [1.0.2] - 2026-11-11
+
+### 배포
+- [GitHub Releases](https://github.com/dohyoh/menubar-manager/releases)에 `MenuBarManager-1.0.2.zip`으로 올림. 만드는 방식은 1.0.0과 같음 ([ADR-0011](adr/0011-unnotarized-release.md)).
+
 ### 추가
 - **화면 언어 선택.** 설정 > 일반의 "언어"에서 한국어 · English · 简体中文 중 고름. macOS에서 쓰고 있는 언어에는 "(시스템)"이 붙고 처음에 그 언어가 선택되어 있음 (예: "한국어 (시스템)"). macOS의 언어를 지원하지 않으면 표기 없이 English가 선택됨. 바꾼 언어는 앱을 다시 시작해야 적용되며, 바로 아래의 "지금 다시 시작" 버튼으로 다시 시작할 수 있음 ([platform-notes 3.30](architecture/platform-notes.md)).
 - **중국어(간체) 화면.** 문자열 145개를 모두 번역. macOS의 언어가 중국어 간체이면 중국어로 표시 (번체는 지원하지 않아 영어로 표시). 중국어 README·사용 안내서의 버튼·메뉴 이름과 그림도 중국어 화면에 맞춤.
