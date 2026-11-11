@@ -71,7 +71,7 @@ Hiding is **off** the first time you run the app. Choose the apps to hide first 
 
 ### On macOS 26 and earlier
 
-On macOS 26 and earlier the app hides icons in a different way (supported from the version after 1.0.2). You use it the same way, with these differences:
+On macOS 26 and earlier the app hides icons in a different way (supported from version 1.1.0). You use it the same way, with these differences:
 
 - **Hiding needs the Accessibility permission**, because MenuBarManager has to move the icons of hidden apps for you. Without it you see an exclamation mark instead of the curtain icon, and the Settings window explains what to do. Click **Request Accessibility Permission** and turn on MenuBarManager in **System Settings > Privacy & Security > Accessibility**. Hiding becomes available a moment later.
 - When you change which apps are hidden, or open a new app while hiding is on, hidden icons appear briefly and the pointer moves for a moment while icons are moved. Expanding and hiding with a left-click do not do this.
@@ -155,7 +155,7 @@ Start with **Settings > Diagnostics**. It shows whether hiding is available, whe
 | macOS says the app cannot be opened | See [If macOS blocks the app](#if-macos-blocks-the-app) |
 | I cannot find the curtain icon | Open MenuBarManager again from the Applications folder. The Settings window appears. |
 | Hide cannot be turned on, and the app asks to be moved | Click **Move to Applications**, or drag the app into Applications yourself and reopen it |
-| "Hiding is not available on this version of macOS" | This version of the app has no way to hide icons on this macOS. On macOS 26 or earlier, update to the version after 1.0.2. |
+| "Hiding is not available on this version of macOS" | This version of the app has no way to hide icons on this macOS. On macOS 26 or earlier, update to version 1.1.0 or later. |
 | "Hiding needs Accessibility permission" (macOS 26 and earlier) | Click **Request Accessibility Permission** and turn on MenuBarManager in System Settings. If nothing changes after you turn it on, reset the permission entry as in step 4 of [Update](#update) and turn it on again. |
 | An app's switch is on but its icon is missing | The app is outside the Applications folder, or it is a Control Center item. See [section 3](#icons-that-cannot-be-shown-while-hiding). |
 | Edit Order stopped working after an update | Allow the Accessibility permission again. See [Update](#update). |

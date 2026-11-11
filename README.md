@@ -117,7 +117,7 @@ flowchart LR
 
 | Item | Detail |
 |---|---|
-| **macOS** | Runs on macOS 15 or later. **Hiding was verified on macOS 27 and macOS 26.5.** On macOS 26 and earlier the app hides icons in a different way, supported from the version after 1.0.2 (macOS 15–25 have not been checked). When hiding cannot be turned on, it stays off and the app tells you why. |
+| **macOS** | Runs on macOS 15 or later. **Hiding was verified on macOS 27 and macOS 26.5.** On macOS 26 and earlier the app hides icons in a different way, supported from version 1.1.0 (macOS 15–25 have not been checked). When hiding cannot be turned on, it stays off and the app tells you why. |
 | **Mac** | Apple silicon and Intel (universal). Not yet tested on an Intel Mac. |
 | **Location** | The app must be in the Applications folder. |
 | **Accessibility permission** | Optional on macOS 27: needed for reordering and a few conveniences, while hiding and expanding work without it. **On macOS 26 and earlier, hiding needs it too.** |
