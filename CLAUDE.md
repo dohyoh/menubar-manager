@@ -9,7 +9,7 @@ macOS 메뉴바에 표시할 앱을 고르고 순서를 조정하는 메뉴바 �
 - `./scripts/release.sh` — 배포용 zip 생성 (`build/release/`). 버전은 `project.yml`의 `MARKETING_VERSION` (docs/adr/0011-unnotarized-release.md)
 - `swift test --package-path Packages/MenuBarKit` — 단위 테스트
 - `python3 scripts/strings.py check` — 문자열 번역 누락 검사 (문자열을 추가·수정했으면 `sync` 후 영어 번역을 채운다)
-- Debug 빌드를 `open -n /Applications/MenuBarManager.app --args -automationDir <폴더>`로 실행하면 `<폴더>/cmd`에 명령을 써서 조작하고 `<폴더>/app.log`로 결과를 볼 수 있다 (`App/Debug/AutomationHook.swift`). 메뉴바 아이콘은 프로그램으로 클릭할 수 없으므로 이 방법과 화면 캡처로 확인한다.
+- Debug 빌드를 `open -n /Applications/MenuBarManager.app --args -automationDir <폴더>`로 실행하면 `<폴더>/cmd`에 명령을 써서 조작하고 `<폴더>/app.log`로 결과를 볼 수 있다 (`App/Debug/AutomationHook.swift`). 메뉴바 아이콘은 프로그램으로 클릭할 수 없으므로 이 방법과 화면 캡처로 확인한다. `-stateDir <폴더>`를 함께 주면 그 폴더의 `state.json`(사용자 설정의 사본)으로 실행하고, `viewshot <png 경로>` 명령은 설정 창의 내용을 화면 없이 그려 저장한다 (화면이 잠겨 있을 때).
 
 ## 문서
 
@@ -37,4 +37,4 @@ macOS 메뉴바에 표시할 앱을 고르고 순서를 조정하는 메뉴바 �
 - 판단 로직은 `MenuBarDomain`·`MenuBarServices`에 두고 `swift test`로 검증한다.
 - 사용자에게 보이는 문자열은 `L("…")`로 감싼다 (원문 한국어, 번역은 `Localizable.xcstrings`).
 - 입력 합성(드래그·클릭) 검증은 사용자의 포인터를 움직이고 실제 메뉴바 순서를 바꾼다. 사용자가 쓰는 중에는 꼭 필요한 만큼만 하고, 바꾼 순서는 원래대로 되돌린다.
-- 자동 검증을 할 때 사용자가 저장해 둔 설정(`~/Library/Application Support/MenuBarManager/state.json`의 숨길 앱 목록 등)을 바꾸지 않는다.
+- 자동 검증을 할 때 사용자가 저장해 둔 설정(`~/Library/Application Support/MenuBarManager/state.json`의 숨길 앱 목록 등)을 바꾸지 않는다. 설정을 바꿔 봐야 하면 사본을 만들어 `-stateDir`로 실행한다.

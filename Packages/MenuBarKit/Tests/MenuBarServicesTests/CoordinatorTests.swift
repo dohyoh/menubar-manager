@@ -530,6 +530,21 @@ struct M4Tests {
         #expect(!list.systemItems.contains(6))
     }
 
+    @Test("고른 화면 언어는 저장되고, 내보내기·가져오기에도 들어간다")
+    func languageIsPersistedAndExported() async {
+        let source = Rig(hidden: ["com.a"])
+        await source.coordinator.start()
+        #expect(source.coordinator.options.language == .system)
+        source.coordinator.setLanguage(.english)
+        #expect(source.store.state.options.language == .english)
+
+        let target = Rig(hidingEnabled: false, hidden: [])
+        await target.coordinator.start()
+        await target.coordinator.importState(source.coordinator.exportState())
+        #expect(target.coordinator.options.language == .english)
+        #expect(target.store.state.options.language == .english)
+    }
+
     @Test("내보낸 설정을 가져오면 그대로 적용된다")
     func importAppliesState() async {
         let source = Rig(hidden: ["com.a"])

@@ -89,6 +89,16 @@ public final class HostedWindow {
         window?.center()
     }
 
+    /// 창의 내용을 화면을 거치지 않고 그려 PNG 로 저장한다 (자동 검증용).
+    /// 화면이 잠겨 있어 캡처할 수 없을 때도 된다. 제목 막대는 들어가지 않는다.
+    @discardableResult
+    public func renderContent(to url: URL) -> Bool {
+        guard let view = window?.contentView, let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return false }
+        view.cacheDisplay(in: view.bounds, to: rep)
+        guard let data = rep.representation(using: .png, properties: [:]) else { return false }
+        return (try? data.write(to: url)) != nil
+    }
+
     public func show() {
         if window == nil {
             let host = NSHostingController(rootView: makeContent())

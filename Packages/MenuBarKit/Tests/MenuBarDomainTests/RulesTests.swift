@@ -255,3 +255,39 @@ struct HotkeyFormatterTests {
         #expect(HotkeyFormatter.display(keyCode: 10, modifiers: HotkeyFormatter.command) == "⌘#10")
     }
 }
+
+@Suite("화면 언어")
+struct AppLanguageTests {
+    @Test("시스템 언어 따르기: 선호 언어 중 지원하는 첫 언어를 쓴다")
+    func systemPicksFirstSupported() {
+        #expect(AppLanguage.system.resolvedCode(preferredLanguages: ["ko-KR", "en-US"]) == "ko")
+        #expect(AppLanguage.system.resolvedCode(preferredLanguages: ["en-US", "ko-KR"]) == "en")
+        #expect(AppLanguage.system.resolvedCode(preferredLanguages: ["zh-Hans-CN", "ko-KR"]) == "ko")
+    }
+
+    @Test("시스템 언어 따르기: 지원하는 언어가 없으면 영어")
+    func systemFallsBackToEnglish() {
+        #expect(AppLanguage.system.resolvedCode(preferredLanguages: ["zh-Hans-CN", "ja-JP"]) == "en")
+        #expect(AppLanguage.system.resolvedCode(preferredLanguages: []) == "en")
+    }
+
+    @Test("언어를 직접 고르면 시스템 언어와 무관하게 그 언어를 쓴다")
+    func explicitChoiceWins() {
+        #expect(AppLanguage.korean.resolvedCode(preferredLanguages: ["en-US"]) == "ko")
+        #expect(AppLanguage.english.resolvedCode(preferredLanguages: ["ko-KR"]) == "en")
+        #expect(AppLanguage.system.overrideCode == nil)
+        #expect(AppLanguage.korean.overrideCode == "ko")
+        #expect(AppLanguage.english.overrideCode == "en")
+    }
+
+    @Test("언어 항목이 없는 예전 설정 파일과 모르는 값은 시스템 언어 따르기로 읽는다")
+    func decodingDefaults() throws {
+        let old = try JSONDecoder().decode(Options.self, from: Data(#"{"hidingEnabled":true}"#.utf8))
+        #expect(old.language == .system)
+        #expect(old.hidingEnabled)
+        let unknown = try JSONDecoder().decode(Options.self, from: Data(#"{"language":"fr"}"#.utf8))
+        #expect(unknown.language == .system)
+        let english = try JSONDecoder().decode(Options.self, from: Data(#"{"language":"en"}"#.utf8))
+        #expect(english.language == .english)
+    }
+}

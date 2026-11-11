@@ -13,6 +13,8 @@ import MenuBarSystem
 ///
 ///   state | toggle | hide on|off | sethidden <번들ID> 0|1 | autorehide on|off | seconds <n> | policy show|hide
 ///   settings [order|general|diagnostics] | info | welcome | menushot | menutest | quit
+///   lang system|ko|en | restart                                                             (언어 저장, 앱 다시 시작)
+///   viewshot <png 경로>                                                                      (설정 창 내용을 화면 없이 그려 저장)
 ///   axstatus | axprompt | axlist | order read | order move <id> <id|end>                       (순서 조정, 접근성 권한 필요)
 ///   drag <x1> <x2> <y> | dragtune <pt> <ms> <ms> | click <x> <y>                              (저수준 입력 합성 — 사용자가 쓰는 중에는 피한다)
 @MainActor
@@ -132,6 +134,16 @@ final class AutomationHook {
             log("info visible=\(delegate?.isInfoVisible ?? false)")
         case "welcome":
             delegate?.showWelcome()
+        case "lang":
+            // lang system|ko|en — 저장만 한다. 화면은 `restart` 로 다시 시작해야 바뀐다.
+            coordinator.setLanguage(AppLanguage(rawValue: parts.dropFirst().first ?? "") ?? .system)
+            log("LANG saved=\(coordinator.options.language.rawValue) current=\(AppLanguageSupport.currentCode) system=\(AppLanguageSupport.systemPreferredLanguages) sample=\(L("설정 열기"))")
+        case "viewshot":
+            // viewshot <png 경로> — 설정 창의 내용을 화면을 거치지 않고 그려 저장한다 (화면이 잠겨 있어도 된다)
+            guard parts.count >= 2 else { return log("usage: viewshot <path>") }
+            log("VIEWSHOT \(delegate?.debugRenderSettings(to: parts[1]) == true ? "saved" : "failed") \(parts[1])")
+        case "restart":
+            delegate?.restart()
         case "policy":
             coordinator.setNewAppPolicy(NewAppPolicy(rawValue: parts.dropFirst().first ?? "") ?? .show)
         case "sysitem":

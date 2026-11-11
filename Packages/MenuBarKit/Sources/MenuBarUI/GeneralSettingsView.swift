@@ -5,7 +5,7 @@ import UniformTypeIdentifiers
 import MenuBarDomain
 import MenuBarServices
 
-/// 설정 > 일반: 로그인 시 실행, 자동 숨기기, 새 앱 정책, 단축키, 백업.
+/// 설정 > 일반: 로그인 시 실행, 언어, 자동 숨기기, 새 앱 정책, 단축키, 백업.
 /// (시스템 아이콘 표시 여부는 "메뉴바 관리" 탭에 있다.)
 struct GeneralSettingsView: View {
     let coordinator: MenuBarCoordinator
@@ -35,6 +35,27 @@ struct GeneralSettingsView: View {
                 }
             } footer: {
                 Text(L("컴퓨터를 켜고 로그인하면 자동으로 시작합니다."))
+            }
+
+            Section {
+                Picker(L("언어"), selection: Binding(
+                    get: { coordinator.options.language },
+                    set: { coordinator.setLanguage($0) }
+                )) {
+                    Text(L("시스템 언어 따르기")).tag(AppLanguage.system)
+                    // 언어 이름은 번역하지 않고 그 언어로 적는다.
+                    Text(verbatim: "한국어").tag(AppLanguage.korean)
+                    Text(verbatim: "English").tag(AppLanguage.english)
+                }
+                if needsRestartForLanguage {
+                    HStack {
+                        Text(L("앱을 다시 시작하면 적용됩니다.")).foregroundStyle(.secondary)
+                        Spacer()
+                        Button(L("지금 다시 시작")) { navigation.onRestart?() }
+                    }
+                }
+            } footer: {
+                Text(L("\"시스템 언어 따르기\"는 macOS의 언어가 한국어나 영어이면 그 언어로, 그 밖의 언어이면 영어로 표시합니다."))
             }
 
             Section {
@@ -92,6 +113,13 @@ struct GeneralSettingsView: View {
         }
         .formStyle(.grouped)
         .onAppear { launchAtLogin = loginItem.isEnabled }
+    }
+
+    // MARK: 언어
+
+    /// 고른 언어가 지금 화면의 언어와 다른가. 화면 언어는 앱을 시작할 때 정해지므로 다시 시작해야 바뀐다.
+    private var needsRestartForLanguage: Bool {
+        coordinator.options.language.resolvedCode(preferredLanguages: navigation.systemLanguages) != navigation.currentLanguageCode
     }
 
     // MARK: 단축키

@@ -310,7 +310,7 @@
     <span class="chip state">버전 1.0.1 배포 · M4까지 구현</span>
     <span class="chip">macOS 15+ 실행 · 숨김은 27에서 확인</span>
     <span class="chip">Swift 6 · SwiftUI + AppKit</span>
-    <span class="chip">제품 코드 약 3,700줄 · 테스트 83개</span>
+    <span class="chip">제품 코드 약 3,700줄 · 테스트 88개</span>
   </div>
 </header>
 
@@ -395,6 +395,7 @@
         <tr><td><strong>새 앱 처리</strong> <span class="small">FR-6 · 구현됨</span></td><td>새 앱이 실행되면 목록을 갱신합니다. 처음 보는 앱을 표시할지, 숨길지, 물어볼지는 설정에서 고릅니다. "묻기"는 메뉴바 아이콘을 가진 새 앱만 "새로 나타난 앱"에 올립니다 (접근성 권한 필요).</td><td><span class="tag bad">P0 필수</span></td><td>M2</td></tr>
         <tr><td><strong>설치 위치 확인</strong> <span class="small">FR-18 · 구현됨</span></td><td>응용 프로그램 폴더 밖에서 실행되면 자기 아이콘이 숨겨지므로, 숨김을 켜지 않고 안내합니다. 안내 창의 버튼으로 바로 옮기고 다시 실행합니다.</td><td><span class="tag bad">P0 필수</span></td><td>M1</td></tr>
         <tr><td><strong>전역 단축키</strong> <span class="small">FR-7 · 구현됨</span></td><td>키 한 번으로 펼치기/숨기기, 설정 열기. 설정 > 일반에서 조합을 기록합니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
+        <tr><td><strong>화면 언어 선택</strong> <span class="small">FR-21 · 구현됨</span></td><td>설정 > 일반에서 시스템 언어 따르기(기본) · 한국어 · English 중 고릅니다. 시스템 언어가 한국어·영어가 아니면 영어로 표시합니다. 바꾸면 그 자리에서 다시 시작해 적용합니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
         <tr><td><strong>OS 호환성 자가진단</strong> <span class="small">FR-8 · 구현됨</span></td><td>필요한 시스템 기능이 없으면 숨김을 켜지 않습니다. 설정 > 진단 탭에서 결과를 보고 복사합니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
         <tr><td><strong>설정 백업/복원</strong> <span class="small">FR-9 · 구현됨</span></td><td>숨길 앱 목록과 옵션을 파일로 내보내고 가져옵니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
         <tr><td><strong>시스템 아이콘 숨김</strong> <span class="small">FR-19 · 구현됨</span></td><td>Wi-Fi·배터리도 함께 숨길 수 있습니다. 설정 > 메뉴바 관리 목록의 "시스템 아이콘" 구역에서 고릅니다. 시계와 제어 센터는 항상 표시합니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
@@ -565,7 +566,7 @@
     <li><span class="dot">M1</span><h4>앱 뼈대 <span class="fr">FR-4 · FR-16 · FR-18 · FR-20</span> <span class="tag ok">구현</span></h4><p>메뉴바 아이콘과 좌/우클릭, 우클릭 메뉴(숨기기 스위치·설정·정보), 설정 창 골격, 정보 화면, 로그인 시 실행, 설치 위치 확인.</p></li>
     <li><span class="dot">M2</span><h4>표시/숨김 + 펼치기 <span class="fr">FR-1 · FR-2 · FR-5 · FR-6 · FR-17</span> <span class="tag ok">구현</span></h4><p>숨김, 메뉴바 관리 화면(검색·필터·표시/숨김 구역), 새 앱 정책, 사용 중에는 자동 숨기기 미루기, 첫 실행 안내, 한국어·영어 문자열, 앱 아이콘.</p></li>
     <li><span class="dot">M3</span><h4>순서 조정 <span class="fr">FR-3</span> <span class="tag ok">구현</span></h4><p>순서 편집(처음에는 별도 탭, 지금은 메뉴바 관리 안): 순서 읽기, 목록 드래그, 적용. 숨긴 앱 포함, 시스템 항목은 고정, 모니터 두 대 대응. 직접 드래그해 적용하는 조작까지 확인됨.</p></li>
-    <li><span class="dot">M4</span><h4>안정화·편의 <span class="fr">FR-7 ~ FR-9 · FR-19</span> <span class="tag ok">구현</span></h4><p>전역 단축키, 자가진단·진단 정보, 설정 백업, 시스템 아이콘 숨김, 알림 센터 열기, "메뉴바" 필터, 새 앱 "묻기", 응용 프로그램 폴더로 옮기기. 노치·전체 화면·잠자기 같은 환경별 점검은 남음.</p></li>
+    <li><span class="dot">M4</span><h4>안정화·편의 <span class="fr">FR-7 ~ FR-9 · FR-19 · FR-21</span> <span class="tag ok">구현</span></h4><p>화면 언어 선택, 전역 단축키, 자가진단·진단 정보, 설정 백업, 시스템 아이콘 숨김, 알림 센터 열기, "메뉴바" 필터, 새 앱 "묻기", 응용 프로그램 폴더로 옮기기. 노치·전체 화면·잠자기 같은 환경별 점검은 남음.</p></li>
     <li class="next"><span class="dot">M5</span><h4>확장 <span class="fr">FR-10 ~ FR-13</span> <span class="tag warn">다음</span></h4><p>프로필, 자동 전환, 검색, 조건부 표시. 필요한 것만 골라서.</p></li>
     <li><span class="dot">M6</span><h4>배포 <span class="fr">FR-15</span> <span class="tag warn">일부</span></h4><p>1.0.1까지 <a href="https://github.com/dohyoh/menubar-manager/releases">GitHub Releases</a>에 올림 (공증 없음 — 처음 열 때 경고를 풀어야 함). 저장소 README와 사용 안내서는 영어·한국어·중국어. 공증, 자동 업데이트, 설치 파일(DMG), 라이선스는 남음.</p></li>
   </ol>

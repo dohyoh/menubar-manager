@@ -31,6 +31,16 @@
         }
       }
     },
+    "\"시스템 언어 따르기\"는 macOS의 언어가 한국어나 영어이면 그 언어로, 그 밖의 언어이면 영어로 표시합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"Follow System Language\" uses Korean or English when macOS is set to one of them, and English for any other language."
+          }
+        }
+      }
+    },
     "%@ 메뉴바에 표시": {
       "localizations": {
         "en": {
@@ -841,6 +851,16 @@
         }
       }
     },
+    "시스템 언어 따르기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follow System Language"
+          }
+        }
+      }
+    },
     "시스템 항목": {
       "localizations": {
         "en": {
@@ -957,6 +977,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Search apps"
+          }
+        }
+      }
+    },
+    "앱을 다시 시작하면 적용됩니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Takes effect after you restart the app."
+          }
+        }
+      }
+    },
+    "언어": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language"
           }
         }
       }
@@ -1257,6 +1297,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Quit"
+          }
+        }
+      }
+    },
+    "지금 다시 시작": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart Now"
           }
         }
       }

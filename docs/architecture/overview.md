@@ -112,6 +112,7 @@ struct Options: Codable {
     var autoRehide: Bool = true           // 펼친 뒤 자동으로 다시 숨기기
     var autoRehideSeconds: Int = 10       // 설정 > 일반에서 3·5·10·15·30·60초 중 선택
     var hotkeys: [Int: Hotkey] = [:]      // 전역 단축키 (HotkeyAction → 키 코드·조합 키·표시 문자열)
+    var language: AppLanguage = .system   // 화면 언어: .system | .korean("ko") | .english("en"). 다시 시작할 때 적용
 }
 ```
 
@@ -277,7 +278,10 @@ protocol CompatibilityChecking: Sendable {
 ### 7.6 시작 (FR-4, FR-8, FR-18)
 
 ```
-로그인 → 앱 실행 (paused)
+로그인 → 앱 실행
+  → (main.swift 맨 앞) 저장된 설정의 화면 언어가 한국어/English 이면 그 언어로 고정   // FR-21
+      └─ "시스템 언어 따르기"이면 아무것도 하지 않음 — macOS 가 고르고, 한국어·영어가 아니면 영어
+  → (paused)
   → isInstalledInApplications ?
       └─ 아니오: paused(.notInstalledInApplications) + 안내 창
                  [응용 프로그램 폴더로 옮기기] → 복사 → 그 사본 실행 → 이 프로세스 종료
@@ -289,6 +293,8 @@ protocol CompatibilityChecking: Sendable {
 ```
 
 진단 결과(앱·macOS 버전, 상태, 숨김 기능·설치 위치·접근성 권한 등)는 설정 > 진단에서 보고 복사할 수 있습니다.
+
+**화면 언어를 바꾸면 (FR-21):** 고른 값을 저장하고, 지금 화면의 언어와 다르면 설정 > 일반에 "앱을 다시 시작하면 적용됩니다"와 [지금 다시 시작]을 보여 줍니다. 다시 시작은 이 프로세스가 끝난 것을 확인한 뒤 같은 위치의 앱을 다시 여는 방식입니다 — 두 프로세스가 함께 돌면 숨김 제한과 전역 단축키 등록이 겹치기 때문입니다. 언어 판단(`AppLanguage.resolvedCode`)은 `MenuBarDomain`에, 언어 고정과 다시 실행(`AppLanguageSupport`, `AppRelauncher`)은 `MenuBarSystem`에 있습니다.
 
 ### 7.7 숨김 중에 시계를 누름 — 알림 센터
 

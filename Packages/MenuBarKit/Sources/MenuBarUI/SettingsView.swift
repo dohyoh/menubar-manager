@@ -28,6 +28,12 @@ public final class SettingsNavigation {
     public var isEditingOrder = false
     /// 등록에 실패한 단축키 (HotkeyAction 의 rawValue). 다른 앱이 이미 쓰는 조합일 때.
     public var hotkeyFailures: Set<Int> = []
+    /// macOS 의 선호 언어 목록 ("시스템 언어 따르기"가 어떤 언어가 되는지 계산할 때 쓴다).
+    public var systemLanguages: [String] = []
+    /// 지금 화면에 쓰이고 있는 언어 코드. 고른 언어와 다르면 다시 시작해야 한다.
+    public var currentLanguageCode = AppLanguage.fallbackCode
+    /// 앱을 다시 시작한다 (언어를 바꾼 뒤).
+    public var onRestart: (@MainActor () -> Void)?
     public init() {}
 }
 

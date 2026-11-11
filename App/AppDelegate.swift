@@ -23,9 +23,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let clockMonitor = ClockClickMonitor()
     private let activityChecker = MenuBarActivityChecker()
     private let hotkeys = GlobalHotkeyCenter()
+    private let store: JSONStateStore
     #if DEBUG
     private var automation: AutomationHook?
     #endif
+
+    init(store: JSONStateStore) {
+        self.store = store
+        super.init()
+    }
+
+    /// 설정 저장소. Debug 빌드는 실행 인자 `-stateDir <폴더>` 로 다른 폴더를 쓸 수 있다
+    /// (자동 검증이 사용자의 설정 파일을 건드리지 않도록 사본으로 실행할 때 쓴다).
+    static func makeStateStore() -> JSONStateStore {
+        #if DEBUG
+        let arguments = CommandLine.arguments
+        if let index = arguments.firstIndex(of: "-stateDir"), index + 1 < arguments.count, !arguments[index + 1].isEmpty {
+            return JSONStateStore(directory: URL(fileURLWithPath: arguments[index + 1], isDirectory: true))
+        }
+        #endif
+        return JSONStateStore()
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let presence = SelfPresenceChecker()
@@ -33,7 +51,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             visibility: AssessmentModeVisibilityController(),
             discovery: WorkspaceAppDiscovery(selfBundleID: presence.selfBundleID),
             presence: presence,
-            store: JSONStateStore(),
+            store: store,
             scheduler: TaskRehideScheduler(),
             activity: activityChecker,
             permission: permission,
@@ -46,6 +64,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let loginItem = self.loginItem
         let navigation = settingsNavigation
+        navigation.systemLanguages = AppLanguageSupport.systemPreferredLanguages
+        navigation.currentLanguageCode = AppLanguageSupport.currentCode
+        navigation.onRestart = { [weak self] in self?.restart() }
         settingsWindow = HostedWindow(title: L("설정"), resizable: true, minSize: NSSize(width: 480, height: 420), initialSize: NSSize(width: 580, height: 600)) {
             SettingsView(coordinator: coordinator, loginItem: loginItem, ordering: ordering, navigation: navigation)
         }
@@ -98,6 +119,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// 종료할 때 숨긴 아이콘을 모두 되돌린다. (강제 종료·크래시 때는 시스템이 되돌린다.)
+    /// 앱을 끝내고 다시 실행한다 (화면 언어를 바꾼 뒤). 실행 인자는 그대로 넘긴다.
+    func restart() {
+        guard AppRelauncher.relaunchAfterExit(arguments: Array(CommandLine.arguments.dropFirst())) else { return }
+        NSApp.terminate(nil)
+    }
+
     func applicationWillTerminate(_ notification: Notification) {
         coordinator?.shutdown()
     }
@@ -154,6 +181,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     #if DEBUG
     func debugIsMenuBar(at point: CGPoint) -> Bool { clockMonitor.isMenuBar(at: point) }
+    func debugRenderSettings(to path: String) -> Bool { settingsWindow.renderContent(to: URL(fileURLWithPath: path)) }
 
     /// 자동 검증용: 임시 단축키(⌃⌥⇧⌘Y)를 "설정 열기"에 걸고 그 키를 합성해 눌러, 설정 창이 뜨는지 본다.
     /// 저장된 설정은 바꾸지 않고, 끝나면 저장된 단축키로 되돌린다.

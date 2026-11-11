@@ -108,7 +108,7 @@ flowchart LR
 | Tab | What you can do |
 |---|---|
 | **Menu Bar** | Show or hide each app and system icon, search and filter the list, **Edit Order** |
-| **General** | Launch at login, hide again automatically, what to do with new apps, global shortcuts, backup |
+| **General** | Launch at login, language, hide again automatically, what to do with new apps, global shortcuts, backup |
 | **Diagnostics** | Check why something is not working and copy the details |
 
 <sub>The Menu Bar picture is an illustration with sample apps. The other pictures are real screenshots.</sub>
@@ -121,7 +121,7 @@ flowchart LR
 | **Mac** | Apple silicon and Intel (universal). Not yet tested on an Intel Mac. |
 | **Location** | The app must be in the Applications folder. |
 | **Accessibility permission** | Optional. Needed for reordering and a few conveniences. Hiding and expanding work without it. |
-| **Language** | English and Korean. |
+| **Language** | English and Korean. Follows the macOS language (English for any other language). Change it in **Settings > General**. |
 
 ## Good to know
 

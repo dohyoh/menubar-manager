@@ -121,6 +121,7 @@ App 以窗帘图标的形式常驻菜单栏。窗帘合上表示图标正被隐�
 | 选项 | 作用 | 默认值 |
 |---|---|---|
 | **Launch at login** | 登录时自动启动 App | 关 |
+| **Language** | **Follow System Language**：macOS 的语言是韩语或英语时使用该语言，否则显示英语。也可以直接选择 **한국어**（韩语）或 **English**。更改后需要重新启动 App 才会生效，点击下方的 **Restart Now** 即可。 | Follow System Language |
 | **Hide again automatically after expanding** | 左键展开后，经过设定的时间自动重新隐藏。使用已展开图标的菜单时会等待。 | 开 |
 | **Hide again after** | 3、5、10、15、30 或 60 秒 | 10 秒 |
 | **Newly installed or first-run apps** | **Show**：新图标直接显示。**Hide**：新 App 自动隐藏。**Ask**：新 App 会列在 Menu Bar 标签页的 **New Apps** 中，由你决定（需要辅助功能权限）。 | Show |

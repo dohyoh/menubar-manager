@@ -54,7 +54,8 @@
 │   │   │   ├── WorkspaceAppDiscovery.swift                # 실행 중 + 설치된 앱
 │   │   │   ├── SystemServices.swift                       # SelfPresenceChecker, LoginItemManager
 │   │   │   ├── AccessibilityBackends.swift                # 접근성 권한, 아이템 열거, ⌘+드래그 합성, 메뉴바 사용 중·알림 센터 감지, 시계 클릭 감지
-│   │   │   └── GlobalHotkeyCenter.swift                   # 전역 단축키 (Carbon 핫키)
+│   │   │   ├── GlobalHotkeyCenter.swift                   # 전역 단축키 (Carbon 핫키)
+│   │   │   └── AppLanguageSupport.swift                   # 화면 언어 고정, 앱 다시 실행
 │   │   ├── MenuBarPrivateBridge/    # Objective-C. 비공개 API 문자열은 여기에만
 │   │   │   ├── include/MenuBarPrivateBridge.h
 │   │   │   └── Bridge.m
@@ -125,6 +126,7 @@ swift test --package-path Packages/MenuBarKit
 - Xcode가 직접 고정 인증서로 서명하게 하면 패키지의 리소스 번들에 개발 팀 설정을 요구하며 실패합니다. 그래서 빌드 후 다시 서명하는 방식을 씁니다.
 - 임시 서명을 강제하려면 `CODESIGN_IDENTITY="-" ./scripts/build.sh install`.
 - 고정 인증서로 서명할 때는 강화된 런타임(`--options runtime`)을 함께 켠다.
+- Debug 빌드는 실행 인자 `-stateDir <폴더>`를 주면 그 폴더의 `state.json`을 쓴다. 자동 검증은 사용자의 설정 파일을 복사한 폴더로 실행해, 원본을 건드리지 않는다.
 - **평소에 쓰는 앱은 Release로 설치한다** — `CONFIG=Release ./scripts/build.sh install`. Debug 빌드에는 자동 검증용 명령 채널(`App/Debug/AutomationHook.swift`)이 들어 있어, 같은 사용자의 다른 프로세스가 실행 인자를 주어 이 앱의 접근성 권한으로 입력을 합성할 수 있다.
 
 ## 5. 코드 컨벤션

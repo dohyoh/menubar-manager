@@ -134,6 +134,37 @@ public enum NewAppPolicy: String, Codable, Sendable, CaseIterable {
     case ask
 }
 
+/// 화면 언어 설정. 저장 값은 rawValue.
+public enum AppLanguage: String, Codable, CaseIterable, Sendable {
+    /// macOS 의 언어를 따른다. 지원하지 않는 언어이면 영어.
+    case system
+    case korean = "ko"
+    case english = "en"
+
+    /// 앱이 화면을 제공하는 언어
+    public static let supportedCodes = ["ko", "en"]
+    public static let fallbackCode = "en"
+
+    /// 시작할 때 강제로 지정할 언어 코드. `system` 이면 nil — 시스템이 고르게 둔다.
+    public var overrideCode: String? { self == .system ? nil : rawValue }
+
+    /// 이 설정으로 실제 화면에 쓰이는 언어 코드.
+    /// - Parameter preferredLanguages: macOS 의 선호 언어 목록 (예: ["ko-KR", "en-US"]). 앞에 있을수록 우선.
+    public func resolvedCode(preferredLanguages: [String]) -> String {
+        if let overrideCode { return overrideCode }
+        for language in preferredLanguages {
+            let code = AppLanguage.baseCode(of: language)
+            if AppLanguage.supportedCodes.contains(code) { return code }
+        }
+        return AppLanguage.fallbackCode
+    }
+
+    /// "ko-KR", "zh-Hans-CN", "en_US" 같은 식별자에서 언어 부분만 꺼낸다.
+    public static func baseCode(of identifier: String) -> String {
+        String(identifier.prefix { $0 != "-" && $0 != "_" }).lowercased()
+    }
+}
+
 public struct Options: Codable, Equatable, Sendable {
     /// 우클릭 메뉴의 "숨기기" 스위치. 다음 실행 때 이 상태로 시작한다.
     public var hidingEnabled: Bool
@@ -144,15 +175,19 @@ public struct Options: Codable, Equatable, Sendable {
     public var didShowWelcome: Bool
     /// 전역 단축키 (키: HotkeyAction 의 rawValue)
     public var hotkeys: [Int: Hotkey]
+    /// 화면 언어. 바꾼 값은 앱을 다시 시작할 때 적용된다.
+    public var language: AppLanguage
 
     public static let autoRehideChoices = [3, 5, 10, 15, 30, 60]
 
-    public init(hidingEnabled: Bool = false, autoRehide: Bool = true, autoRehideSeconds: Int = 10, didShowWelcome: Bool = false, hotkeys: [Int: Hotkey] = [:]) {
+    public init(hidingEnabled: Bool = false, autoRehide: Bool = true, autoRehideSeconds: Int = 10, didShowWelcome: Bool = false, hotkeys: [Int: Hotkey] = [:],
+                language: AppLanguage = .system) {
         self.hidingEnabled = hidingEnabled
         self.autoRehide = autoRehide
         self.autoRehideSeconds = autoRehideSeconds
         self.didShowWelcome = didShowWelcome
         self.hotkeys = hotkeys
+        self.language = language
     }
 
     public init(from decoder: Decoder) throws {
@@ -163,6 +198,8 @@ public struct Options: Codable, Equatable, Sendable {
         autoRehideSeconds = try c.decodeIfPresent(Int.self, forKey: .autoRehideSeconds) ?? defaults.autoRehideSeconds
         didShowWelcome = try c.decodeIfPresent(Bool.self, forKey: .didShowWelcome) ?? defaults.didShowWelcome
         hotkeys = try c.decodeIfPresent([Int: Hotkey].self, forKey: .hotkeys) ?? [:]
+        // 모르는 값(더 새로운 버전이 쓴 언어 등)이면 시스템 언어를 따른다.
+        language = (try? c.decode(AppLanguage.self, forKey: .language)) ?? .system
     }
 }
 

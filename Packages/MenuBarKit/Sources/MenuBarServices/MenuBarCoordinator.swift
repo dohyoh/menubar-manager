@@ -226,6 +226,12 @@ public final class MenuBarCoordinator {
         rescheduleIfExpanded()
     }
 
+    /// 화면 언어를 저장한다. 실제 화면은 앱을 다시 시작할 때 바뀐다.
+    public func setLanguage(_ language: AppLanguage) {
+        options.language = language
+        persist()
+    }
+
     public func setNewAppPolicy(_ policy: NewAppPolicy) {
         layout.newAppPolicy = policy
         persist()
