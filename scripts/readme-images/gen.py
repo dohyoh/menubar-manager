@@ -60,9 +60,8 @@ T = {
             note='스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 제어 센터에서 메뉴바로 꺼낸 항목(타이머 등)은 숨김 중에는 항상 숨겨집니다.'),
 }
 set_css = '''
-body{padding:26px 34px 44px}
 .win{width:580px;border-radius:13px;background:#1f1f1f;color:#ececec;overflow:hidden;
-  box-shadow:0 0 0 1px rgba(255,255,255,.14) inset,0 0 0 .5px rgba(0,0,0,.6),0 18px 40px rgba(0,0,0,.38);font-size:13px}
+  box-shadow:0 0 0 1px rgba(255,255,255,.14) inset;font-size:13px}
 .tb{height:32px;background:#2b2b2b;border-bottom:1px solid #151515;display:flex;align-items:center;padding:0 12px;gap:8px}
 .tl{width:12px;height:12px;border-radius:50%}
 .tb b{margin-left:8px;font-weight:600;color:#cfcfcf;font-size:13px}

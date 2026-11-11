@@ -19,5 +19,5 @@ swiftc -O snap.swift -o "$WORK/snap"
   doc.on.clipboard.fill rectangle.split.2x1.fill bolt.fill moon.fill cursorarrow.click.2 > "$WORK/syms.json"
 python3 gen.py "$WORK"
 "$WORK/snap" "$WORK/hero.html" "$OUT/menubar-before-after.png" 860
-"$WORK/snap" "$WORK/settings-menubar-en.html" "$OUT/settings-menubar-en.png" 648
-"$WORK/snap" "$WORK/settings-menubar-ko.html" "$OUT/settings-menubar-ko.png" 648
+"$WORK/snap" "$WORK/settings-menubar-en.html" "$OUT/settings-menubar-en.png" 580
+"$WORK/snap" "$WORK/settings-menubar-ko.html" "$OUT/settings-menubar-ko.png" 580

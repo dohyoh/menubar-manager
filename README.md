@@ -86,17 +86,24 @@ flowchart LR
 | **Your shortcut** | Expand / hide, or open Settings |
 
 </td>
-<td>
-<img src="docs/images/menu-en.png" alt="Right-click menu" width="250">
+<td width="270" align="center">
+<img src="docs/images/menu-en.png" alt="Right-click menu" width="240">
 </td>
 </tr>
 </table>
 
 ## Settings at a glance
 
-| Menu Bar — choose what to hide | General — options |
-|:---:|:---:|
-| <img src="docs/images/settings-menubar-en.png" alt="Menu Bar tab (illustration with sample apps)" width="400"> | <img src="docs/images/settings-general-en.png" alt="General tab" width="400"> |
+<table>
+<tr>
+<th width="50%">Menu Bar — choose what to hide</th>
+<th width="50%">General — options</th>
+</tr>
+<tr>
+<td valign="top" align="center"><img src="docs/images/settings-menubar-en.png" alt="Menu Bar tab (illustration with sample apps)" width="400"></td>
+<td valign="top" align="center"><img src="docs/images/settings-general-en.png" alt="General tab" width="400"></td>
+</tr>
+</table>
 
 | Tab | What you can do |
 |---|---|

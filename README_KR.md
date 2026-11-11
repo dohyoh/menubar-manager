@@ -86,17 +86,24 @@ flowchart LR
 | **지정한 단축키** | 펼치기 / 숨기기, 또는 설정 열기 |
 
 </td>
-<td>
-<img src="docs/images/menu-ko.png" alt="우클릭 메뉴" width="250">
+<td width="270" align="center">
+<img src="docs/images/menu-ko.png" alt="우클릭 메뉴" width="240">
 </td>
 </tr>
 </table>
 
 ## 설정 한눈에 보기
 
-| 메뉴바 관리 — 숨길 앱 고르기 | 일반 — 옵션 |
-|:---:|:---:|
-| <img src="docs/images/settings-menubar-ko.png" alt="메뉴바 관리 탭 (예시 앱으로 그린 그림)" width="400"> | <img src="docs/images/settings-general-ko.png" alt="일반 탭" width="400"> |
+<table>
+<tr>
+<th width="50%">메뉴바 관리 — 숨길 앱 고르기</th>
+<th width="50%">일반 — 옵션</th>
+</tr>
+<tr>
+<td valign="top" align="center"><img src="docs/images/settings-menubar-ko.png" alt="메뉴바 관리 탭 (예시 앱으로 그린 그림)" width="400"></td>
+<td valign="top" align="center"><img src="docs/images/settings-general-ko.png" alt="일반 탭" width="400"></td>
+</tr>
+</table>
 
 | 탭 | 할 수 있는 일 |
 |---|---|

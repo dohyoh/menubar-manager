@@ -86,17 +86,24 @@ flowchart LR
 | **自定义快捷键** | 展开 / 隐藏，或打开设置 |
 
 </td>
-<td>
-<img src="docs/images/menu-en.png" alt="右键菜单" width="250">
+<td width="270" align="center">
+<img src="docs/images/menu-en.png" alt="右键菜单" width="240">
 </td>
 </tr>
 </table>
 
 ## 设置一览
 
-| Menu Bar — 选择要隐藏的图标 | General — 选项 |
-|:---:|:---:|
-| <img src="docs/images/settings-menubar-en.png" alt="Menu Bar 标签页（用示例 App 绘制的示意图）" width="400"> | <img src="docs/images/settings-general-en.png" alt="General 标签页" width="400"> |
+<table>
+<tr>
+<th width="50%">Menu Bar — 选择要隐藏的图标</th>
+<th width="50%">General — 选项</th>
+</tr>
+<tr>
+<td valign="top" align="center"><img src="docs/images/settings-menubar-en.png" alt="Menu Bar 标签页（用示例 App 绘制的示意图）" width="400"></td>
+<td valign="top" align="center"><img src="docs/images/settings-general-en.png" alt="General 标签页" width="400"></td>
+</tr>
+</table>
 
 | 标签页 | 可以做什么 |
 |---|---|
