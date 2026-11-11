@@ -2,10 +2,16 @@ import SwiftUI
 import MenuBarDomain
 import MenuBarServices
 
-/// 설정 > 순서. 메뉴바의 현재 순서를 읽어 목록으로 보여 주고, 드래그해 바꾼 순서를 메뉴바에 적용한다. (FR-3)
-struct OrderView: View {
+/// 메뉴바 관리의 "순서 편집" 화면. 메뉴바의 현재 순서를 읽어 목록으로 보여 주고,
+/// 드래그해 바꾼 순서를 메뉴바에 적용한다. (FR-3)
+///
+/// 관리 목록과 같은 자리에 뜬다. 열 때 한 번 순서를 읽고(숨긴 아이콘이 잠깐 나타난다),
+/// 적용하거나 취소하면 관리 목록으로 돌아간다.
+struct OrderEditor: View {
     let coordinator: MenuBarCoordinator
     let ordering: OrderingController
+    /// 편집을 끝낸다. 순서를 적용했으면 관리 화면에 보여 줄 알림 문구를 넘긴다.
+    let onFinish: @MainActor (String?) -> Void
     /// 사용자가 목록에서 바꾸고 있는 순서. "적용"을 누르기 전까지 메뉴바는 그대로다.
     @State private var draft: [MenuBarItem] = []
 
@@ -24,13 +30,23 @@ struct OrderView: View {
                 content
             } else {
                 permissionBox
+                Spacer(minLength: 0)
+                HStack {
+                    Spacer()
+                    Button(L("취소")) { onFinish(nil) }
+                }
             }
         }
-        .padding(16)
-        .onAppear {
+        .task {
             ordering.refreshPermission()
-            if draft.isEmpty { draft = ordering.items }
+            if ordering.isAccessibilityGranted { await reload() }
         }
+    }
+
+    /// 메뉴바의 현재 순서를 읽어 목록을 채운다.
+    private func reload() async {
+        await ordering.read()
+        draft = ordering.items
     }
 
     @ViewBuilder
@@ -39,14 +55,11 @@ struct OrderView: View {
             Text(L("목록을 드래그해 순서를 바꾼 뒤 \"적용\"을 누르세요. 위가 메뉴바의 왼쪽입니다."))
                 .fixedSize(horizontal: false, vertical: true)
             Spacer()
-            Button(L("메뉴바에서 순서 읽기")) {
-                Task {
-                    await ordering.read()
-                    draft = ordering.items
-                }
-            }
-            .disabled(ordering.isBusy)
+            Button(L("메뉴바에서 순서 읽기")) { Task { await reload() } }
+                .disabled(ordering.isBusy)
         }
+        .padding(10)
+        .background(.tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
 
         List {
             ForEach(draft) { item in
@@ -57,9 +70,10 @@ struct OrderView: View {
             }
             .onMove { from, to in draft.move(fromOffsets: from, toOffset: to) }
         }
-        .listStyle(.inset(alternatesRowBackgrounds: true))
+        .listStyle(.inset)
+        .alternatingRowBackgrounds(.disabled)
         .overlay {
-            if draft.isEmpty {
+            if draft.isEmpty, !ordering.isBusy {
                 Text(L("\"메뉴바에서 순서 읽기\"를 눌러 현재 순서를 가져오세요."))
                     .foregroundStyle(.secondary)
             }
@@ -71,14 +85,17 @@ struct OrderView: View {
             if ordering.isBusy { ProgressView().controlSize(.small) }
             Text(statusText)
             Spacer()
-            Button(L("되돌리기")) { draft = ordering.items }
-                .disabled(!isChanged || ordering.isBusy)
+            Button(L("취소")) { onFinish(nil) }
+                .disabled(ordering.isBusy)
             Button(L("적용")) {
                 Task {
                     await ordering.apply(target: draft.map(\.id))
                     draft = ordering.items   // 실패했더라도 실제 순서에 맞춘다
+                    // 다 옮겼으면 관리 목록으로 돌아간다. 실패했으면 남아서 결과를 보여 준다.
+                    if ordering.status == .succeeded { onFinish(L("순서를 적용했습니다.")) }
                 }
             }
+            .keyboardShortcut(.defaultAction)
             .disabled(!isChanged || ordering.isBusy)
         }
 
@@ -95,7 +112,10 @@ struct OrderView: View {
                 .fixedSize(horizontal: false, vertical: true)
             HStack {
                 Button(L("접근성 권한 요청")) { ordering.requestPermission() }
-                Button(L("다시 확인")) { ordering.refreshPermission() }
+                Button(L("다시 확인")) {
+                    ordering.refreshPermission()
+                    if ordering.isAccessibilityGranted { Task { await reload() } }
+                }
             }
         }
         .padding(12)
@@ -151,6 +171,11 @@ private struct OrderRow: View {
 
     var body: some View {
         HStack(spacing: 10) {
+            // 끌 수 있는 줄에는 손잡이를 보여 준다. 시스템 항목은 자리를 비워 줄을 맞춘다.
+            Image(systemName: "line.3.horizontal")
+                .foregroundStyle(.tertiary)
+                .opacity(item.isSystem ? 0 : 1)
+                .accessibilityHidden(true)
             Group {
                 if let app, !item.isSystem {
                     Image(nsImage: AppIconCache.icon(for: app)).resizable()
@@ -168,15 +193,15 @@ private struct OrderRow: View {
                 }
             }
             Spacer(minLength: 8)
-            if isHidden {
-                Text(L("숨김")).font(.caption).foregroundStyle(.secondary)
-                    .padding(.horizontal, 6).padding(.vertical, 1)
-                    .background(.quaternary, in: Capsule())
-            }
-            if !item.isSystem {
-                Image(systemName: "line.3.horizontal").foregroundStyle(.tertiary).accessibilityHidden(true)
-            }
+            if isHidden { tag(L("숨김")) }
+            if item.isSystem { tag(L("고정")) }
         }
         .padding(.vertical, 2)
+    }
+
+    private func tag(_ text: String) -> some View {
+        Text(text).font(.caption).foregroundStyle(.secondary)
+            .padding(.horizontal, 6).padding(.vertical, 1)
+            .background(.quaternary, in: Capsule())
     }
 }

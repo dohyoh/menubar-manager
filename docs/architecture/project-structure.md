@@ -60,9 +60,10 @@
 │   │   └── MenuBarUI/               # 화면
 │   │       ├── StatusMenuController.swift   # 우클릭 메뉴 (숨기기 스위치 · 새로 나타난 앱 · 설정… · 정보 · 종료)
 │   │       ├── MenuSwitch.swift             # 메뉴용 스위치 (켜짐을 강조색으로 직접 그림)
-│   │       ├── SettingsView.swift           # 설정 창 틀(탭) + 메뉴바 관리 (앱 목록, 새로 나타난 앱, 시스템 아이콘)
-│   │       ├── GeneralSettingsView.swift    # 일반 탭: 로그인 시 실행, 자동 숨기기, 새 앱, 단축키, 백업, 진단
-│   │       ├── OrderView.swift              # 순서 탭
+│   │       ├── SettingsView.swift           # 설정 창 틀(탭: 메뉴바 관리 / 일반 / 진단) + 메뉴바 관리 (앱 목록, 새로 나타난 앱, 시스템 아이콘)
+│   │       ├── GeneralSettingsView.swift    # 일반 탭: 로그인 시 실행, 자동 숨기기, 새 앱, 단축키, 백업
+│   │       ├── DiagnosticsView.swift        # 진단 탭: 버전·상태·환경 점검 결과, 복사
+│   │       ├── OrderEditor.swift            # 메뉴바 관리의 "순서 편집" 화면
 │   │       ├── InfoView.swift               # 정보 화면 + 설명 문구(InfoContent)
 │   │       ├── Presentation.swift           # 상태별 문구·아이콘, HostedWindow
 │   │       ├── Strings.swift                # L("…") — 모든 사용자 문자열이 거치는 번역 함수

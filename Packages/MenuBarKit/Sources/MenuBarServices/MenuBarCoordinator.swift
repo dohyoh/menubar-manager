@@ -34,6 +34,10 @@ public final class MenuBarCoordinator {
     public static let newAppSettleMilliseconds = 1500
     /// 메뉴바를 쓰는 중이라 자동 숨기기를 미룰 때, 다시 확인하기까지의 시간
     public static let rehideRetrySeconds = 2
+    /// 시스템 패널(알림 센터)이 닫혔는지 확인하는 간격. 닫히면 이 시간 안에 다시 숨긴다.
+    public static let systemPanelPollMilliseconds = 150
+    /// 시계를 누른 뒤 패널이 열리기를 기다려 주는 횟수 (약 2.5초). 그동안 열리지 않으면 다시 숨긴다.
+    public static let systemPanelOpenGracePolls = 17
     /// 비동기 적용 도중 다른 조작이 끼어들었는지 판별한다.
     @ObservationIgnored private var operationID = 0
 
@@ -135,8 +139,9 @@ public final class MenuBarCoordinator {
 
     /// 시계를 눌러 알림 센터를 열려는 경우처럼, 시스템 화면을 위해 숨김을 잠깐 푼다.
     ///
-    /// 숨김이 걸려 있으면 알림 센터가 열리지 않는다. 누르는 순간 풀어 주면 같은 클릭으로 열린다.
-    /// 그 뒤에는 "자동으로 다시 숨기기" 설정과 무관하게, 메뉴바를 쓰지 않게 되면(알림 센터가 닫히면) 다시 숨긴다.
+    /// 숨김이 걸려 있으면 알림 센터가 열리지 않는다. 시스템은 알림 센터에 "제한 중인가 아닌가"만 알려 주기 때문에
+    /// 숨김을 유지한 채로 열 방법은 없다 (docs/architecture/platform-notes.md 3.24). 그래서 누르는 순간 풀어 주고,
+    /// 알림 센터가 닫히면 "자동으로 다시 숨기기" 설정과 무관하게 곧바로 다시 숨긴다.
     /// 마우스 누름과 뗌 사이에 끝나야 하므로 기다리지 않고 바로 푼다.
     /// - Returns: 실제로 숨김을 풀었으면 true
     @discardableResult
@@ -146,10 +151,37 @@ public final class MenuBarCoordinator {
         visibility.unrestrict()
         setState(.expanded)
         scheduler.cancel()
-        scheduler.schedule(after: Self.rehideRetrySeconds) { [weak self] in
-            Task { await self?.rehideFired() }
-        }
+        let myOperation = operationID
+        Task { [weak self] in await self?.watchSystemPanel(operation: myOperation) }
         return true
+    }
+
+    /// 시스템 패널(알림 센터)이 닫히는 순간을 잡아 바로 다시 숨긴다.
+    ///
+    /// 패널이 열리기까지는 시간이 조금 걸리므로(빠른 클릭은 한 번 더 눌러 준 뒤에야 열린다) 잠깐 기다려 주고,
+    /// 한 번 열린 것을 본 뒤에는 닫힌 것을 확인하는 즉시 숨긴다. 끝내 열리지 않으면 기다린 뒤 숨긴다.
+    /// 그 사이 사용자가 직접 펼치거나 숨기면(다른 조작이 끼어들면) 물러난다.
+    private func watchSystemPanel(operation: Int) async {
+        var sawOpen = false
+        var polls = 0
+        while true {
+            await pause(Self.systemPanelPollMilliseconds)
+            guard operation == operationID, state == .expanded else { return }
+            polls += 1
+            if activity?.isSystemPanelOpen() == true {
+                sawOpen = true
+            } else if sawOpen || polls >= Self.systemPanelOpenGracePolls {
+                break
+            }
+        }
+        // 패널을 닫으면서 펼쳐진 아이콘의 메뉴를 연 경우에는, 그 메뉴를 다 쓴 뒤에 숨긴다.
+        if activity?.isMenuOpen() == true {
+            scheduler.schedule(after: Self.rehideRetrySeconds) { [weak self] in
+                Task { await self?.rehideFired() }
+            }
+            return
+        }
+        await applyHiding()
     }
 
     /// 우클릭 메뉴의 "숨기기" 스위치.

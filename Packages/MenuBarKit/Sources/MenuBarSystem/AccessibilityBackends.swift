@@ -214,6 +214,9 @@ public final class MenuBarActivityChecker: MenuBarActivityChecking {
         isPointerInMenuBar() || isAnyMenuOpen() || isNotificationCenterOpen()
     }
 
+    public func isSystemPanelOpen() -> Bool { isNotificationCenterOpen() }
+    public func isMenuOpen() -> Bool { isAnyMenuOpen() }
+
     /// 알림 센터가 열려 있는가. 숨김을 다시 걸면 알림 센터가 닫히므로, 열려 있는 동안에는 숨기지 않는다.
     ///
     /// 접근성 권한이 있으면 정확히 판단한다: 알림 센터 패널이 열려 있을 때만 그 안에

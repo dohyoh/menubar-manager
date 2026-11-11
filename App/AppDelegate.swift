@@ -85,6 +85,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             await coordinator.start()
             self.registerHotkeys(coordinator.options.hotkeys)
             self.statusItem.refresh()
+            // 메뉴바 아이콘을 가진 앱을 미리 조사해 둔다 (접근성 권한이 있을 때). 설정 창을 처음 열 때부터
+            // "메뉴바" 필터로 보여 주기 위해서다.
+            Task { await coordinator.refreshMenuBarApps() }
             if coordinator.state == .paused(.notInstalledInApplications) {
                 self.showInstallLocationNotice()
             } else if !coordinator.options.didShowWelcome, !isAutomated {
@@ -107,8 +110,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// 설정 창은 항상 "메뉴바 관리"부터 보여 준다.
     func showSettings(tab: SettingsTab = .management) {
+        // 창을 새로 열 때는 관리 목록부터 보여 준다 (순서 편집 중에 닫았더라도).
+        if !settingsWindow.isVisible { settingsNavigation.isEditingOrder = false }
         settingsNavigation.tab = tab
         settingsWindow.show()
+    }
+    /// 메뉴바 관리의 순서 편집 화면을 연다.
+    func showOrderEditor() {
+        showSettings(tab: .management)
+        settingsNavigation.isEditingOrder = true
     }
     func showInfo() { infoWindow.show() }
 

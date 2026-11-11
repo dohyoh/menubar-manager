@@ -161,6 +161,16 @@
         }
       }
     },
+    "고정": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fixed"
+          }
+        }
+      }
+    },
     "끄면 숨기기가 켜져 있는 동안 그 아이콘도 숨깁니다. 시계와 제어 센터는 숨기지 않습니다.": {
       "localizations": {
         "en": {
@@ -227,16 +237,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Close"
-          }
-        }
-      }
-    },
-    "되돌리기": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Revert"
           }
         }
       }
@@ -491,12 +491,12 @@
         }
       }
     },
-    "설정 > 순서에서 목록을 드래그해 바꾼 뒤 적용합니다 (접근성 권한 필요). 또는 ⌘(Command) 키를 누른 채 메뉴바의 아이콘을 직접 좌우로 드래그해도 됩니다. 숨긴 앱은 먼저 펼친 다음 옮깁니다.": {
+    "설정 > 메뉴바 관리의 \"순서 편집\"에서 목록을 드래그해 바꾼 뒤 적용합니다 (접근성 권한 필요). 또는 ⌘(Command) 키를 누른 채 메뉴바의 아이콘을 직접 좌우로 드래그해도 됩니다. 숨긴 앱은 먼저 펼친 다음 옮깁니다.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "In Settings > Order, drag rows to reorder and click Apply (requires Accessibility permission). You can also hold ⌘ (Command) and drag an icon left or right directly in the menu bar. To move a hidden app, expand first."
+            "value": "In Settings > Menu Bar, click \"Edit Order\", drag the list into the order you want, then apply (needs Accessibility permission). You can also hold ⌘ (Command) and drag icons left or right directly in the menu bar. Expand hidden apps first to move them."
           }
         }
       }
@@ -591,12 +591,12 @@
         }
       }
     },
-    "순서": {
+    "순서 편집": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Order"
+            "value": "Edit Order"
           }
         }
       }
@@ -801,12 +801,12 @@
         }
       }
     },
-    "스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 목록에는 메뉴바 아이콘이 없는 앱도 포함됩니다 — 순서 탭에서 접근성 권한을 허용하면 메뉴바에 있는 앱만 볼 수 있습니다. 제어 센터에서 메뉴바로 꺼낸 항목(타이머 등)은 숨김 중에는 항상 숨겨집니다.": {
+    "스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 목록에는 메뉴바 아이콘이 없는 앱도 포함됩니다 — \"순서 편집\"에서 접근성 권한을 허용하면 메뉴바에 있는 앱만 볼 수 있습니다. 제어 센터에서 메뉴바로 꺼낸 항목(타이머 등)은 숨김 중에는 항상 숨겨집니다.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Turn a switch off to hide that app's icon. The list also includes apps without a menu bar icon — allow Accessibility permission in the Order tab to see only apps that are in the menu bar. Items added to the menu bar from Control Center (such as Timer) are always hidden while hiding is on."
+            "value": "Turn a switch off to hide that app's icon. The list also includes apps without a menu bar icon — allow Accessibility permission in \"Edit Order\" to see only apps that are in the menu bar. Items added to the menu bar from Control Center (such as Timer) are always hidden while hiding is on."
           }
         }
       }
@@ -1287,6 +1287,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Copy Diagnostics"
+          }
+        }
+      }
+    },
+    "취소": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
           }
         }
       }

@@ -12,7 +12,7 @@ import MenuBarSystem
 /// 0.2초마다 `<폴더>/cmd` 를 읽어 실행하고 `<폴더>/app.log` 에 기록한다.
 ///
 ///   state | toggle | hide on|off | sethidden <번들ID> 0|1 | autorehide on|off | seconds <n> | policy show|hide
-///   settings [order|general] | info | welcome | menushot | menutest | quit
+///   settings [order|general|diagnostics] | info | welcome | menushot | menutest | quit
 ///   axstatus | axprompt | axlist | order read | order move <id> <id|end>                       (순서 조정, 접근성 권한 필요)
 ///   drag <x1> <x2> <y> | dragtune <pt> <ms> <ms> | click <x> <y>                              (저수준 입력 합성 — 사용자가 쓰는 중에는 피한다)
 @MainActor
@@ -53,6 +53,12 @@ final class AutomationHook {
         self.reorderer = reorderer
         self.ordering = ordering
         try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        // 상태가 바뀐 시각을 남긴다 (알림 센터를 닫은 뒤 얼마나 빨리 다시 숨기는지 잴 때 쓴다).
+        let previous = coordinator.onStateChange
+        coordinator.onStateChange = { [weak self] state in
+            previous?(state)
+            self?.log("STATE \(state)")
+        }
         log("launched bundleID=\(Bundle.main.bundleIdentifier ?? "-") path=\(Bundle.main.bundlePath) pid=\(ProcessInfo.processInfo.processIdentifier)")
         timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.poll() }
@@ -114,7 +120,12 @@ final class AutomationHook {
         case "seconds":
             if let seconds = parts.dropFirst().first.flatMap(Int.init) { coordinator.setAutoRehideSeconds(seconds) }
         case "settings":
-            delegate?.showSettings(tab: SettingsTab(rawValue: parts.dropFirst().first ?? "") ?? .management)
+            // settings order 는 메뉴바 관리의 "순서 편집" 화면을 연다.
+            if parts.dropFirst().first == "order" {
+                delegate?.showOrderEditor()
+            } else {
+                delegate?.showSettings(tab: SettingsTab(rawValue: parts.dropFirst().first ?? "") ?? .management)
+            }
             log("settings visible=\(delegate?.isSettingsVisible ?? false)")
         case "info":
             delegate?.showInfo()
@@ -204,9 +215,13 @@ final class AutomationHook {
                     try reorderer.release(at: point)
                 case "hold":
                     // ncprobe hold <ms>: 누른 채 <ms> 만큼 있다가 뗀다. 숨김 해제는 앱의 시계 클릭 감지에 맡긴다.
+                    let original = CGEvent(source: nil)?.location
                     try await reorderer.press(at: point)
                     try? await Task.sleep(for: .milliseconds(Int(parts.dropFirst(2).first ?? "") ?? 100))
                     try reorderer.release(at: point)
+                    // 사용자의 포인터를 시계 위에 남겨 두지 않는다.
+                    try? await Task.sleep(for: .milliseconds(80))
+                    if let original { CGWarpMouseCursorPosition(original) }
                 case "thenclick":
                     if coordinator.state == .collapsed { await coordinator.toggle() }
                     try? await Task.sleep(for: .milliseconds(300))

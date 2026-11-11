@@ -310,7 +310,7 @@
     <span class="chip state">버전 1.0.0 배포 · M4까지 구현</span>
     <span class="chip">macOS 15+ 실행 · 숨김은 27에서 확인</span>
     <span class="chip">Swift 6 · SwiftUI + AppKit</span>
-    <span class="chip">제품 코드 약 3,700줄 · 테스트 80개</span>
+    <span class="chip">제품 코드 약 3,700줄 · 테스트 83개</span>
   </div>
 </header>
 
@@ -328,7 +328,7 @@
     <div class="stage">
       <div class="statusline" aria-live="polite"><span>상태 <b id="stName"></b></span><span id="stDesc"></span><span class="hint">좌클릭: 펼치기/숨기기 · 우클릭: 숨기기 스위치·설정·정보 (<button class="touchhelp" id="openCtx" type="button">메뉴 열기</button>)</span></div>
       <div class="win" id="win">
-        <div class="tbar"><span class="dots"><span></span><span></span><span></span></span>설정<span class="tabs"><span class="on">메뉴바 관리</span><span>일반</span></span></div>
+        <div class="tbar"><span class="dots"><span></span><span></span><span></span></span>설정<span class="tabs"><span class="on">메뉴바 관리</span><span>일반</span><span>진단</span></span></div>
         <div class="tools">
           <input type="search" id="q" placeholder="앱 이름 검색" aria-label="앱 이름 검색">
           <div class="seg" role="group" aria-label="필터">
@@ -353,7 +353,7 @@
       </div>
     </div>
   </div>
-  <p class="demo-note">모형입니다. 실제 앱의 설정 창에서는 목록을 드래그해 순서도 바꿉니다. 점선 표시는 펼쳤을 때만 보이는 숨긴 아이템입니다.</p>
+  <p class="demo-note">모형입니다. 실제 앱에서는 메뉴바 관리 아래쪽의 "순서 편집"을 누르면 같은 자리의 목록이 메뉴바 순서로 바뀌고, 끌어서 순서를 바꿉니다. 점선 표시는 펼쳤을 때만 보이는 숨긴 아이템입니다.</p>
 
   <div class="table-wrap" style="margin-top:18px">
     <table>
@@ -382,7 +382,7 @@
     <div class="card"><span class="id">FR-2</span><h4>좌클릭: 펼치기/숨기기</h4><p>아이콘을 누르면 숨긴 앱이 전부 나타나고, 다시 누르면 숨습니다. 설정한 시간 뒤 자동으로 다시 숨깁니다.</p><p class="feas"><span class="tag ok">구현됨</span></p></div>
     <div class="card"><span class="id">FR-16 · FR-20</span><h4>우클릭: 스위치 · 설정 · 정보</h4><p>메뉴에서 숨기기를 스위치로 켜고 끄고, 설정 창과 사용법 설명(정보)을 엽니다.</p><p class="feas"><span class="tag ok">구현됨</span></p></div>
     <div class="card"><span class="id">FR-17</span><h4>설정 창에서 관리</h4><p>검색·필터가 있는 목록에서 앱을 고릅니다. 접근성 권한이 있으면 메뉴바 아이콘을 가진 앱만 먼저 보여 줍니다.</p><p class="feas"><span class="tag ok">구현됨</span></p></div>
-    <div class="card"><span class="id">FR-3</span><h4>순서 조정</h4><p>설정 > 순서에서 목록을 드래그해 적용하면 메뉴바 순서가 바뀝니다. 숨긴 앱 포함. 접근성 권한이 필요합니다.</p><p class="feas"><span class="tag ok">구현됨</span></p></div>
+    <div class="card"><span class="id">FR-3</span><h4>순서 조정</h4><p>설정 > 메뉴바 관리의 "순서 편집"에서 목록을 드래그해 적용하면 메뉴바 순서가 바뀝니다. 숨긴 앱 포함. 접근성 권한이 필요합니다.</p><p class="feas"><span class="tag ok">구현됨</span></p></div>
     <div class="card"><span class="id">FR-4</span><h4>로그인 시 실행</h4><p>컴퓨터를 켜면 자동으로 시작합니다. 설정 > 일반에서 켭니다.</p><p class="feas"><span class="tag ok">재부팅 후 확인됨</span></p></div>
   </div>
 
@@ -395,7 +395,7 @@
         <tr><td><strong>새 앱 처리</strong> <span class="small">FR-6 · 구현됨</span></td><td>새 앱이 실행되면 목록을 갱신합니다. 처음 보는 앱을 표시할지, 숨길지, 물어볼지는 설정에서 고릅니다. "묻기"는 메뉴바 아이콘을 가진 새 앱만 "새로 나타난 앱"에 올립니다 (접근성 권한 필요).</td><td><span class="tag bad">P0 필수</span></td><td>M2</td></tr>
         <tr><td><strong>설치 위치 확인</strong> <span class="small">FR-18 · 구현됨</span></td><td>응용 프로그램 폴더 밖에서 실행되면 자기 아이콘이 숨겨지므로, 숨김을 켜지 않고 안내합니다. 안내 창의 버튼으로 바로 옮기고 다시 실행합니다.</td><td><span class="tag bad">P0 필수</span></td><td>M1</td></tr>
         <tr><td><strong>전역 단축키</strong> <span class="small">FR-7 · 구현됨</span></td><td>키 한 번으로 펼치기/숨기기, 설정 열기. 설정 > 일반에서 조합을 기록합니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
-        <tr><td><strong>OS 호환성 자가진단</strong> <span class="small">FR-8 · 구현됨</span></td><td>필요한 시스템 기능이 없으면 숨김을 켜지 않습니다. 설정 > 일반 > 진단에서 결과를 보고 복사합니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
+        <tr><td><strong>OS 호환성 자가진단</strong> <span class="small">FR-8 · 구현됨</span></td><td>필요한 시스템 기능이 없으면 숨김을 켜지 않습니다. 설정 > 진단 탭에서 결과를 보고 복사합니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
         <tr><td><strong>설정 백업/복원</strong> <span class="small">FR-9 · 구현됨</span></td><td>숨길 앱 목록과 옵션을 파일로 내보내고 가져옵니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
         <tr><td><strong>시스템 아이콘 숨김</strong> <span class="small">FR-19 · 구현됨</span></td><td>Wi-Fi·배터리도 함께 숨길 수 있습니다. 설정 > 메뉴바 관리 목록의 "시스템 아이콘" 구역에서 고릅니다. 시계와 제어 센터는 항상 표시합니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
         <tr><td><strong>프로필</strong> <span class="small">FR-10·11</span></td><td>업무/개인/발표용 레이아웃을 여러 벌 두고 우클릭 메뉴에서 전환. 외부 모니터·집중 모드에 따라 자동 전환.</td><td><span class="tag info">P2</span></td><td>M5</td></tr>
@@ -445,7 +445,7 @@
     <div class="card"><h4>제어 센터 모듈은 항상 숨겨짐</h4><p>제어 센터에서 메뉴바로 꺼낸 모듈(타이머 등)은 숨김 중에는 보이지 않습니다. 펼치면 다시 보입니다.</p></div>
     <div class="card"><h4>기본이 "차단"</h4><p>허용 목록에 없는 앱은 숨겨집니다. 새 앱이 실행되면 목록을 갱신해야 그 아이콘이 보입니다.</p></div>
     <div class="card"><h4>단위는 앱</h4><p>한 앱이 아이콘을 여러 개 가질 때 일부만 숨길 수는 없습니다.</p></div>
-    <div class="card"><h4>숨김 중에는 알림 센터가 닫혀 있음</h4><p>숨김이 걸려 있으면 시스템이 알림 센터를 열지 않습니다. 시계를 누르면 앱이 숨김을 잠깐 풀어 열리게 하고, 닫으면 다시 숨깁니다. 트랙패드 쓸기·단축키로는 열리지 않으니 먼저 펼쳐야 합니다.</p></div>
+    <div class="card"><h4>숨김 중에는 알림 센터가 닫혀 있음</h4><p>숨김이 걸려 있으면 시스템이 알림 센터를 열지 않고, 숨김을 유지한 채 여는 방법도 없습니다. 그래서 시계를 누르면 앱이 숨김을 잠깐 풀어 열리게 하고(그동안 숨긴 아이콘도 함께 보임), 닫으면 곧바로 다시 숨깁니다. 트랙패드 쓸기·단축키로는 열리지 않으니 먼저 펼쳐야 합니다.</p></div>
   </div>
 
   <h3>배경 — macOS 27에서 바뀐 것</h3>
@@ -480,7 +480,7 @@
     <div class="card">
       <span class="id">FR-3</span><h4>순서 바꾸기</h4>
       <ol>
-        <li>설정 > 순서에서 현재 순서를 읽고 목록을 드래그</li>
+        <li>메뉴바 관리의 "순서 편집"에서 현재 순서를 읽고 목록을 드래그</li>
         <li>"적용" → 잠시 전부 펼침</li>
         <li>최소 이동만 골라 <strong>⌘+드래그를 대신 수행</strong> (시스템 항목은 그대로)</li>
         <li>옮길 때마다 다시 읽어 확인 → 다시 숨김</li>
@@ -494,7 +494,7 @@
       <thead><tr><th>권한</th><th>쓰는 곳</th><th>없으면</th></tr></thead>
       <tbody>
         <tr><td class="nowrap"><strong>없음</strong></td><td>숨기기, 펼치기, 설정, 로그인 시 실행, 전역 단축키, 시스템 아이콘 숨김, 백업</td><td>—</td></tr>
-        <tr><td class="nowrap"><strong>접근성</strong></td><td>설정 > 순서 (읽기·적용), "메뉴바" 필터, 새 앱 "묻기", 빠르게 누른 시계 클릭 보완</td><td>순서 탭에 권한 안내 표시. 목록은 "실행 중"부터, "묻기"는 "표시"처럼 동작. 나머지는 그대로</td></tr>
+        <tr><td class="nowrap"><strong>접근성</strong></td><td>메뉴바 관리의 순서 편집 (읽기·적용), "메뉴바" 필터, 새 앱 "묻기", 빠르게 누른 시계 클릭 보완</td><td>순서 편집 화면에 권한 안내 표시. 목록은 "실행 중"부터, "묻기"는 "표시"처럼 동작. 나머지는 그대로</td></tr>
         <tr><td class="nowrap"><strong>화면 기록</strong> <span class="small">선택</span></td><td>목록에 실제 아이콘 이미지 표시</td><td>앱 아이콘으로 대신 표시</td></tr>
       </tbody>
     </table>
@@ -564,7 +564,7 @@
     <li><span class="dot">M0</span><h4>기술 검증 <span class="tag ok">완료</span></h4><p>숨김·복구·자기 아이콘 유지·좌/우클릭, 접근성으로 아이템 위치 읽기, 드래그 합성으로 순서 변경까지 확인.</p></li>
     <li><span class="dot">M1</span><h4>앱 뼈대 <span class="fr">FR-4 · FR-16 · FR-18 · FR-20</span> <span class="tag ok">구현</span></h4><p>메뉴바 아이콘과 좌/우클릭, 우클릭 메뉴(숨기기 스위치·설정·정보), 설정 창 골격, 정보 화면, 로그인 시 실행, 설치 위치 확인.</p></li>
     <li><span class="dot">M2</span><h4>표시/숨김 + 펼치기 <span class="fr">FR-1 · FR-2 · FR-5 · FR-6 · FR-17</span> <span class="tag ok">구현</span></h4><p>숨김, 메뉴바 관리 화면(검색·필터·표시/숨김 구역), 새 앱 정책, 사용 중에는 자동 숨기기 미루기, 첫 실행 안내, 한국어·영어 문자열, 앱 아이콘.</p></li>
-    <li><span class="dot">M3</span><h4>순서 조정 <span class="fr">FR-3</span> <span class="tag ok">구현</span></h4><p>설정 > 순서 탭: 순서 읽기, 목록 드래그, 적용. 숨긴 앱 포함, 시스템 항목은 고정, 모니터 두 대 대응. 직접 드래그해 적용하는 조작까지 확인됨.</p></li>
+    <li><span class="dot">M3</span><h4>순서 조정 <span class="fr">FR-3</span> <span class="tag ok">구현</span></h4><p>순서 편집(처음에는 별도 탭, 지금은 메뉴바 관리 안): 순서 읽기, 목록 드래그, 적용. 숨긴 앱 포함, 시스템 항목은 고정, 모니터 두 대 대응. 직접 드래그해 적용하는 조작까지 확인됨.</p></li>
     <li><span class="dot">M4</span><h4>안정화·편의 <span class="fr">FR-7 ~ FR-9 · FR-19</span> <span class="tag ok">구현</span></h4><p>전역 단축키, 자가진단·진단 정보, 설정 백업, 시스템 아이콘 숨김, 알림 센터 열기, "메뉴바" 필터, 새 앱 "묻기", 응용 프로그램 폴더로 옮기기. 노치·전체 화면·잠자기 같은 환경별 점검은 남음.</p></li>
     <li class="next"><span class="dot">M5</span><h4>확장 <span class="fr">FR-10 ~ FR-13</span> <span class="tag warn">다음</span></h4><p>프로필, 자동 전환, 검색, 조건부 표시. 필요한 것만 골라서.</p></li>
     <li><span class="dot">M6</span><h4>배포 <span class="fr">FR-15</span> <span class="tag warn">일부</span></h4><p>1.0.0을 <a href="https://github.com/dohyoh/menubar-manager/releases">GitHub Releases</a>에 올림 (공증 없음 — 처음 열 때 경고를 풀어야 함). 공증, 자동 업데이트, 설치 파일(DMG), 라이선스는 남음.</p></li>
@@ -579,7 +579,7 @@
         <tr><td>전역 단축키를 직접 기록해 쓰기</td><td>설정 > 일반 > 전역 단축키에서 조합을 기록하고 눌러 보기</td><td>기록 화면 또는 등록 방식을 조정</td></tr>
         <tr><td>설정 내보내기·가져오기</td><td>설정 > 일반 > 백업에서 파일로 저장하고 다시 불러오기</td><td>파일 형식·적용 순서를 조정</td></tr>
         <tr><td>새 앱 "묻기", 응용 프로그램 폴더로 옮기기 버튼</td><td>정책을 "묻기"로 두고 메뉴바 앱을 새로 실행 / 다른 위치에서 앱 실행</td><td>감지 시점·복사 방식을 조정</td></tr>
-        <tr><td>폭이 넓은 아이콘(글자가 있는 것)의 순서 변경</td><td>순서 탭에서 그 아이콘을 옮겨 적용</td><td>놓는 위치 계산을 조정</td></tr>
+        <tr><td>폭이 넓은 아이콘(글자가 있는 것)의 순서 변경</td><td>순서 편집에서 그 아이콘을 옮겨 적용</td><td>놓는 위치 계산을 조정</td></tr>
       </tbody>
     </table>
   </div>

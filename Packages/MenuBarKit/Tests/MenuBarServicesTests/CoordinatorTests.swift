@@ -71,7 +71,11 @@ final class FakeScheduler: RehideScheduling {
 @MainActor
 final class FakeActivity: MenuBarActivityChecking {
     var inUse = false
+    var panelOpen = false
+    var menuOpen = false
     func isMenuBarInUse() -> Bool { inUse }
+    func isSystemPanelOpen() -> Bool { panelOpen }
+    func isMenuOpen() -> Bool { menuOpen }
 }
 
 @MainActor
@@ -86,7 +90,9 @@ struct Rig {
 
     init(hidingEnabled: Bool = true, hidden: Set<BundleID> = ["com.b"], autoRehide: Bool = true) {
         store.state = PersistedState(layout: Layout(hiddenApps: hidden), options: Options(hidingEnabled: hidingEnabled, autoRehide: autoRehide, autoRehideSeconds: 10))
-        coordinator = MenuBarCoordinator(visibility: visibility, discovery: discovery, presence: presence, store: store, scheduler: scheduler, activity: activity)
+        // 기다림은 실제 시간 대신 한 번 양보하는 것으로 바꾼다 (패널 확인 간격 등).
+        coordinator = MenuBarCoordinator(visibility: visibility, discovery: discovery, presence: presence, store: store, scheduler: scheduler, activity: activity,
+                                         pause: { _ in await Task.yield() })
     }
 }
 
@@ -418,29 +424,79 @@ struct NewAppPolicyTests {
 @MainActor
 @Suite("알림 센터를 위해 잠깐 풀기")
 struct SystemUITests {
-    @Test("숨김을 바로 풀고, 자동 숨기기 설정이 꺼져 있어도 다시 숨기기를 예약한다")
-    func expandsImmediatelyAndAlwaysSchedulesRehide() async {
+    @Test("누르는 즉시 숨김을 푼다")
+    func expandsImmediately() async {
         let rig = Rig(autoRehide: false)
         await rig.coordinator.start()
-        rig.coordinator.expandForSystemUI()
+        rig.activity.panelOpen = true
+        #expect(rig.coordinator.expandForSystemUI())
         #expect(rig.coordinator.state == .expanded)
         #expect(!rig.visibility.isRestricted)
-        #expect(rig.scheduler.scheduledSeconds == MenuBarCoordinator.rehideRetrySeconds)
+        rig.activity.panelOpen = false   // 확인 루프가 끝나도록 닫는다
+        await settle()
     }
 
-    @Test("알림 센터가 열려 있는 동안에는 숨기지 않고, 닫히면 다시 숨긴다")
-    func waitsUntilNotInUse() async {
+    @Test("알림 센터가 열려 있는 동안에는 숨기지 않고, 닫히면 기다리지 않고 바로 숨긴다")
+    func rehidesAsSoonAsPanelCloses() async {
+        let rig = Rig(autoRehide: false)   // 자동으로 다시 숨기기가 꺼져 있어도
+        await rig.coordinator.start()
+        rig.coordinator.expandForSystemUI()
+        rig.activity.panelOpen = true
+        for _ in 0..<10 { await settle() }   // 기다려 주는 횟수를 훌쩍 넘겨도
+        #expect(rig.coordinator.state == .expanded)
+
+        rig.activity.inUse = true            // 포인터가 메뉴바(시계) 위에 남아 있어도
+        rig.activity.panelOpen = false
+        await settle()
+        #expect(rig.coordinator.state == .collapsed)
+        #expect(rig.scheduler.scheduledSeconds == nil)   // 타이머를 기다리지 않았다
+    }
+
+    @Test("시계를 눌렀는데 알림 센터가 끝내 열리지 않으면 잠시 뒤 다시 숨긴다")
+    func rehidesWhenPanelNeverOpens() async {
         let rig = Rig(autoRehide: false)
         await rig.coordinator.start()
         rig.coordinator.expandForSystemUI()
+        await Task.yield()
+        #expect(rig.coordinator.state == .expanded)      // 곧바로 숨기지는 않는다 (열릴 시간을 준다)
+        for _ in 0..<10 { await settle() }
+        #expect(rig.coordinator.state == .collapsed)
+    }
+
+    @Test("알림 센터를 닫으면서 펼쳐진 아이콘의 메뉴를 열었으면, 그 메뉴를 쓴 뒤에 숨긴다")
+    func defersWhileMenuIsOpen() async {
+        let rig = Rig(autoRehide: false)
+        await rig.coordinator.start()
+        rig.coordinator.expandForSystemUI()
+        rig.activity.panelOpen = true
+        await settle()
+        rig.activity.menuOpen = true
         rig.activity.inUse = true
-        await rig.scheduler.fire()
+        rig.activity.panelOpen = false
         await settle()
         #expect(rig.coordinator.state == .expanded)
+        #expect(rig.scheduler.scheduledSeconds == MenuBarCoordinator.rehideRetrySeconds)
+
+        rig.activity.menuOpen = false
         rig.activity.inUse = false
         await rig.scheduler.fire()
         await settle()
         #expect(rig.coordinator.state == .collapsed)
+    }
+
+    @Test("알림 센터가 열려 있는 동안 사용자가 좌클릭하면 그 조작을 따른다")
+    func userToggleTakesOver() async {
+        let rig = Rig()
+        await rig.coordinator.start()
+        rig.coordinator.expandForSystemUI()
+        rig.activity.panelOpen = true
+        await settle()
+        await rig.coordinator.toggle()       // 직접 숨김
+        #expect(rig.coordinator.state == .collapsed)
+        let calls = rig.visibility.restrictCalls.count
+        rig.activity.panelOpen = false
+        await settle()
+        #expect(rig.visibility.restrictCalls.count == calls)   // 확인 루프는 물러났다
     }
 
     @Test("숨김 중이 아닐 때는 아무것도 하지 않는다")

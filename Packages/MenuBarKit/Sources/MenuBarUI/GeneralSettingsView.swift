@@ -5,7 +5,7 @@ import UniformTypeIdentifiers
 import MenuBarDomain
 import MenuBarServices
 
-/// 설정 > 일반: 로그인 시 실행, 자동 숨기기, 새 앱 정책, 단축키, 백업, 진단.
+/// 설정 > 일반: 로그인 시 실행, 자동 숨기기, 새 앱 정책, 단축키, 백업.
 /// (시스템 아이콘 표시 여부는 "메뉴바 관리" 탭에 있다.)
 struct GeneralSettingsView: View {
     let coordinator: MenuBarCoordinator
@@ -14,7 +14,6 @@ struct GeneralSettingsView: View {
     @State private var launchAtLogin = false
     @State private var loginError: String?
     @State private var backupMessage: String?
-    @State private var didCopyDiagnostics = false
 
     var body: some View {
         Form {
@@ -90,24 +89,6 @@ struct GeneralSettingsView: View {
             } footer: {
                 Text(L("숨길 앱 목록과 옵션을 파일로 저장하거나 불러옵니다."))
             }
-
-            Section {
-                ForEach(diagnostics, id: \.label) { row in
-                    LabeledContent(row.label) {
-                        Text(row.value).foregroundStyle(row.isProblem ? AnyShapeStyle(.orange) : AnyShapeStyle(.secondary))
-                    }
-                }
-                HStack {
-                    Button(didCopyDiagnostics ? L("복사했습니다") : L("진단 정보 복사")) {
-                        NSPasteboard.general.clearContents()
-                        NSPasteboard.general.setString(diagnostics.map { "\($0.label): \($0.value)" }.joined(separator: "\n"), forType: .string)
-                        didCopyDiagnostics = true
-                    }
-                    Spacer()
-                }
-            } header: {
-                Text(L("진단"))
-            }
         }
         .formStyle(.grouped)
         .onAppear { launchAtLogin = loginItem.isEnabled }
@@ -159,32 +140,6 @@ struct GeneralSettingsView: View {
         } catch {
             backupMessage = L("이 파일은 가져올 수 없습니다. MenuBarManager 에서 내보낸 설정 파일인지 확인해 주세요.")
         }
-    }
-
-    // MARK: 진단
-
-    private struct DiagnosticRow {
-        let label: String
-        let value: String
-        var isProblem = false
-    }
-
-    private var diagnostics: [DiagnosticRow] {
-        let info = Bundle.main.infoDictionary
-        let version = info?["CFBundleShortVersionString"] as? String ?? "-"
-        let build = info?["CFBundleVersion"] as? String ?? "-"
-        func yesNo(_ value: Bool) -> String { value ? L("예") : L("아니요") }
-        return [
-            DiagnosticRow(label: L("앱 버전"), value: "\(version) (\(build))"),
-            DiagnosticRow(label: "macOS", value: ProcessInfo.processInfo.operatingSystemVersionString),
-            DiagnosticRow(label: L("현재 상태"), value: StatePresentation.summary(for: coordinator.state)),
-            DiagnosticRow(label: L("숨김 기능 사용 가능"), value: yesNo(coordinator.isHidingSupported), isProblem: !coordinator.isHidingSupported),
-            DiagnosticRow(label: L("응용 프로그램 폴더에 설치됨"), value: yesNo(coordinator.isInstalledInApplications), isProblem: !coordinator.isInstalledInApplications),
-            DiagnosticRow(label: L("접근성 권한 (순서 조정용)"), value: yesNo(coordinator.isAccessibilityGranted)),
-            DiagnosticRow(label: L("로그인 시 실행"), value: yesNo(launchAtLogin)),
-            DiagnosticRow(label: L("숨긴 앱"), value: L("\(coordinator.layout.hiddenApps.count)개")),
-            DiagnosticRow(label: L("메뉴바 아이콘을 가진 앱"), value: coordinator.menuBarApps.map { L("\($0.count)개") } ?? L("알 수 없음 (접근성 권한 필요)")),
-        ]
     }
 
     /// 저장된 값이 선택지에 없으면(파일을 직접 고친 경우 등) 그 값도 보여 준다.

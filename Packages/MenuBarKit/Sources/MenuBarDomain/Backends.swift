@@ -45,6 +45,10 @@ public protocol LoginItemManaging: AnyObject {
 @MainActor
 public protocol MenuBarActivityChecking: AnyObject {
     func isMenuBarInUse() -> Bool
+    /// 알림 센터 같은 시스템 패널이 열려 있는가. 숨김을 걸면 그 패널이 닫히므로, 열려 있는 동안에는 숨기지 않는다.
+    func isSystemPanelOpen() -> Bool
+    /// 어떤 앱이든 메뉴가 열려 있는가 (펼친 아이콘의 메뉴를 쓰는 중).
+    func isMenuOpen() -> Bool
 }
 
 /// 전역 단축키 등록. 권한이 필요 없다.

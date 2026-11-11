@@ -21,8 +21,9 @@
 | 메뉴바 아이콘 좌클릭 | 펼치기 ↔ 숨기기 | `App/StatusItemController` → `Coordinator.toggle()` |
 | 메뉴바 아이콘 우클릭 | 메뉴: 숨기기 스위치 · (새로 나타난 앱 N개…) · 설정… · 정보 · 종료 | `MenuBarUI/StatusMenuController` |
 | 설정 창 > 메뉴바 관리 | 앱별 표시 여부, 검색·필터(메뉴바 / 실행 중 / 숨긴 앱 / 전체), 새로 나타난 앱, 시스템 아이콘(Wi-Fi·배터리) 표시 여부 | `MenuBarUI/SettingsView` |
-| 설정 창 > 순서 | 메뉴바 순서 읽기, 목록 드래그, 적용 (접근성 권한 필요) | `MenuBarUI/OrderView` + `MenuBarServices/OrderingController` |
-| 설정 창 > 일반 | 로그인 시 실행, 펼친 뒤 자동으로 다시 숨기기, 새 앱 정책, 전역 단축키, 백업, 진단 | `MenuBarUI/GeneralSettingsView` |
+| 설정 창 > 메뉴바 관리 > 순서 편집 | 관리 목록과 같은 자리에서 메뉴바 순서 읽기, 목록 드래그, 적용 (접근성 권한 필요). 적용·취소하면 관리 목록으로 복귀 | `MenuBarUI/OrderEditor` + `MenuBarServices/OrderingController` |
+| 설정 창 > 일반 | 로그인 시 실행, 펼친 뒤 자동으로 다시 숨기기, 새 앱 정책, 전역 단축키, 백업 | `MenuBarUI/GeneralSettingsView` |
+| 설정 창 > 진단 | 앱·macOS 버전, 상태, 숨김 기능·설치 위치·접근성 권한 등 표시와 복사 | `MenuBarUI/DiagnosticsView` |
 | 전역 단축키 | 펼치기 ↔ 숨기기, 설정 열기 (사용자가 지정) | `MenuBarSystem/GlobalHotkeyCenter` → `AppDelegate` |
 | 시계 누름 (숨김 중) | 알림 센터가 열리도록 숨김을 잠깐 풂 | `MenuBarSystem/ClockClickMonitor` → `Coordinator.expandForSystemUI()` |
 | 정보 화면 | 주요 기능의 간략한 설명 (메뉴바 아이콘 옮기기 포함), 버전 | `MenuBarUI/Info` |
@@ -191,7 +192,7 @@ protocol CompatibilityChecking: Sendable {
 | `paused` | 전부 표시 (관리 안 함) | 펼침과 같은 모양 (숨김을 켤 수 없는 상태면 느낌표 네모) | 시작 직후, 오류, 비호환, 메뉴의 숨기기 스위치 끔, 종료 직전 |
 | `collapsed` | 레이아웃대로 숨김 적용 | 닫힌 커튼 | 평소 상태 |
 | `expanded(until:)` | 전부 표시 | 열린 커튼 | 좌클릭 |
-| `reordering` | 순서를 읽거나 바꾸는 중 — 전부 펼쳐 둠. 좌클릭·스위치는 무시 | 펼침과 같은 모양 | 순서 탭의 읽기·적용. 끝나면 이전 상태로 복귀 |
+| `reordering` | 순서를 읽거나 바꾸는 중 — 전부 펼쳐 둠. 좌클릭·스위치는 무시 | 펼침과 같은 모양 | 순서 편집의 읽기·적용. 끝나면 이전 상태로 복귀 |
 
 `paused`와 `expanded`는 메뉴바 모습이 같지만 뜻이 다릅니다. `expanded`는 좌클릭으로 잠깐 펼친 상태라 타이머로 `collapsed`에 돌아가고, `paused`는 사용자가 다시 켤 때까지(스위치 켬 또는 좌클릭) 유지됩니다.
 
@@ -262,7 +263,7 @@ protocol CompatibilityChecking: Sendable {
 ### 7.5 순서 변경 (FR-3, M3)
 
 ```
-설정 > 순서에서 "적용"
+설정 > 메뉴바 관리 > "순서 편집" (열 때 순서를 한 번 읽음) → 목록을 끌어 바꾼 뒤 "적용"
   → OrderingController.apply(target)
   → Coordinator.withEverythingVisible { … }      // state = reordering, 숨김을 잠시 풂
       → 잠깐 기다린 뒤 ItemDiscovering.currentItems(fullScan: true)   // 표시된 아이템만, 왼쪽 → 오른쪽
@@ -287,18 +288,22 @@ protocol CompatibilityChecking: Sendable {
   → 저장된 전역 단축키 등록 (실패한 조합은 설정 > 일반에 표시)
 ```
 
-진단 결과(앱·macOS 버전, 상태, 숨김 기능·설치 위치·접근성 권한 등)는 설정 > 일반 > 진단에서 보고 복사할 수 있습니다.
+진단 결과(앱·macOS 버전, 상태, 숨김 기능·설치 위치·접근성 권한 등)는 설정 > 진단에서 보고 복사할 수 있습니다.
 
 ### 7.7 숨김 중에 시계를 누름 — 알림 센터
 
 ```
 시계 영역에서 마우스 누름 (ClockClickMonitor)
-  → Coordinator.expandForSystemUI()      // collapsed 일 때만: 숨김 해제 → expanded, 2초 뒤 다시 숨기기 예약
+  → Coordinator.expandForSystemUI()      // collapsed 일 때만: 숨김 해제 → expanded
   → (접근성 권한이 있고 시계 위치를 알 때) 버튼을 뗀 뒤 0.3초 후에도 알림 센터가 안 열렸으면 같은 자리를 한 번 더 누름
-  → 다시 숨길 때가 되면: 알림 센터가 열려 있거나 메뉴바를 쓰는 중이면 2초 뒤 다시 확인, 아니면 숨김
+  → 0.15초마다 알림 센터가 열려 있는지 확인 (MenuBarActivityChecking.isSystemPanelOpen)
+       ├─ 열린 것을 본 뒤 닫힘: 곧바로 숨김 ("자동으로 다시 숨기기" 설정, 포인터 위치와 무관)
+       ├─ 약 2.5초 동안 한 번도 열리지 않음: 숨김
+       ├─ 닫히는 순간 어떤 메뉴가 열려 있음: 그 메뉴를 다 쓴 뒤 숨김 (7.1의 다시 확인으로 넘김)
+       └─ 그 사이 사용자가 좌클릭·스위치로 직접 조작: 그 조작을 따르고 확인을 그만둠
 ```
 
-숨김 중에는 시스템이 알림 센터를 열지 않기 때문입니다 ([platform-notes.md 3.24](platform-notes.md)).
+숨김 중에는 시스템이 알림 센터를 열지 않고, 숨김을 유지한 채 열 방법도 없기 때문입니다. 알림 센터가 열려 있는 동안에는 숨긴 아이콘이 함께 보입니다 ([platform-notes.md 3.24](platform-notes.md)).
 
 ### 7.8 그 밖의 반응
 
@@ -313,7 +318,7 @@ protocol CompatibilityChecking: Sendable {
 | 권한 | 필요한 기능 | 없을 때 |
 |---|---|---|
 | (없음) | 숨김, 펼치기, 설정, 로그인 시 실행, 전역 단축키, 시스템 아이콘 숨김, 백업 | — |
-| 접근성 | 순서 탭 (읽기·적용), 메뉴바 관리의 "메뉴바" 필터, 새 앱 정책 "묻기", 빠르게 누른 시계 클릭 보완 | 순서 탭에 권한 안내 표시. 필터는 "실행 중"부터, "묻기"는 "표시"처럼 동작. 나머지 기능은 그대로 |
+| 접근성 | 순서 편집 (읽기·적용), 메뉴바 관리의 "메뉴바" 필터, 새 앱 정책 "묻기", 빠르게 누른 시계 클릭 보완 | 순서 편집 화면에 권한 안내 표시. 필터는 "실행 중"부터, "묻기"는 "표시"처럼 동작. 나머지 기능은 그대로 |
 | 화면 기록 (선택) | 아이템의 실제 아이콘 이미지 | 앱 아이콘으로 대체 — 기능 제한 없음 |
 
 ## 9. 저장
@@ -322,7 +327,7 @@ protocol CompatibilityChecking: Sendable {
 |---|---|---|
 | 숨길 앱 목록 + 옵션 | `~/Library/Application Support/MenuBarManager/state.json` | JSON, 스키마 버전 필드 포함 |
 | 내보낸 설정 | 사용자가 고른 위치 (설정 > 일반 > 백업) | 위와 같은 JSON |
-| 로그 | 미구현 (진단 정보는 설정 > 일반 > 진단에서 복사) | |
+| 로그 | 미구현 (진단 정보는 설정 > 진단에서 복사) | |
 
 ## 10. 동시성
 
