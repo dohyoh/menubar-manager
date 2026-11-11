@@ -110,7 +110,7 @@ struct Layout: Codable, Equatable {
 struct Options: Codable {
     var hidingEnabled: Bool = false       // 메뉴의 숨기기 스위치. 다음 실행 때 이 상태로 시작
     var autoRehide: Bool = true           // 펼친 뒤 자동으로 다시 숨기기
-    var autoRehideSeconds: Int = 10       // 설정 > 일반에서 3·5·10·15·30·60초 중 선택
+    var autoRehideSeconds: Int = 5        // 설정 > 일반에서 3·5·10·15·30·60초 중 선택
     var hotkeys: [Int: Hotkey] = [:]      // 전역 단축키 (HotkeyAction → 키 코드·조합 키·표시 문자열)
     var language: AppLanguage = .system   // 화면 언어: .system(macOS 를 따름) | .korean | .english | .chineseSimplified. 다시 시작할 때 적용
 }

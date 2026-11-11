@@ -220,7 +220,7 @@ public struct Options: Codable, Equatable, Sendable {
 
     public static let autoRehideChoices = [3, 5, 10, 15, 30, 60]
 
-    public init(hidingEnabled: Bool = false, autoRehide: Bool = true, autoRehideSeconds: Int = 10, didShowWelcome: Bool = false, hotkeys: [Int: Hotkey] = [:],
+    public init(hidingEnabled: Bool = false, autoRehide: Bool = true, autoRehideSeconds: Int = 5, didShowWelcome: Bool = false, hotkeys: [Int: Hotkey] = [:],
                 language: AppLanguage = .system) {
         self.hidingEnabled = hidingEnabled
         self.autoRehide = autoRehide

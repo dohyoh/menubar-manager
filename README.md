@@ -27,7 +27,7 @@
 | | Feature | What you get |
 |---|---|---|
 | 🙈 | **Hide icons** | Pick, app by app, which icons stay in the menu bar. Wi-Fi and Battery can be hidden too. |
-| 👆 | **One-click expand** | Left-click the curtain icon to show everything. Icons hide again by themselves after 10 seconds. |
+| 👆 | **One-click expand** | Left-click the curtain icon to show everything. Icons hide again by themselves after 5 seconds. |
 | ↔️ | **Reorder icons** | Drag a list into the order you want, hidden apps included. |
 | ⌨️ | **Global shortcuts** | Expand or hide from any app with a key combination. |
 | 💾 | **Backup** | Save your settings to a file and load them back later. |
@@ -69,7 +69,7 @@ flowchart LR
     E(["Expanded<br/>open curtain"])
     O(["Off<br/>everything shown"])
     H -- "left-click the icon" --> E
-    E -- "click again, or wait 10 s" --> H
+    E -- "click again, or wait 5 s" --> H
     H -- "right-click, turn Hide off" --> O
     O -- "turn Hide on" --> H
 ```

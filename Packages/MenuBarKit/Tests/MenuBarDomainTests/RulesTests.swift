@@ -256,6 +256,24 @@ struct HotkeyFormatterTests {
     }
 }
 
+@Suite("옵션 기본값")
+struct OptionsDefaultsTests {
+    @Test("처음에는 숨기기가 꺼져 있고, 펼친 뒤 5초 후 자동으로 다시 숨긴다")
+    func defaults() {
+        let options = Options()
+        #expect(options.hidingEnabled == false)
+        #expect(options.autoRehide)
+        #expect(options.autoRehideSeconds == 5)
+        #expect(Options.autoRehideChoices.contains(options.autoRehideSeconds))
+    }
+
+    @Test("시간 항목이 없는 설정 파일은 기본값 5초로 읽는다")
+    func decodingWithoutSeconds() throws {
+        let options = try JSONDecoder().decode(Options.self, from: Data(#"{"autoRehide":true}"#.utf8))
+        #expect(options.autoRehideSeconds == 5)
+    }
+}
+
 @Suite("화면 언어")
 struct AppLanguageTests {
     @Test("시스템 언어: 선호 언어 중 지원하는 첫 언어")
