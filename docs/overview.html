@@ -310,7 +310,7 @@
     <span class="chip state">버전 1.0.2 배포 · M4까지 구현</span>
     <span class="chip">macOS 15+ 실행 · 숨김은 27과 26.5에서 확인</span>
     <span class="chip">Swift 6 · SwiftUI + AppKit</span>
-    <span class="chip">제품 코드 약 4,400줄 · 테스트 130개</span>
+    <span class="chip">제품 코드 약 4,600줄 · 테스트 148개</span>
   </div>
 </header>
 
@@ -398,7 +398,7 @@
         <tr><td><strong>화면 언어 선택</strong> <span class="small">FR-21 · 구현됨</span></td><td>설정 > 일반에서 한국어 · English · 简体中文 중 고릅니다. macOS에서 쓰고 있는 언어에는 "(시스템)"이 붙고 처음에 그 언어가 선택되어 있습니다. 지원하지 않는 언어이면 영어로 표시합니다. 바꾸면 그 자리에서 다시 시작해 적용합니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
         <tr><td><strong>OS 호환성 자가진단</strong> <span class="small">FR-8 · 구현됨</span></td><td>필요한 시스템 기능이 없으면 숨김을 켜지 않습니다. 설정 > 진단 탭에서 결과를 보고 복사합니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
         <tr><td><strong>설정 백업/복원</strong> <span class="small">FR-9 · 구현됨</span></td><td>숨길 앱 목록과 옵션을 파일로 내보내고 가져옵니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
-        <tr><td><strong>시스템 아이콘 숨김</strong> <span class="small">FR-19 · 구현됨</span></td><td>Wi-Fi·배터리도 함께 숨길 수 있습니다. 설정 > 메뉴바 관리 목록의 "시스템 아이콘" 구역에서 고릅니다. 시계와 제어 센터는 항상 표시합니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
+        <tr><td><strong>시스템 아이콘 숨김</strong> <span class="small">FR-19 · 구현됨</span></td><td>Wi-Fi·배터리도 함께 숨길 수 있습니다 (macOS 26 이하에서는 입력 소스·Siri 등 옮길 수 있는 시스템 아이콘). 설정 > 메뉴바 관리 목록의 "시스템 아이콘" 구역에서 고릅니다. 시계와 제어 센터는 항상 표시합니다.</td><td><span class="tag warn">P1</span></td><td>M4</td></tr>
         <tr><td><strong>프로필</strong> <span class="small">FR-10·11</span></td><td>업무/개인/발표용 레이아웃을 여러 벌 두고 우클릭 메뉴에서 전환. 외부 모니터·집중 모드에 따라 자동 전환.</td><td><span class="tag info">P2</span></td><td>M5</td></tr>
         <tr><td><strong>아이템 검색·실행</strong> <span class="small">FR-12</span></td><td>숨긴 아이템을 펼치지 않고 이름으로 찾아 바로 엽니다.</td><td><span class="tag info">P2</span></td><td>M5</td></tr>
         <tr><td><strong>조건부 표시</strong> · <strong>선반</strong> <span class="small">FR-13·14</span></td><td>"앱이 실행 중일 때만" 같은 규칙, 숨긴 아이템을 별도 패널에 표시. 조사가 먼저입니다.</td><td><span class="tag plain">P3</span></td><td>M5</td></tr>
@@ -466,6 +466,7 @@
         <tr><td>⌘+드래그를 대신 수행해 구분자 너머로 옮기기</td><td>양방향, 다른 앱의 아이콘 포함. 한 번에 약 1.3초. 검증 뒤 원래 순서로 되돌림</td><td><span class="tag ok">통과</span></td></tr>
         <tr><td>실제 앱(제품 코드)에서 숨기기·펼치기·숨길 앱 변경·새 앱 실행·순서 읽기</td><td>동작. 숨기기 켜기 4.6초(아이콘 3개 이동 포함), 펼치기 즉시, 다시 숨기기 0.4초. 강제 종료하면 2초 안에 전부 표시</td><td><span class="tag ok">통과</span></td></tr>
         <tr><td>숨김 중 앱 메뉴 클릭, 아이콘 여러 개의 순서 유지</td><td>Apple 메뉴와 앱 메뉴가 정상으로 열리고 닫힘. 여러 아이콘을 옮겨도 서로의 순서가 그대로 (처음에는 뒤집혀서 고침)</td><td><span class="tag ok">통과</span></td></tr>
+        <tr><td>시스템 아이콘 숨기기</td><td>배터리·Wi-Fi·입력 소스·Siri는 옮겨져서 숨길 수 있음 (하나에 약 3초). 시계와 제어 센터는 macOS가 고정해 둬서 불가. 다시 표시하면 원래 자리로 돌려놓음</td><td><span class="tag ok">통과</span></td></tr>
         <tr><td>재부팅 후 위치 유지, 모니터 두 대, macOS 15~25</td><td>쓰면서 확인 (macOS 15~25는 검증 기기 없음)</td><td><span class="tag warn">남음</span></td></tr>
       </tbody>
     </table>
@@ -626,6 +627,7 @@
         <tr><td class="nowrap"><a href="adr/0010-install-location.md">0010</a></td><td>항상 <code>/Applications</code>에서 실행</td><td>그 밖에서는 자기 아이콘이 숨겨짐 (검증에서 확인)</td><td><span class="tag ok">채택</span></td></tr>
         <tr><td class="nowrap"><a href="adr/0011-unnotarized-release.md">0011</a></td><td>1.0.0은 공증 없이 임시 서명한 zip으로 배포</td><td>Developer ID 인증서가 없어 공증 불가. 개발용 인증서는 개발자 이름이 들어가 쓰지 않음</td><td><span class="tag ok">채택</span></td></tr>
         <tr><td class="nowrap"><a href="adr/0012-separator-visibility-macos26.md">0012</a></td><td>macOS 26 이하에서는 긴 구분자로 밀어내 숨기고, 숨길 앱의 아이콘은 앱이 대신 옮김</td><td>macOS 26에는 허용 목록 기능이 없음. 구분자 방식은 이 Mac(26.5.2)에서 숨김·자동 복구·아이콘 이동까지 확인. 이 방식에서는 접근성 권한이 필수</td><td><span class="tag ok">채택 · 검증됨</span></td></tr>
+        <tr><td class="nowrap"><a href="adr/0013-system-icons-macos26.md">0013</a></td><td>macOS 26 이하에서는 시스템 아이콘도 메뉴바에서 읽어, 옮겨서 숨김. 다시 표시하면 원래 자리로</td><td>배터리·입력 소스 등을 숨길 수 없는 것이 기능 누락이었음. 시계와 제어 센터는 macOS가 고정해 둬서 제외</td><td><span class="tag ok">채택 · 검증됨</span></td></tr>
       </tbody>
     </table>
   </div>

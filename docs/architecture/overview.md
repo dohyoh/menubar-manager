@@ -177,7 +177,8 @@ protocol CompatibilityChecking: Sendable {
 | 구현 | `MenuBarSystem/AssessmentModeVisibilityController` | `MenuBarServices/SeparatorVisibilityController` + `MenuBarSystem/StatusItemSeparator` |
 | 원리 | 시스템에 "표시할 앱" 목록을 넘김 | 이 앱의 보이지 않는 상태 아이템을 길게 늘여 그 왼쪽 아이콘을 화면 밖으로 밀어냄. 숨길 앱의 아이콘은 ⌘+드래그를 대신 수행해 왼쪽으로 옮김 |
 | 접근성 권한 | 숨김에는 불필요 | **필수** — 없으면 `paused(.accessibilityRequired)` |
-| 시스템 아이콘 숨김 | 가능 (Wi-Fi·배터리) | 내놓지 않음 |
+| 시스템 아이콘 숨김 | 정해진 두 개 (Wi-Fi·배터리, 번호로 가리킴) | 메뉴바에서 읽은 것 중 옮길 수 있는 것 (식별자로 가리킴). 시계·제어 센터는 불가. [ADR-0013](../adr/0013-system-icons-macos26.md) |
+| 다시 표시할 때의 자리 | 그대로 (옮기지 않으므로) | 숨기기 전의 오른쪽 이웃 앞으로 돌려놓음 (실행 중에만 기억) |
 | 알림 센터 | 숨김 중에는 열리지 않아 시계를 누를 때 숨김을 풂 | 막지 않으므로 처리 없음 |
 | `/Applications` 밖의 앱 | 숨김 중 표시할 수 없음 | 제한 없음 |
 | 결정·검증 | [ADR-0003](../adr/0003-visibility-mechanism.md), platform-notes 3절 | [ADR-0012](../adr/0012-separator-visibility-macos26.md), platform-notes 7절 |

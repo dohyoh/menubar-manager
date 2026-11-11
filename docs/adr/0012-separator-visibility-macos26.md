@@ -1,6 +1,6 @@
 # ADR-0012: macOS 26 이하의 숨김 — 구분자 확장 + 아이콘 자동 이동
 
-- 상태: ✅ 채택 (2026-11-11 기술 검증 T1~T3 통과, 사용자 확인, 실제 앱에 구현해 macOS 26.5.2에서 동작 확인)
+- 상태: ✅ 채택 (2026-11-11 기술 검증 T1~T3 통과, 사용자 확인, 실제 앱에 구현해 macOS 26.5.2에서 동작 확인). **결정 6의 "시스템 아이콘 숨김은 내놓지 않습니다"는 [ADR-0013](0013-system-icons-macos26.md)으로 대체됨**
 - 날짜: 2026-11-11
 - 관련: [ADR-0002](0002-target-macos-27.md) ("macOS 26 이하용 숨김 방식은 만들지 않는다"를 대체) · [ADR-0003](0003-visibility-mechanism.md) · [ADR-0004](0004-reorder-mechanism.md) · [ADR-0005](0005-backend-abstraction-private-api.md) · [platform-notes.md 7절](../architecture/platform-notes.md#7-macos-26에서-확인한-것-)
 

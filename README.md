@@ -128,7 +128,7 @@ flowchart LR
 - Apps that live outside the Applications folder, and items added from Control Center (such as Timer), are not shown while hiding is on.
 - Quitting MenuBarManager brings every hidden icon back.
 - Hiding uses a private macOS feature. A macOS update may change how it works, and the app cannot be distributed on the Mac App Store.
-- On macOS 26 and earlier, when you change which apps are hidden or open a new app while hiding is on, hidden icons appear briefly and the pointer moves for a moment while icons are moved. System icons such as Wi-Fi and Battery cannot be hidden on these versions.
+- On macOS 26 and earlier, when you change which apps are hidden or open a new app while hiding is on, hidden icons appear briefly and the pointer moves for a moment while icons are moved. On these versions you can hide system icons other than the clock and Control Center (Wi-Fi, Battery, Input Sources, Siri, and so on).
 - After you replace the app with a new version, allow the Accessibility permission again.
 
 ## Learn more

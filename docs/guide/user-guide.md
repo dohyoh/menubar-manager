@@ -75,7 +75,8 @@ On macOS 26 and earlier the app hides icons in a different way (supported from t
 
 - **Hiding needs the Accessibility permission**, because MenuBarManager has to move the icons of hidden apps for you. Without it you see an exclamation mark instead of the curtain icon, and the Settings window explains what to do. Click **Request Accessibility Permission** and turn on MenuBarManager in **System Settings > Privacy & Security > Accessibility**. Hiding becomes available a moment later.
 - When you change which apps are hidden, or open a new app while hiding is on, hidden icons appear briefly and the pointer moves for a moment while icons are moved. Expanding and hiding with a left-click do not do this.
-- System icons such as Wi-Fi and Battery cannot be hidden (they are not listed).
+- For system icons, the **System Icons** section at the bottom of the list shows the ones currently in the menu bar that can be moved (Wi-Fi, Battery, Input Sources, Siri, and so on). The clock and Control Center cannot be hidden, because macOS keeps them in a fixed place.
+- When you show an icon again, it goes back to where it was. If you do this after restarting MenuBarManager, it is placed at the left end of the visible icons (hold ⌘ and drag to move it).
 - Notification Center opens as usual while hiding is on.
 - Apps outside the Applications folder and Control Center items are also shown while hiding is on.
 - A narrow blank slot appears in the menu bar. Icons to the left of it are the ones that get hidden.
