@@ -40,16 +40,20 @@ public struct Layout: Codable, Equatable, Sendable {
     public var newAppPolicy: NewAppPolicy
     /// 새로 나타났고 아직 표시할지 숨길지 정하지 않은 앱 (정책이 "묻기"일 때). 정할 때까지는 표시된다.
     public var pendingApps: Set<BundleID>
-    /// 숨길 시스템 아이콘 (SystemItem 의 번호)
+    /// 숨길 시스템 아이콘 (SystemItem 의 번호) — 허용 목록 방식(macOS 27)에서 쓴다
     public var hiddenSystemItems: Set<Int>
+    /// 숨길 시스템 아이콘 (MenuBarItem.systemKey) — 구분자 방식(macOS 26 이하)에서 쓴다.
+    /// 두 방식은 시스템 아이콘을 가리키는 수단이 달라(번호 / 접근성 식별자) 따로 저장한다.
+    public var hiddenSystemItemKeys: Set<String>
 
     public init(hiddenApps: Set<BundleID> = [], knownApps: Set<BundleID> = [], newAppPolicy: NewAppPolicy = .show,
-                pendingApps: Set<BundleID> = [], hiddenSystemItems: Set<Int> = []) {
+                pendingApps: Set<BundleID> = [], hiddenSystemItems: Set<Int> = [], hiddenSystemItemKeys: Set<String> = []) {
         self.hiddenApps = hiddenApps
         self.knownApps = knownApps
         self.newAppPolicy = newAppPolicy
         self.pendingApps = pendingApps
         self.hiddenSystemItems = hiddenSystemItems
+        self.hiddenSystemItemKeys = hiddenSystemItemKeys
     }
 
     // 이전 버전이 저장한 파일에는 뒤에 추가된 필드가 없다.
@@ -60,6 +64,7 @@ public struct Layout: Codable, Equatable, Sendable {
         newAppPolicy = try c.decodeIfPresent(NewAppPolicy.self, forKey: .newAppPolicy) ?? .show
         pendingApps = try c.decodeIfPresent(Set<BundleID>.self, forKey: .pendingApps) ?? []
         hiddenSystemItems = try c.decodeIfPresent(Set<Int>.self, forKey: .hiddenSystemItems) ?? []
+        hiddenSystemItemKeys = try c.decodeIfPresent(Set<String>.self, forKey: .hiddenSystemItemKeys) ?? []
     }
 }
 
@@ -297,9 +302,39 @@ public enum PauseReason: Equatable, Sendable {
 public struct Allowlist: Equatable, Sendable {
     public var bundleIDs: [BundleID]
     public var systemItems: [Int]
+    /// 숨길 시스템 아이콘의 키 (구분자 방식에서만 본다)
+    public var hiddenSystemItemKeys: Set<String>
 
-    public init(bundleIDs: [BundleID], systemItems: [Int]) {
+    public init(bundleIDs: [BundleID], systemItems: [Int], hiddenSystemItemKeys: Set<String> = []) {
         self.bundleIDs = bundleIDs
         self.systemItems = systemItems
+        self.hiddenSystemItemKeys = hiddenSystemItemKeys
+    }
+}
+
+/// 메뉴바에서 찾은 시스템 아이콘 하나 (구분자 방식의 설정 목록용).
+public struct SystemMenuItem: Identifiable, Hashable, Sendable {
+    public var id: String { key }
+    /// MenuBarItem.systemKey
+    public let key: String
+    /// 시스템이 붙인 이름 (예: "배터리"). 없으면 프로세스 이름.
+    public let name: String
+    /// 옮길 수 있어서 숨길 수 있는가. 시계와 제어 센터는 macOS 가 고정해 둔다.
+    public let isHideable: Bool
+
+    public init(key: String, name: String, isHideable: Bool) {
+        self.key = key
+        self.name = name
+        self.isHideable = isHideable
+    }
+
+    /// 읽은 아이템들에서 시스템 아이콘을 뽑는다. 같은 키는 하나로 합치고, 읽힌 순서를 유지한다.
+    public static func list(from items: [MenuBarItem]) -> [SystemMenuItem] {
+        var seen = Set<String>()
+        return items.filter(\.isSystem).compactMap { item in
+            guard seen.insert(item.systemKey).inserted else { return nil }
+            let name = item.title.flatMap { $0.isEmpty ? nil : $0 } ?? item.appName
+            return SystemMenuItem(key: item.systemKey, name: name, isHideable: !SeparatorPlanner.immovableSystemKeys.contains(item.systemKey))
+        }
     }
 }

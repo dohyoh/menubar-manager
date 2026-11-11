@@ -123,13 +123,34 @@ struct MenuBarManagementView: View {
         AppListFilter.apply(coordinator.apps, filter: filter, query: query, hidden: hidden, menuBarApps: coordinator.menuBarApps)
     }
     /// 목록에 보여 줄 시스템 아이콘. 검색어가 있으면 이름으로, "숨긴 앱" 필터에서는 숨긴 것만 고른다.
-    private var listedSystemItems: [SystemItem] {
-        // 시스템 아이콘을 숨길 수 없는 방식(구분자)에서는 내놓지 않는다.
-        guard coordinator.visibilityTraits.supportsSystemItems else { return [] }
+    ///
+    /// 숨김 방식에 따라 고를 수 있는 아이콘이 다르다: 허용 목록 방식은 정해진 두 개(Wi-Fi·배터리),
+    /// 구분자 방식은 메뉴바에서 읽은 것 중 옮길 수 있는 것 (시계와 제어 센터는 macOS 가 고정해 둔다).
+    private var listedSystemItems: [SystemIconEntry] {
+        let traits = coordinator.visibilityTraits
+        guard traits.supportsSystemItems else { return [] }
+        let entries: [SystemIconEntry]
+        if traits.discoversSystemItems {
+            let hiddenKeys = coordinator.layout.hiddenSystemItemKeys
+            entries = coordinator.systemMenuItems.filter(\.isHideable).map { item in
+                SystemIconEntry(id: item.key, name: SystemIconEntry.name(for: item), symbolName: SystemIconEntry.symbolName(forKey: item.key),
+                                isShown: !hiddenKeys.contains(item.key)) { [coordinator] shown in
+                    Task { await coordinator.setSystemItemHidden(key: item.key, hidden: !shown) }
+                }
+            }
+        } else {
+            let hiddenItems = coordinator.layout.hiddenSystemItems
+            entries = SystemItem.allCases.map { item in
+                SystemIconEntry(id: "system-\(item.rawValue)", name: SystemIconEntry.name(of: item), symbolName: SystemIconEntry.symbolName(of: item),
+                                isShown: !hiddenItems.contains(item.rawValue)) { [coordinator] shown in
+                    Task { await coordinator.setSystemItemHidden(item, hidden: !shown) }
+                }
+            }
+        }
         let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        return SystemItem.allCases.filter { item in
-            if !q.isEmpty { return SystemItemRow.name(of: item).localizedCaseInsensitiveContains(q) }
-            return filter != .hidden || coordinator.layout.hiddenSystemItems.contains(item.rawValue)
+        return entries.filter { entry in
+            if !q.isEmpty { return entry.name.localizedCaseInsensitiveContains(q) }
+            return filter != .hidden || !entry.isShown
         }
     }
     /// 새로 나타났고 아직 표시할지 숨길지 정하지 않은 앱
@@ -228,10 +249,8 @@ struct MenuBarManagementView: View {
                 // 시스템 아이콘(Wi-Fi, 배터리)도 같은 목록에서 고른다.
                 if !systemItems.isEmpty {
                     Section {
-                        ForEach(systemItems, id: \.self) { item in
-                            SystemItemRow(item: item, isShown: !coordinator.layout.hiddenSystemItems.contains(item.rawValue)) { nowShown in
-                                Task { await coordinator.setSystemItemHidden(item, hidden: !nowShown) }
-                            }
+                        ForEach(systemItems) { entry in
+                            SystemItemRow(entry: entry)
                         }
                     } header: {
                         Text(L("시스템 아이콘"))
@@ -281,7 +300,7 @@ struct MenuBarManagementView: View {
     /// 목록 아래의 설명. 숨김 방식에 따라 알아 둘 점이 다르다.
     private var managementNote: String {
         if coordinator.visibilityTraits.requiresAccessibility {
-            return L("스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 숨길 앱을 바꾸면 아이콘을 옮기느라 숨긴 아이콘이 잠깐 보이고 포인터가 잠시 움직입니다.")
+            return L("스위치를 끄면 그 아이콘이 숨겨집니다. 숨길 대상을 바꾸면 아이콘을 옮기느라 숨긴 아이콘이 잠깐 보이고 포인터가 잠시 움직입니다.")
         }
         return coordinator.menuBarApps == nil
             ? L("스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 목록에는 메뉴바 아이콘이 없는 앱도 포함됩니다 — \"순서 편집\"에서 접근성 권한을 허용하면 메뉴바에 있는 앱만 볼 수 있습니다. 제어 센터에서 메뉴바로 꺼낸 항목(타이머 등)은 숨김 중에는 항상 숨겨집니다.")
@@ -418,11 +437,13 @@ private struct AppRow: View {
     }
 }
 
-/// 시스템 아이콘 한 줄 (Wi-Fi, 배터리). 앱 줄과 같은 모양의 스위치를 쓴다.
-private struct SystemItemRow: View {
-    let item: SystemItem
+/// 설정 목록의 시스템 아이콘 한 줄에 필요한 것.
+private struct SystemIconEntry: Identifiable {
+    let id: String
+    let name: String
+    let symbolName: String
     let isShown: Bool
-    let onChange: @MainActor (Bool) -> Void
+    let setShown: @MainActor (Bool) -> Void
 
     static func name(of item: SystemItem) -> String {
         switch item {
@@ -431,22 +452,47 @@ private struct SystemItemRow: View {
         }
     }
 
-    private var symbolName: String {
+    static func symbolName(of item: SystemItem) -> String {
         switch item {
         case .wifi: return "wifi"
         case .battery: return "battery.100percent"
         }
     }
 
+    /// 메뉴바에서 읽은 시스템 아이콘의 이름. 대부분 시스템이 붙인 이름을 그대로 쓰고,
+    /// 이름이 길거나("Wi‑Fi, 개인용 핫스팟") 상태에 따라 바뀌는 것(입력 소스는 지금 자판 이름)만 바꾼다.
+    static func name(for item: SystemMenuItem) -> String {
+        switch item.key {
+        case "com.apple.menuextra.wifi": return L("Wi-Fi")
+        case "com.apple.menuextra.battery": return L("배터리")
+        case "com.apple.TextInputMenuAgent": return L("입력 소스")
+        default: return item.name
+        }
+    }
+
+    static func symbolName(forKey key: String) -> String {
+        switch key {
+        case "com.apple.menuextra.wifi": return "wifi"
+        case "com.apple.menuextra.battery": return "battery.100percent"
+        case "com.apple.TextInputMenuAgent": return "keyboard"
+        case "com.apple.menuextra.sound": return "speaker.wave.2"
+        default: return "menubar.rectangle"
+        }
+    }
+}
+
+/// 시스템 아이콘 한 줄. 앱 줄과 같은 모양의 스위치를 쓴다.
+private struct SystemItemRow: View {
+    let entry: SystemIconEntry
+
     var body: some View {
-        let name = Self.name(of: item)
         HStack(spacing: 10) {
-            Image(systemName: symbolName)
+            Image(systemName: entry.symbolName)
                 .frame(width: 24, height: 24)
                 .accessibilityHidden(true)
-            Text(name).lineLimit(1)
+            Text(entry.name).lineLimit(1)
             Spacer(minLength: 8)
-            Toggle(L("\(name) 메뉴바에 표시"), isOn: Binding(get: { isShown }, set: { onChange($0) }))
+            Toggle(L("\(entry.name) 메뉴바에 표시"), isOn: Binding(get: { entry.isShown }, set: { entry.setShown($0) }))
                 .toggleStyle(.switch)
                 .controlSize(.small)
                 .labelsHidden()

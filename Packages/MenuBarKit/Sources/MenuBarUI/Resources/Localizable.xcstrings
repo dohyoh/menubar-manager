@@ -1361,6 +1361,22 @@
         }
       }
     },
+    "스위치를 끄면 그 아이콘이 숨겨집니다. 숨길 대상을 바꾸면 아이콘을 옮기느라 숨긴 아이콘이 잠깐 보이고 포인터가 잠시 움직입니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn a switch off to hide that icon. When you change what is hidden, hidden icons appear briefly and the pointer moves for a moment while icons are moved."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭开关即可隐藏该图标。更改要隐藏的项目时，由于需要移动图标，被隐藏的图标会暂时显示，指针也会短暂移动。"
+          }
+        }
+      }
+    },
     "스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 목록에는 메뉴바 아이콘이 없는 앱도 포함됩니다 — \"순서 편집\"에서 접근성 권한을 허용하면 메뉴바에 있는 앱만 볼 수 있습니다. 제어 센터에서 메뉴바로 꺼낸 항목(타이머 등)은 숨김 중에는 항상 숨겨집니다.": {
       "localizations": {
         "en": {
@@ -1373,22 +1389,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "关闭开关即可隐藏该 App 的图标。列表中也包含没有菜单栏图标的 App — 在“编辑顺序”中允许辅助功能权限后，可以只查看菜单栏中的 App。从控制中心添加到菜单栏的项目（如计时器）在隐藏期间始终隐藏。"
-          }
-        }
-      }
-    },
-    "스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 숨길 앱을 바꾸면 아이콘을 옮기느라 숨긴 아이콘이 잠깐 보이고 포인터가 잠시 움직입니다.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Turn a switch off to hide that app's icon. When you change which apps are hidden, hidden icons appear briefly and the pointer moves for a moment while icons are moved."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "关闭开关即可隐藏该 App 的图标。更改要隐藏的 App 时，由于需要移动图标，被隐藏的图标会暂时显示，指针也会短暂移动。"
           }
         }
       }
@@ -1745,18 +1745,18 @@
         }
       }
     },
-    "우클릭 > 설정…의 \"메뉴바 관리\"에서 앱별 스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 앱이 많으면 검색과 필터로 찾습니다. 숨길 앱을 바꾸면 아이콘을 옮기느라 숨긴 아이콘이 잠깐 보이고 포인터가 잠시 움직입니다.": {
+    "우클릭 > 설정…의 \"메뉴바 관리\"에서 앱별 스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 앱이 많으면 검색과 필터로 찾습니다. 목록 아래쪽에서 Wi-Fi·배터리 같은 시스템 아이콘도 고를 수 있습니다. 숨길 대상을 바꾸면 아이콘을 옮기느라 숨긴 아이콘이 잠깐 보이고 포인터가 잠시 움직입니다.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "In Right-click > Settings…, under \"Menu Bar\", turn off an app's switch to hide its icon. Use search and filters if you have many apps. When you change which apps are hidden, hidden icons appear briefly and the pointer moves for a moment while icons are moved."
+            "value": "In Right-click > Settings…, under \"Menu Bar\", turn off an app's switch to hide its icon. Use search and filters if you have many apps. System icons such as Wi-Fi and Battery are at the bottom of the list. When you change what is hidden, hidden icons appear briefly and the pointer moves for a moment while icons are moved."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在“右键 > 设置…”的“菜单栏管理”中关闭某个 App 的开关，即可隐藏它的图标。App 较多时可以用搜索和筛选来查找。更改要隐藏的 App 时，由于需要移动图标，被隐藏的图标会暂时显示，指针也会短暂移动。"
+            "value": "在“右键 > 设置…”的“菜单栏管理”中关闭某个 App 的开关，即可隐藏它的图标。App 较多时可以用搜索和筛选来查找。在列表下方还可以选择 Wi-Fi、电池等系统图标。更改要隐藏的项目时，由于需要移动图标，被隐藏的图标会暂时显示，指针也会短暂移动。"
           }
         }
       }
@@ -2061,6 +2061,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "读取或应用期间，被隐藏的图标会暂时显示；应用期间指针会短暂移动。系统项目（时钟、控制中心等）无法移动，但可以把其他图标移到它们之间。也可以在菜单栏中按住 ⌘ 直接拖动。"
+          }
+        }
+      }
+    },
+    "입력 소스": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Input Sources"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入法"
           }
         }
       }

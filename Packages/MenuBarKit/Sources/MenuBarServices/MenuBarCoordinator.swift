@@ -13,6 +13,8 @@ public final class MenuBarCoordinator {
     public private(set) var apps: [ManagedApp] = []
     /// 메뉴바 아이콘을 가진 앱. 접근성 권한이 없어 알 수 없으면 nil.
     public private(set) var menuBarApps: Set<BundleID>?
+    /// 메뉴바에서 찾은 시스템 아이콘 (구분자 방식의 설정 목록용). 아직 읽지 못했으면 비어 있다.
+    public private(set) var systemMenuItems: [SystemMenuItem] = []
 
     /// 상태가 바뀔 때마다 호출된다 (메뉴바 아이콘 갱신용).
     @ObservationIgnored public var onStateChange: (@MainActor (ManagerState) -> Void)?
@@ -257,6 +259,13 @@ public final class MenuBarCoordinator {
         if state == .collapsed { await applyHiding() }
     }
 
+    /// 시스템 아이콘의 표시 여부 (구분자 방식 — 메뉴바에서 읽은 아이콘의 키로 가리킨다).
+    public func setSystemItemHidden(key: String, hidden: Bool) async {
+        if hidden { layout.hiddenSystemItemKeys.insert(key) } else { layout.hiddenSystemItemKeys.remove(key) }
+        persist()
+        if state == .collapsed { await applyHiding() }
+    }
+
     /// "새로 나타난 앱"을 표시할지 숨길지 정한다.
     public func resolvePending(_ bundleID: BundleID, hide: Bool) async {
         guard layout.pendingApps.remove(bundleID) != nil else { return }
@@ -279,6 +288,12 @@ public final class MenuBarCoordinator {
             return
         }
         if let found = try? await itemDiscovery.appsOwningItems() { menuBarApps = found }
+        // 시스템 아이콘을 메뉴바에서 읽어 목록으로 보여 주는 방식이면 함께 읽는다. 숨겨져 화면 밖에 있는 것도 포함한다.
+        if visibility.traits.discoversSystemItems, let snapshot = try? await itemDiscovery.snapshot(fullScan: true) {
+            let found = SystemMenuItem.list(from: snapshot.visible + snapshot.offscreen)
+            // 순서 작업 중처럼 잠깐 읽히지 않은 경우에 목록이 비지 않게, 읽힌 것이 있을 때만 바꾼다.
+            if !found.isEmpty { systemMenuItems = found }
+        }
     }
 
     /// 숨김을 막던 사정(접근성 권한 등)이 풀렸는지 다시 본다. 풀렸고 숨기기가 켜져 있으면 숨김을 적용한다.
@@ -389,7 +404,8 @@ public final class MenuBarCoordinator {
             known: discovery.knownBundleIDs(),
             hidden: layout.hiddenApps,
             selfID: presence.selfBundleID,
-            hiddenSystemItems: layout.hiddenSystemItems
+            hiddenSystemItems: layout.hiddenSystemItems,
+            hiddenSystemItemKeys: layout.hiddenSystemItemKeys
         )
         do {
             try await visibility.restrict(to: allowlist)

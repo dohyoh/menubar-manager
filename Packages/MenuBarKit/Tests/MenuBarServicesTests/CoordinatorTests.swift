@@ -97,11 +97,11 @@ struct Rig {
     let permission = FakePermission()
     let coordinator: MenuBarCoordinator
 
-    init(hidingEnabled: Bool = true, hidden: Set<BundleID> = ["com.b"], autoRehide: Bool = true) {
+    init(hidingEnabled: Bool = true, hidden: Set<BundleID> = ["com.b"], autoRehide: Bool = true, itemDiscovery: (any ItemDiscovering)? = nil) {
         store.state = PersistedState(layout: Layout(hiddenApps: hidden), options: Options(hidingEnabled: hidingEnabled, autoRehide: autoRehide, autoRehideSeconds: 10))
         // 기다림은 실제 시간 대신 한 번 양보하는 것으로 바꾼다 (패널 확인 간격 등).
         coordinator = MenuBarCoordinator(visibility: visibility, discovery: discovery, presence: presence, store: store, scheduler: scheduler, activity: activity,
-                                         permission: permission, pause: { _ in await Task.yield() })
+                                         permission: permission, itemDiscovery: itemDiscovery, pause: { _ in await Task.yield() })
     }
 }
 
@@ -805,6 +805,57 @@ struct AccessibilityGatedHidingTests {
         rig.permission.isAccessibilityGranted = false
         await rig.coordinator.start()
         #expect(rig.coordinator.state == .collapsed)
+    }
+}
+
+@MainActor
+@Suite("시스템 아이콘 숨김 (메뉴바에서 읽는 방식)")
+struct DiscoveredSystemItemTests {
+    private func makeRig() -> (Rig, FakeSeparatorBar) {
+        let bar = FakeSeparatorBar(order: ["me#1", "me#0", "com.apple.TextInputMenuAgent#0", "com.apple.controlcenter#0", "com.apple.controlcenter#1"])
+        bar.identifiers = ["com.apple.controlcenter#0": "com.apple.menuextra.battery", "com.apple.controlcenter#1": "com.apple.menuextra.clock"]
+        let rig = Rig(hidingEnabled: true, itemDiscovery: bar)
+        rig.visibility.traits = .separator
+        return (rig, bar)
+    }
+
+    @Test("메뉴바에서 시스템 아이콘을 읽어 목록을 만든다")
+    func discoversSystemItems() async {
+        let (rig, _) = makeRig()
+        await rig.coordinator.start()
+        await rig.coordinator.refreshMenuBarApps()
+        #expect(rig.coordinator.systemMenuItems.map(\.key) == ["com.apple.TextInputMenuAgent", "com.apple.menuextra.battery", "com.apple.menuextra.clock"])
+        #expect(rig.coordinator.systemMenuItems.map(\.isHideable) == [true, true, false])
+    }
+
+    @Test("숨기기로 한 시스템 아이콘을 저장하고, 숨김 중이면 바로 다시 적용한다")
+    func hidesSystemItemByKey() async {
+        let (rig, _) = makeRig()
+        await rig.coordinator.start()
+        await rig.coordinator.setSystemItemHidden(key: "com.apple.menuextra.battery", hidden: true)
+        #expect(rig.store.state.layout.hiddenSystemItemKeys == ["com.apple.menuextra.battery"])
+        #expect(rig.visibility.restrictCalls.count == 2)
+        #expect(rig.visibility.restrictCalls.last?.hiddenSystemItemKeys == ["com.apple.menuextra.battery"])
+
+        await rig.coordinator.setSystemItemHidden(key: "com.apple.menuextra.battery", hidden: false)
+        #expect(rig.visibility.restrictCalls.last?.hiddenSystemItemKeys.isEmpty == true)
+    }
+
+    @Test("허용 목록 방식에서는 메뉴바에서 시스템 아이콘을 읽지 않는다")
+    func allowlistDoesNotDiscover() async {
+        let bar = FakeSeparatorBar(order: ["me#1", "me#0", "com.apple.TextInputMenuAgent#0"])
+        let rig = Rig(hidingEnabled: true, itemDiscovery: bar)
+        await rig.coordinator.start()
+        await rig.coordinator.refreshMenuBarApps()
+        #expect(rig.coordinator.systemMenuItems.isEmpty)
+    }
+
+    @Test("예전 설정 파일에는 시스템 아이콘 키가 없다 — 빈 목록으로 읽는다")
+    func decodesOldLayout() throws {
+        let old = Data(#"{"hiddenApps":["com.b"],"knownApps":[],"newAppPolicy":"show"}"#.utf8)
+        let layout = try JSONDecoder().decode(Layout.self, from: old)
+        #expect(layout.hiddenSystemItemKeys.isEmpty)
+        #expect(layout.hiddenApps == ["com.b"])
     }
 }
 

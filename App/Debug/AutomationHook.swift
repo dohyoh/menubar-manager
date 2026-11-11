@@ -17,6 +17,7 @@ import MenuBarSystem
 ///   tabtime                                                                                 (탭 전환에 걸리는 시간 재기)
 ///   viewshot <png 경로>                                                                      (설정 창 내용을 화면 없이 그려 저장)
 ///   axstatus | axprompt | axlist | order read | order move <id> <id|end>                       (순서 조정, 접근성 권한 필요)
+///   sysitems | syskey <키> 0|1                                                              (구분자 방식: 메뉴바에서 읽은 시스템 아이콘 목록, 숨김 여부)
 ///   sep | snapshot | recheck                                                                (구분자 방식의 숨김: 구분자 위치, 화면 안·밖 아이템, 권한 다시 확인)
 ///   drag <x1> <x2> <y> | dragtune <pt> <ms> <ms> | click <x> <y>                              (저수준 입력 합성 — 사용자가 쓰는 중에는 피한다)
 @MainActor
@@ -166,6 +167,17 @@ final class AutomationHook {
             guard parts.count >= 3, let item: SystemItem = parts[1] == "wifi" ? .wifi : parts[1] == "battery" ? .battery : nil else { return log("usage: sysitem wifi|battery 0|1") }
             await coordinator.setSystemItemHidden(item, hidden: parts[2] == "1")
             log("SYSITEM hidden=\(coordinator.layout.hiddenSystemItems.sorted())")
+        case "syskey":
+            // syskey <키> 0|1   (1 = 숨김) — 메뉴바에서 읽은 시스템 아이콘 (구분자 방식)
+            guard parts.count >= 3 else { return log("usage: syskey <key> 0|1") }
+            await coordinator.setSystemItemHidden(key: parts[1], hidden: parts[2] == "1")
+            log("SYSKEY hidden=\(coordinator.layout.hiddenSystemItemKeys.sorted())")
+        case "sysitems":
+            await coordinator.refreshMenuBarApps()
+            for item in coordinator.systemMenuItems {
+                log("SYSITEM key=\(item.key) name=\(item.name) hideable=\(item.isHideable) hidden=\(coordinator.layout.hiddenSystemItemKeys.contains(item.key))")
+            }
+            log("SYSITEMS total=\(coordinator.systemMenuItems.count)")
         case "mbapps":
             await coordinator.refreshMenuBarApps()
             log("MBAPPS \(coordinator.menuBarApps.map { "count=\($0.count) \($0.sorted().joined(separator: " "))" } ?? "unknown") pending=\(coordinator.layout.pendingApps.sorted())")

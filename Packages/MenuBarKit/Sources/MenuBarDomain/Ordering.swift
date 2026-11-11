@@ -12,12 +12,20 @@ public struct MenuBarItem: Identifiable, Hashable, Sendable {
     public let appName: String
     public let index: Int
     public let title: String?
+    /// 접근성 식별자. 제어 센터가 그리는 시스템 아이콘에만 있다 (예: `com.apple.menuextra.battery`, macOS 26 — platform-notes 7.7).
+    public let identifier: String?
     /// 화면 좌표 (왼쪽 위가 원점)
     public let frame: CGRect
     /// 이 아이템이 놓인 모니터의 오른쪽 끝 x 좌표.
     public let screenMaxX: CGFloat
     /// macOS 가 제공하는 아이템(시계, 제어 센터, Wi-Fi 등). 순서 조정에서 옮기지 않는다.
     public var isSystem: Bool { bundleID.hasPrefix("com.apple.") }
+    /// 시스템 아이콘 하나를 가리키는 키. 제어 센터처럼 한 프로세스가 여러 아이콘을 그리면 식별자로,
+    /// 식별자가 없으면(입력 소스, Siri) 그 프로세스의 번들 ID 로 구분한다.
+    public var systemKey: String {
+        if let identifier, !identifier.isEmpty { return identifier }
+        return bundleID
+    }
 
     /// 모니터 오른쪽 끝에서 아이템 왼쪽 가장자리까지의 거리.
     ///
@@ -41,12 +49,13 @@ public struct MenuBarItem: Identifiable, Hashable, Sendable {
         screenMaxX - other.trailingOffset + other.frame.width
     }
 
-    public init(bundleID: BundleID, appName: String, index: Int, title: String?, frame: CGRect, screenMaxX: CGFloat) {
+    public init(bundleID: BundleID, appName: String, index: Int, title: String?, frame: CGRect, screenMaxX: CGFloat, identifier: String? = nil) {
         self.id = "\(bundleID)#\(index)"
         self.bundleID = bundleID
         self.appName = appName
         self.index = index
         self.title = title
+        self.identifier = identifier
         self.frame = frame
         self.screenMaxX = screenMaxX
     }

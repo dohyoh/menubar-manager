@@ -10,7 +10,8 @@ public enum AllowlistBuilder {
     ///            여기 없는 앱은 숨겨진다.
     ///   - hidden: 숨길 앱
     ///   - selfID: 이 앱 자신. 숨길 목록에 있어도 항상 허용한다.
-    public static func build(known: [BundleID], hidden: Set<BundleID>, selfID: BundleID, hiddenSystemItems: Set<Int> = []) -> Allowlist {
+    public static func build(known: [BundleID], hidden: Set<BundleID>, selfID: BundleID, hiddenSystemItems: Set<Int> = [],
+                             hiddenSystemItemKeys: Set<String> = []) -> Allowlist {
         // 숨길 수 있다고 확인된 시스템 아이콘만 뺀다. 그 밖의 번호(시계, 제어 센터 등)는 항상 허용한다.
         let hideable = Set(SystemItem.allCases.map(\.rawValue))
         let systemItems = allSystemItems.filter { !(hiddenSystemItems.contains($0) && hideable.contains($0)) }
@@ -20,7 +21,7 @@ public enum AllowlistBuilder {
             guard id == selfID || !hidden.contains(id) else { continue }
             if seen.insert(id).inserted { allowed.append(id) }
         }
-        return Allowlist(bundleIDs: allowed, systemItems: systemItems)
+        return Allowlist(bundleIDs: allowed, systemItems: systemItems, hiddenSystemItemKeys: hiddenSystemItemKeys)
     }
 }
 

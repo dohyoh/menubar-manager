@@ -10,26 +10,33 @@ import Foundation
 public struct VisibilityTraits: Equatable, Sendable {
     /// 숨기려면 접근성 권한이 필요한가 (숨길 아이콘을 앱이 옮겨야 하는 방식)
     public var requiresAccessibility: Bool
-    /// 시스템 아이콘(Wi-Fi·배터리)을 숨길 수 있는가
+    /// 시스템 아이콘을 숨길 수 있는가
     public var supportsSystemItems: Bool
+    /// 숨길 수 있는 시스템 아이콘을 메뉴바에서 읽어 와 목록으로 보여 주는가.
+    /// 아니면 정해진 목록(Wi-Fi·배터리 — `SystemItem`)을 쓴다.
+    public var discoversSystemItems: Bool
     /// 숨김 중에는 알림 센터가 열리지 않는가 (시계를 누를 때 숨김을 풀어 줘야 하는가)
     public var blocksNotificationCenter: Bool
     /// /Applications 밖에 있는 앱의 아이콘은 숨김 중에 표시할 수 없는가
     public var hidesAppsOutsideApplications: Bool
 
-    public init(requiresAccessibility: Bool, supportsSystemItems: Bool, blocksNotificationCenter: Bool, hidesAppsOutsideApplications: Bool) {
+    public init(requiresAccessibility: Bool, supportsSystemItems: Bool, discoversSystemItems: Bool, blocksNotificationCenter: Bool,
+                hidesAppsOutsideApplications: Bool) {
         self.requiresAccessibility = requiresAccessibility
         self.supportsSystemItems = supportsSystemItems
+        self.discoversSystemItems = discoversSystemItems
         self.blocksNotificationCenter = blocksNotificationCenter
         self.hidesAppsOutsideApplications = hidesAppsOutsideApplications
     }
 
     /// 시스템 허용 목록 방식 (docs/adr/0003-visibility-mechanism.md)
     public static let allowlist = VisibilityTraits(
-        requiresAccessibility: false, supportsSystemItems: true, blocksNotificationCenter: true, hidesAppsOutsideApplications: true)
+        requiresAccessibility: false, supportsSystemItems: true, discoversSystemItems: false, blocksNotificationCenter: true,
+        hidesAppsOutsideApplications: true)
     /// 구분자 확장 방식 (docs/adr/0012-separator-visibility-macos26.md)
     public static let separator = VisibilityTraits(
-        requiresAccessibility: true, supportsSystemItems: false, blocksNotificationCenter: false, hidesAppsOutsideApplications: false)
+        requiresAccessibility: true, supportsSystemItems: true, discoversSystemItems: true, blocksNotificationCenter: false,
+        hidesAppsOutsideApplications: false)
 }
 
 /// 메뉴바를 한 번 읽은 결과.
@@ -94,6 +101,8 @@ public enum SeparatorPlanner {
     static let expandedMinimumWidth: CGFloat = 500
     /// 놓을 지점: 목표 가장자리에서 이만큼 왼쪽 (platform-notes 7.9)
     public static let dropInset: CGFloat = 6
+    /// macOS 가 자리를 고정해 둔 시스템 아이콘. ⌘+드래그로 옮겨지지 않아 숨길 수 없다 (검증됨, platform-notes 7.12).
+    public static let immovableSystemKeys: Set<String> = ["com.apple.menuextra.clock", "com.apple.menuextra.controlcenter"]
 
     /// 이 아이템이 구분자 자신인가. 구분자도 이 앱의 상태 아이템이라 읽은 목록에 함께 나온다.
     /// - Parameter separatorOffset: 접혀 있을 때 구분자의 `trailingOffset`. 늘여 놓았으면 nil.
@@ -125,18 +134,37 @@ public enum SeparatorPlanner {
 
     /// 지금 있는 쪽과 있어야 할 쪽이 다른 아이템.
     ///
-    /// 허용 목록에 없는 앱의 아이콘은 숨김 쪽에, 나머지는 표시 쪽에 있어야 한다. 이 앱 자신은 항상 표시 쪽이다.
-    /// 시스템 아이템은 옮기지 않는다 (docs/adr/0004-reorder-mechanism.md).
-    /// - Parameter skipping: 옮기기를 포기한 아이템
+    /// 허용 목록에 없는 앱의 아이콘과 숨기기로 한 시스템 아이콘은 숨김 쪽에, 나머지는 표시 쪽에 있어야 한다.
+    /// 이 앱 자신은 항상 표시 쪽이다. 시계와 제어 센터는 macOS 가 고정해 둬서 건드리지 않는다.
+    /// - Parameters:
+    ///   - hiddenSystemKeys: 숨기기로 한 시스템 아이콘 (`MenuBarItem.systemKey`)
+    ///   - skipping: 옮기기를 포기한 아이템
     public static func relocations(
-        _ placements: [Placement], allowed: Set<BundleID>, selfID: BundleID, skipping: Set<MenuBarItem.ID> = []
+        _ placements: [Placement], allowed: Set<BundleID>, selfID: BundleID,
+        hiddenSystemKeys: Set<String> = [], skipping: Set<MenuBarItem.ID> = []
     ) -> [Relocation] {
         placements.compactMap { placement in
             let item = placement.item
-            guard !item.isSystem, !skipping.contains(item.id) else { return nil }
-            let wanted: Side = item.bundleID == selfID || allowed.contains(item.bundleID) ? .shown : .hidden
+            guard !skipping.contains(item.id) else { return nil }
+            let wanted: Side
+            if item.bundleID == selfID {
+                wanted = .shown
+            } else if item.isSystem {
+                guard !immovableSystemKeys.contains(item.systemKey) else { return nil }
+                wanted = hiddenSystemKeys.contains(item.systemKey) || !allowed.contains(item.bundleID) ? .hidden : .shown
+            } else {
+                wanted = allowed.contains(item.bundleID) ? .shown : .hidden
+            }
             return wanted == placement.side ? nil : Relocation(item: item, to: wanted)
         }
+    }
+
+    /// 숨기려는 아이템의 바로 오른쪽에 있는 아이템. 나중에 다시 표시할 때 그 앞으로 돌려놓기 위해 기억해 둔다.
+    /// - Parameter placements: 구분자가 접혀 있을 때의 배치 (왼쪽 → 오른쪽)
+    public static func rightNeighbor(of item: MenuBarItem, in placements: [Placement]) -> MenuBarItem? {
+        placements
+            .filter { $0.side == .shown && $0.item.id != item.id && $0.item.trailingOffset < item.trailingOffset }
+            .max { $0.item.trailingOffset < $1.item.trailingOffset }?.item
     }
 
     /// 아이콘을 놓을 x 좌표 (옮길 아이템이 놓인 모니터 기준). 구분자가 접혀 있을 때의 배치로 계산한다.
@@ -144,9 +172,13 @@ public enum SeparatorPlanner {
     /// - 숨김 쪽으로: 구분자 왼쪽 가장자리의 바로 왼쪽
     /// - 표시 쪽으로: 구분자 바로 오른쪽 아이템의 왼쪽 가장자리의 바로 왼쪽 (그 아이템 앞에 들어간다).
     ///   그 지점은 구분자 위다. 접힌 구분자는 폭이 16pt 뿐이라, 구분자의 오른쪽 절반 안에 놓이도록 덜 들어간다.
-    /// - Parameter alternate: 첫 시도가 먹지 않았을 때 쓰는 다른 지점
+    /// - Parameters:
+    ///   - returnBefore: 표시 쪽으로 옮길 때, 숨기기 전에 이 아이템의 바로 오른쪽에 있던 아이템.
+    ///     지금도 표시 쪽에 있으면 그 앞에 놓아 원래 자리로 돌려놓는다. 없으면 구분자 바로 오른쪽에 놓는다.
+    ///   - alternate: 첫 시도가 먹지 않았을 때 쓰는 다른 지점 (구분자 바로 오른쪽 아이템 기준)
     public static func dropX(
-        for relocation: Relocation, placements: [Placement], separatorOffset: CGFloat, separatorWidth: CGFloat, alternate: Bool = false
+        for relocation: Relocation, placements: [Placement], separatorOffset: CGFloat, separatorWidth: CGFloat,
+        returnBefore: MenuBarItem.ID? = nil, alternate: Bool = false
     ) -> CGFloat {
         let item = relocation.item
         let separatorLeading = item.screenMaxX - separatorOffset
@@ -154,10 +186,15 @@ public enum SeparatorPlanner {
         case .hidden:
             return separatorLeading - (alternate ? dropInset * 2.5 : dropInset)
         case .shown:
+            let shown = placements.filter { $0.side == .shown && $0.item.id != item.id }
             // 표시 쪽에서 가장 왼쪽에 있는 아이템 (오른쪽 끝에서 가장 먼 것)
-            let anchor = placements
-                .filter { $0.side == .shown && $0.item.id != item.id }
-                .max { $0.item.trailingOffset < $1.item.trailingOffset }?.item
+            let leftmost = shown.max { $0.item.trailingOffset < $1.item.trailingOffset }?.item
+            if !alternate, let returnBefore, returnBefore != leftmost?.id,
+               let original = shown.first(where: { $0.item.id == returnBefore })?.item {
+                // 원래 오른쪽 이웃의 앞. 그 왼쪽은 보통 크기의 아이콘이라 평소의 여유로 놓는다.
+                return item.xOnMyScreen(ofLeadingEdgeOf: original) - dropInset
+            }
+            let anchor = leftmost
             guard let anchor else { return separatorLeading + separatorWidth + dropInset }
             let anchorLeading = item.xOnMyScreen(ofLeadingEdgeOf: anchor)
             return alternate ? anchorLeading + min(dropInset, anchor.frame.width / 4) : anchorLeading - min(dropInset, separatorWidth / 4)

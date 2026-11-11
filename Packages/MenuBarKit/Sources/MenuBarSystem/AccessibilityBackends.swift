@@ -101,10 +101,11 @@ public final class AXItemDiscovery: ItemDiscovering {
                     [kAXTitleAttribute, kAXDescriptionAttribute, kAXIdentifierAttribute, kAXHelpAttribute]
                         .lazy.compactMap { attribute(child, $0) as? String }.first { !$0.isEmpty }
                 }
+                let identifier = attribute(child, kAXIdentifierAttribute) as? String
                 // 어느 화면에도 걸치지 않으면 구분자에 밀려 화면 밖에 있는 것이다 (macOS 26 이하, platform-notes 7.8).
                 // macOS 27 은 숨겨진 아이템에 화면 안의 예전 좌표를 돌려주므로 여기에 해당하지 않는다.
                 if !screens.contains(where: { $0.intersects(frame) }) {
-                    offscreen.append(MenuBarItem(bundleID: app.bundleID, appName: app.name, index: index, title: title(), frame: frame, screenMaxX: frame.maxX))
+                    offscreen.append(MenuBarItem(bundleID: app.bundleID, appName: app.name, index: index, title: title(), frame: frame, screenMaxX: frame.maxX, identifier: identifier))
                     continue
                 }
                 // 그 좌표에 실제로 이 앱의 메뉴바 아이템이 있을 때만 "표시됨"으로 본다.
@@ -112,7 +113,7 @@ public final class AXItemDiscovery: ItemDiscovering {
                       hit.pid == app.pid, hit.role == "AXMenuBarItem" else { continue }
                 let center = CGPoint(x: frame.midX, y: frame.midY)
                 let screenMaxX = (screens.first { $0.contains(center) } ?? screens.first { center.x >= $0.minX && center.x <= $0.maxX })?.maxX ?? frame.maxX
-                items.append(MenuBarItem(bundleID: app.bundleID, appName: app.name, index: index, title: title(), frame: frame, screenMaxX: screenMaxX))
+                items.append(MenuBarItem(bundleID: app.bundleID, appName: app.name, index: index, title: title(), frame: frame, screenMaxX: screenMaxX, identifier: identifier))
             }
         }
         return (MenuBarSnapshot(visible: MenuBarItem.sortedLeftToRight(items), offscreen: offscreen), owners)
