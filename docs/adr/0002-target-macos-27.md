@@ -1,6 +1,6 @@
 # ADR-0002: 지원 OS — 앱은 macOS 15부터 실행, 숨김은 시스템 기능이 있는 버전에서만
 
-- 상태: ✅ 채택 (2026-11-10 사용자 확인: "큰 수정이 없는 한도 내에서 지원")
+- 상태: ✅ 채택 (2026-11-10 사용자 확인: "큰 수정이 없는 한도 내에서 지원"). **"macOS 26 이하용 별도 숨김 방식은 만들지 않습니다"는 [ADR-0012](0012-separator-visibility-macos26.md)로 대체됨 (2026-11-11)** — 최소 실행 버전과 "기능 유무를 실행 시 확인"은 그대로 유효
 - 날짜: 2026-11-10
 - 관련: [platform-notes.md](../architecture/platform-notes.md) · [ADR-0003](0003-visibility-mechanism.md) · [ADR-0005](0005-backend-abstraction-private-api.md)
 

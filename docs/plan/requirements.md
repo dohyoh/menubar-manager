@@ -136,7 +136,7 @@
 
 - 데스크탑/알림 센터에 놓는 WidgetKit 위젯 ([ADR-0001](../adr/0001-menu-bar-agent-app.md))
 - 메뉴바 아이콘을 눌렀을 때 열리는 패널(팝오버) — 관리 화면은 설정 창으로 ([ADR-0009](../adr/0009-interaction-model.md))
-- macOS 26 이하용 별도 숨김 방식 — 앱은 macOS 15부터 실행되지만 숨김은 시스템 기능이 있는 버전에서만 동작 ([ADR-0002](../adr/0002-target-macos-27.md))
+- macOS 26 이하에서의 시스템 아이콘(Wi-Fi·배터리) 숨김 — 그 버전에서는 구분자 확장 방식으로 앱 단위 숨김만 지원 ([ADR-0012](../adr/0012-separator-visibility-macos26.md))
 - Mac App Store 배포 ([ADR-0007](../adr/0007-distribution.md))
 - 메뉴바 외형 꾸미기, 메뉴바 왼쪽의 앱 메뉴 관리
 

@@ -9,10 +9,11 @@
 |---|---|
 | 버전 | **1.0.2** — [GitHub Releases](https://github.com/dohyoh/menubar-manager/releases)에 배포 (공증 없음, [ADR-0011](adr/0011-unnotarized-release.md)) |
 | 단계 | **M0~M4 기능 구현 완료** — 실제 앱(`/Applications/MenuBarManager.app`)에서 숨기기·펼치기·설정·정보·순서 조정·전역 단축키·시스템 아이콘 숨김·백업·진단이 동작. 숨김 중에도 시계를 누르면 알림 센터가 열림 |
-| 코드 | 제품 코드 약 3,600줄 (테스트 94개 통과). 구조는 [project-structure.md](architecture/project-structure.md). 저장소: [dohyoh/menubar-manager](https://github.com/dohyoh/menubar-manager) |
+| 코드 | 제품 코드 약 4,400줄 (테스트 130개 통과). 구조는 [project-structure.md](architecture/project-structure.md). 저장소: [dohyoh/menubar-manager](https://github.com/dohyoh/menubar-manager) |
+| 미출시 변경 | **macOS 26 이하에서 숨김** (구분자 확장 방식) — macOS 26.5.2에서 확인. 재부팅·모니터 두 대·숨김 중 앱 메뉴 클릭은 쓰면서 확인 ([roadmap M7](plan/roadmap.md#m7--macos-26-이하에서-숨김)) |
 | 다음 할 일 | ① 직접 써 보며 확인 (단축키 기록, 설정 내보내기/가져오기, 새 앱 "묻기") ② [M4의 남은 점검](plan/roadmap.md#m4--안정화편의) ③ M5(프로필 등) |
 | 확정 대기 결정 | 없음 |
-| 꼭 알아야 할 제약 | 앱은 `/Applications`에서 실행해야 함 ([ADR-0010](adr/0010-install-location.md)) |
+| 꼭 알아야 할 제약 | 앱은 `/Applications`에서 실행해야 함 ([ADR-0010](adr/0010-install-location.md)). **숨김 방식이 두 가지** — macOS 27은 허용 목록(권한 불필요), macOS 26 이하는 구분자 확장(접근성 권한 필수, [ADR-0012](adr/0012-separator-visibility-macos26.md)). 1.0.2 릴리스에는 뒤의 것이 들어 있지 않음 |
 
 ## 무엇을 하려면 어디를 보나
 
@@ -45,7 +46,7 @@ docs/
 ├── architecture/
 │   ├── overview.md        ← 구성요소, 상태 모델, 데이터 흐름
 │   ├── project-structure.md ← 폴더/모듈 구조, 빌드, 컨벤션
-│   └── platform-notes.md  ← macOS 27 메뉴바 기술 조사
+│   └── platform-notes.md  ← macOS 27·26 메뉴바 기술 조사
 └── adr/
     ├── README.md          ← ADR 목록, 템플릿, 작성 규칙
     └── NNNN-제목.md       ← 결정 1건 = 파일 1개

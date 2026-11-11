@@ -1,6 +1,6 @@
 # MenuBarManager (가칭)
 
-macOS 메뉴바에 표시할 앱을 고르고 순서를 조정하는 메뉴바 상주 앱. macOS 15부터 실행되고, 숨김 기능은 필요한 시스템 기능이 있는 버전(macOS 27에서 확인)에서만 동작한다.
+macOS 메뉴바에 표시할 앱을 고르고 순서를 조정하는 메뉴바 상주 앱. macOS 15부터 실행된다. 숨김 방식은 두 가지다 — macOS 27은 시스템 허용 목록(docs/adr/0003), macOS 26 이하는 구분자 확장(docs/adr/0012, 접근성 권한 필요, macOS 26.5.2에서 확인).
 
 ## 빌드·테스트
 
@@ -32,7 +32,9 @@ macOS 메뉴바에 표시할 앱을 고르고 순서를 조정하는 메뉴바 �
 
 - OS에 닿는 코드는 `MenuBarSystem` 모듈에만 둔다. 비공개 API 문자열은 `MenuBarPrivateBridge` 밖에 두지 않는다.
 - 어떤 오류에서도 메뉴바는 "전부 표시" 상태로 돌아가야 한다 (fail-open).
+- 숨김 방식에 따라 달라지는 화면·동작은 OS 버전이 아니라 `VisibilityTraits`를 보고 나눈다.
 - 숨김 동작은 반드시 `/Applications`에 설치한 빌드로 확인한다. 다른 위치에서 실행하면 자기 아이콘이 숨겨진다 (docs/adr/0010-install-location.md).
+- 서명 인증서가 없는 Mac에서는 빌드할 때마다 접근성 권한 항목을 지우고 다시 허용해야 한다 (`tccutil reset Accessibility dev.menubarmanager.app`, platform-notes 3.20·7.10). 스위치를 껐다 켜는 것으로는 안 된다.
 - 기술 검증 코드는 `Spikes/`에 두고 제품 코드와 섞지 않는다.
 - 판단 로직은 `MenuBarDomain`·`MenuBarServices`에 두고 `swift test`로 검증한다.
 - 사용자에게 보이는 문자열은 `L("…")`로 감싼다 (원문 한국어, 영어·중국어 번역은 `Localizable.xcstrings`).

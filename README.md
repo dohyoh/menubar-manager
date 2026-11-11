@@ -117,10 +117,10 @@ flowchart LR
 
 | Item | Detail |
 |---|---|
-| **macOS** | Runs on macOS 15 or later. **Hiding was verified on macOS 27.** On a version without the required system feature, hiding stays off and the app tells you why. |
+| **macOS** | Runs on macOS 15 or later. **Hiding was verified on macOS 27 and macOS 26.5.** On macOS 26 and earlier the app hides icons in a different way, supported from the version after 1.0.2 (macOS 15–25 have not been checked). When hiding cannot be turned on, it stays off and the app tells you why. |
 | **Mac** | Apple silicon and Intel (universal). Not yet tested on an Intel Mac. |
 | **Location** | The app must be in the Applications folder. |
-| **Accessibility permission** | Optional. Needed for reordering and a few conveniences. Hiding and expanding work without it. |
+| **Accessibility permission** | Optional on macOS 27: needed for reordering and a few conveniences, while hiding and expanding work without it. **On macOS 26 and earlier, hiding needs it too.** |
 | **Language** | English, Korean, and Simplified Chinese. Starts in the macOS language (English if that language isn't supported). Change it in **Settings > General**. |
 
 ## Good to know
@@ -128,6 +128,7 @@ flowchart LR
 - Apps that live outside the Applications folder, and items added from Control Center (such as Timer), are not shown while hiding is on.
 - Quitting MenuBarManager brings every hidden icon back.
 - Hiding uses a private macOS feature. A macOS update may change how it works, and the app cannot be distributed on the Mac App Store.
+- On macOS 26 and earlier, when you change which apps are hidden or open a new app while hiding is on, hidden icons appear briefly and the pointer moves for a moment while icons are moved. System icons such as Wi-Fi and Battery cannot be hidden on these versions.
 - After you replace the app with a new version, allow the Accessibility permission again.
 
 ## Learn more

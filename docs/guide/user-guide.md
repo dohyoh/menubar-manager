@@ -69,6 +69,17 @@ Hiding is **off** the first time you run the app. Choose the apps to hide first 
 - Clicking the clock opens Notification Center while hiding is on. Hidden icons are visible while it is open and hide again right after you close it (this can take longer without the Accessibility permission).
 - Swiping with two fingers on the trackpad does not open it while hiding is on. Left-click the curtain icon to expand first.
 
+### On macOS 26 and earlier
+
+On macOS 26 and earlier the app hides icons in a different way (supported from the version after 1.0.2). You use it the same way, with these differences:
+
+- **Hiding needs the Accessibility permission**, because MenuBarManager has to move the icons of hidden apps for you. Without it you see an exclamation mark instead of the curtain icon, and the Settings window explains what to do. Click **Request Accessibility Permission** and turn on MenuBarManager in **System Settings > Privacy & Security > Accessibility**. Hiding becomes available a moment later.
+- When you change which apps are hidden, or open a new app while hiding is on, hidden icons appear briefly and the pointer moves for a moment while icons are moved. Expanding and hiding with a left-click do not do this.
+- System icons such as Wi-Fi and Battery cannot be hidden (they are not listed).
+- Notification Center opens as usual while hiding is on.
+- Apps outside the Applications folder and Control Center items are also shown while hiding is on.
+- A narrow blank slot appears in the menu bar. Icons to the left of it are the ones that get hidden.
+
 ## 3. Choose what to hide
 
 Open **Settings > Menu Bar** (right-click the curtain icon, then **Settings…**).
@@ -143,7 +154,8 @@ Start with **Settings > Diagnostics**. It shows whether hiding is available, whe
 | macOS says the app cannot be opened | See [If macOS blocks the app](#if-macos-blocks-the-app) |
 | I cannot find the curtain icon | Open MenuBarManager again from the Applications folder. The Settings window appears. |
 | Hide cannot be turned on, and the app asks to be moved | Click **Move to Applications**, or drag the app into Applications yourself and reopen it |
-| "Hiding is not available on this version of macOS" | This macOS version lacks the system feature the app needs. Hiding was verified on macOS 27. |
+| "Hiding is not available on this version of macOS" | This version of the app has no way to hide icons on this macOS. On macOS 26 or earlier, update to the version after 1.0.2. |
+| "Hiding needs Accessibility permission" (macOS 26 and earlier) | Click **Request Accessibility Permission** and turn on MenuBarManager in System Settings. If nothing changes after you turn it on, reset the permission entry as in step 4 of [Update](#update) and turn it on again. |
 | An app's switch is on but its icon is missing | The app is outside the Applications folder, or it is a Control Center item. See [section 3](#icons-that-cannot-be-shown-while-hiding). |
 | Edit Order stopped working after an update | Allow the Accessibility permission again. See [Update](#update). |
 | Notification Center does not open with a trackpad swipe | Left-click the curtain icon to expand first, or click the clock |
@@ -182,8 +194,8 @@ Your settings are kept.
 |---|---|
 | **Network** | The app does not connect to the network. |
 | **Settings file** | `~/Library/Application Support/MenuBarManager/state.json` — the hidden apps and your options. Nothing else is stored. |
-| **Accessibility permission** | Used to read the positions of menu bar icons and to move them. Optional. |
-| **How hiding works** | A private macOS feature limits which apps may show a menu bar icon. Because it is private, a macOS update may change it. |
+| **Accessibility permission** | Used to read the positions of menu bar icons and to move them. Optional on macOS 27; needed for hiding on macOS 26 and earlier. |
+| **How hiding works** | macOS 27: a private macOS feature limits which apps may show a menu bar icon. Because it is private, a macOS update may change it. macOS 26 and earlier: the app stretches an invisible icon of its own very wide, which pushes the icons to its left off the screen. |
 | **If something fails** | The app is built to fall back to showing every icon. |
 
 For developers (Korean): [platform notes](../architecture/platform-notes.md) · [architecture](../architecture/overview.md) · [decision records](../adr/README.md)

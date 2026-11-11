@@ -44,13 +44,16 @@
 │   │   │   ├── Models.swift         #   ManagedApp, Layout, Options, ManagerState, Allowlist
 │   │   │   ├── Rules.swift          #   AllowlistBuilder, NewAppRule, AppListFilter
 │   │   │   ├── Ordering.swift       #   순서 조정용: MenuBarItem, MovePlanner, 관련 프로토콜
+│   │   │   ├── Separator.swift      #   구분자 방식의 숨김용: VisibilityTraits, MenuBarSnapshot, SeparatorPlanner
 │   │   │   └── Backends.swift       #   VisibilityControlling, AppDiscovering … (프로토콜)
 │   │   ├── MenuBarServices/         # 앱 로직
 │   │   │   ├── MenuBarCoordinator.swift   # 상태 머신 (유일한 상태 소유자)
 │   │   │   ├── OrderingController.swift   # 순서 읽기·적용 흐름
+│   │   │   ├── SeparatorVisibilityController.swift   # 숨김 (구분자 확장, macOS 26 이하): 읽기 → 옮기기 → 확인
 │   │   │   └── Storage.swift              # JSONStateStore, TaskRehideScheduler
 │   │   ├── MenuBarSystem/           # OS 접점 — OS 의존 코드는 여기에만
-│   │   │   ├── AssessmentModeVisibilityController.swift   # 숨김 (허용 목록)
+│   │   │   ├── AssessmentModeVisibilityController.swift   # 숨김 (허용 목록, macOS 27)
+│   │   │   ├── StatusItemSeparator.swift                  # 구분자 아이템, 이 Mac 에서 쓸 숨김 방식 고르기
 │   │   │   ├── WorkspaceAppDiscovery.swift                # 실행 중 + 설치된 앱
 │   │   │   ├── SystemServices.swift                       # SelfPresenceChecker, LoginItemManager
 │   │   │   ├── AccessibilityBackends.swift                # 접근성 권한, 아이템 열거, ⌘+드래그 합성, 메뉴바 사용 중·알림 센터 감지, 시계 클릭 감지

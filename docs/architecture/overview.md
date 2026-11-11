@@ -168,6 +168,22 @@ protocol CompatibilityChecking: Sendable {
 
 `VisibilityControlling`의 구현 규칙(검증됨, [platform-notes 3.8](platform-notes.md#38-허용-목록-교체)): 교체할 때는 새 assertion을 켠 뒤 완료 핸들러에서 이전 것을 해제하고, 동시에 1개만 유지합니다.
 
+### 숨김 방식 두 가지
+
+`VisibilityControlling`의 구현은 둘이고, 앱을 시작할 때 이 Mac에 있는 기능으로 하나를 고릅니다 (`VisibilityBackendKind.detect()`, 고르는 곳은 `AppDelegate`). 나머지 코드는 구현이 알려 주는 성질(`VisibilityTraits`)만 보고 화면과 동작을 정합니다.
+
+| | 허용 목록 (macOS 27) | 구분자 확장 (macOS 26 이하) |
+|---|---|---|
+| 구현 | `MenuBarSystem/AssessmentModeVisibilityController` | `MenuBarServices/SeparatorVisibilityController` + `MenuBarSystem/StatusItemSeparator` |
+| 원리 | 시스템에 "표시할 앱" 목록을 넘김 | 이 앱의 보이지 않는 상태 아이템을 길게 늘여 그 왼쪽 아이콘을 화면 밖으로 밀어냄. 숨길 앱의 아이콘은 ⌘+드래그를 대신 수행해 왼쪽으로 옮김 |
+| 접근성 권한 | 숨김에는 불필요 | **필수** — 없으면 `paused(.accessibilityRequired)` |
+| 시스템 아이콘 숨김 | 가능 (Wi-Fi·배터리) | 내놓지 않음 |
+| 알림 센터 | 숨김 중에는 열리지 않아 시계를 누를 때 숨김을 풂 | 막지 않으므로 처리 없음 |
+| `/Applications` 밖의 앱 | 숨김 중 표시할 수 없음 | 제한 없음 |
+| 결정·검증 | [ADR-0003](../adr/0003-visibility-mechanism.md), platform-notes 3절 | [ADR-0012](../adr/0012-separator-visibility-macos26.md), platform-notes 7절 |
+
+구분자 방식의 흐름: 메뉴바를 읽어(`ItemDiscovering.snapshot`) 구분자 기준으로 어느 쪽에 있는지 정하고(`SeparatorPlanner`), 잘못 놓인 아이콘이 있으면 구분자를 접어 하나씩 옮긴 뒤 다시 늘입니다. 좌클릭 펼치기·숨기기는 구분자 길이만 바꿉니다. 판단은 Domain·Services에 있어 가짜 메뉴바로 단위 테스트합니다.
+
 ## 6. 상태 머신
 
 ```
@@ -287,6 +303,8 @@ protocol CompatibilityChecking: Sendable {
                  [응용 프로그램 폴더로 옮기기] → 복사 → 그 사본 실행 → 이 프로세스 종료
   → VisibilityControlling.isSupported ?      // 필요한 시스템 기능이 있는가 (자가진단)
       └─ 아니오: paused(.unsupported) + 안내. 나머지 화면은 그대로 동작
+  → 접근성 권한이 필요한 방식(구분자)인데 권한이 없는가 ?
+      └─ 예: paused(.accessibilityRequired) + 설정 창에 안내. 2초마다 다시 확인해, 허용되면 아래로 진행
   → 저장된 설정 읽기 → 숨기기 스위치가 켜져 있었으면: 허용 목록 계산 → restrict → collapsed
                       → 꺼져 있었으면: paused (전부 표시)
   → 저장된 전역 단축키 등록 (실패한 조합은 설정 > 일반에 표시)
