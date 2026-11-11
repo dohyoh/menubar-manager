@@ -124,6 +124,8 @@ struct MenuBarManagementView: View {
     }
     /// 목록에 보여 줄 시스템 아이콘. 검색어가 있으면 이름으로, "숨긴 앱" 필터에서는 숨긴 것만 고른다.
     private var listedSystemItems: [SystemItem] {
+        // 시스템 아이콘을 숨길 수 없는 방식(구분자)에서는 내놓지 않는다.
+        guard coordinator.visibilityTraits.supportsSystemItems else { return [] }
         let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
         return SystemItem.allCases.filter { item in
             if !q.isEmpty { return SystemItemRow.name(of: item).localizedCaseInsensitiveContains(q) }
@@ -179,6 +181,15 @@ struct MenuBarManagementView: View {
         VStack(alignment: .leading, spacing: 12) {
             if navigation.showsWelcome {
                 WelcomeBanner(loginItem: loginItem) { navigation.showsWelcome = false }
+            }
+
+            if coordinator.state == .paused(.accessibilityRequired) {
+                AccessibilityRequiredBox(
+                    onRequest: { ordering.requestPermission() },
+                    onRecheck: {
+                        ordering.refreshPermission()
+                        Task { await coordinator.recheckBlockers() }
+                    })
             }
 
             if !pending.isEmpty {
@@ -260,19 +271,48 @@ struct MenuBarManagementView: View {
                 }
             }
 
-            Text(coordinator.menuBarApps == nil
-                 ? L("스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 목록에는 메뉴바 아이콘이 없는 앱도 포함됩니다 — \"순서 편집\"에서 접근성 권한을 허용하면 메뉴바에 있는 앱만 볼 수 있습니다. 제어 센터에서 메뉴바로 꺼낸 항목(타이머 등)은 숨김 중에는 항상 숨겨집니다.")
-                 : L("스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 제어 센터에서 메뉴바로 꺼낸 항목(타이머 등)은 숨김 중에는 항상 숨겨집니다."))
+            Text(managementNote)
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
 
+    /// 목록 아래의 설명. 숨김 방식에 따라 알아 둘 점이 다르다.
+    private var managementNote: String {
+        if coordinator.visibilityTraits.requiresAccessibility {
+            return L("스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 숨길 앱을 바꾸면 아이콘을 옮기느라 숨긴 아이콘이 잠깐 보이고 포인터가 잠시 움직입니다.")
+        }
+        return coordinator.menuBarApps == nil
+            ? L("스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 목록에는 메뉴바 아이콘이 없는 앱도 포함됩니다 — \"순서 편집\"에서 접근성 권한을 허용하면 메뉴바에 있는 앱만 볼 수 있습니다. 제어 센터에서 메뉴바로 꺼낸 항목(타이머 등)은 숨김 중에는 항상 숨겨집니다.")
+            : L("스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 제어 센터에서 메뉴바로 꺼낸 항목(타이머 등)은 숨김 중에는 항상 숨겨집니다.")
+    }
+
     private func row(for app: ManagedApp) -> some View {
         AppRow(app: app, isShown: AppListFilter.isShown(app, hidden: hidden)) { nowShown in
             Task { await coordinator.setHidden(app.bundleID, hidden: !nowShown) }
         }
+    }
+}
+
+/// 구분자 방식(macOS 26 이하)에서 접근성 권한이 없어 숨김을 켤 수 없을 때의 안내.
+private struct AccessibilityRequiredBox: View {
+    let onRequest: @MainActor () -> Void
+    let onRecheck: @MainActor () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(L("숨기려면 접근성 권한이 필요합니다")).font(.headline)
+            Text(InfoContent.accessibilityReason)
+                .fixedSize(horizontal: false, vertical: true)
+            HStack {
+                Button(L("접근성 권한 요청"), action: onRequest)
+                Button(L("다시 확인"), action: onRecheck)
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
     }
 }
 

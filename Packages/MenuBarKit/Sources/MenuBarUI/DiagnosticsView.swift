@@ -57,13 +57,18 @@ struct DiagnosticsView: View {
         let version = info?["CFBundleShortVersionString"] as? String ?? "-"
         let build = info?["CFBundleVersion"] as? String ?? "-"
         func yesNo(_ value: Bool) -> String { value ? L("예") : L("아니요") }
+        let traits = coordinator.visibilityTraits
+        // 구분자 방식에서는 접근성 권한이 없으면 숨김 자체를 쓸 수 없다.
+        let needsAccessibility = traits.requiresAccessibility
         return [
             Row(label: L("앱 버전"), value: "\(version) (\(build))"),
             Row(label: "macOS", value: ProcessInfo.processInfo.operatingSystemVersionString),
             Row(label: L("현재 상태"), value: StatePresentation.summary(for: coordinator.state)),
             Row(label: L("숨김 기능 사용 가능"), value: yesNo(coordinator.isHidingSupported), isProblem: !coordinator.isHidingSupported),
+            Row(label: L("숨김 방식"), value: !coordinator.isHidingSupported ? L("없음") : needsAccessibility ? L("구분자 (macOS 26 이하)") : L("시스템 허용 목록")),
             Row(label: L("응용 프로그램 폴더에 설치됨"), value: yesNo(coordinator.isInstalledInApplications), isProblem: !coordinator.isInstalledInApplications),
-            Row(label: L("접근성 권한 (순서 조정용)"), value: yesNo(coordinator.isAccessibilityGranted)),
+            Row(label: needsAccessibility ? L("접근성 권한 (숨김·순서 조정용)") : L("접근성 권한 (순서 조정용)"), value: yesNo(coordinator.isAccessibilityGranted),
+                isProblem: needsAccessibility && !coordinator.isAccessibilityGranted),
             Row(label: L("로그인 시 실행"), value: yesNo(launchAtLogin)),
             Row(label: L("숨긴 앱"), value: L("\(coordinator.layout.hiddenApps.count)개")),
             Row(label: L("메뉴바 아이콘을 가진 앱"), value: coordinator.menuBarApps.map { L("\($0.count)개") } ?? L("알 수 없음 (접근성 권한 필요)")),

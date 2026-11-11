@@ -82,7 +82,7 @@ public final class OrderingController {
         do {
             items = try await coordinator.withEverythingVisible {
                 await self.pause(Self.settleMilliseconds)
-                return try await self.discovery.currentItems(fullScan: true)
+                return try await self.readItems(fullScan: true)
             }
             status = .idle
         } catch {
@@ -108,7 +108,7 @@ public final class OrderingController {
 
     private func performMoves(target: [MenuBarItem.ID]) async throws -> [MenuBarItem] {
         await pause(Self.settleMilliseconds)
-        var current = try await discovery.currentItems(fullScan: true)
+        var current = try await readItems(fullScan: true)
         let fixed = Set(current.filter(\.isSystem).map(\.id))
         let total = MovePlanner.plan(current: current.map(\.id), target: target, fixed: fixed).count
         var done = 0
@@ -136,7 +136,7 @@ public final class OrderingController {
                 to: CGPoint(x: destinationX, y: item.frame.midY)
             )
             await pause(Self.settleMilliseconds)
-            current = try await discovery.currentItems(fullScan: false)
+            current = try await readItems(fullScan: false)
             items = current
 
             if current.map(\.id) == order {
@@ -150,6 +150,11 @@ public final class OrderingController {
             }
         }
         return current
+    }
+
+    /// 메뉴바의 아이템을 읽는다. 숨김에 쓰는 이 앱의 구분자는 사용자가 다룰 아이콘이 아니므로 뺀다.
+    private func readItems(fullScan: Bool) async throws -> [MenuBarItem] {
+        try await discovery.currentItems(fullScan: fullScan).filter { !coordinator.isSeparatorItem($0) }
     }
 
     private static func failure(from error: Error) -> Failure {

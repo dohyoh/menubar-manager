@@ -37,6 +37,10 @@ public final class AXItemDiscovery: ItemDiscovering {
     public init() {}
 
     public func currentItems(fullScan: Bool) async throws -> [MenuBarItem] {
+        try await snapshot(fullScan: fullScan).visible
+    }
+
+    public func snapshot(fullScan: Bool) async throws -> MenuBarSnapshot {
         guard AXIsProcessTrusted() else { throw OrderingError.accessibilityNotGranted }
         let apps = NSWorkspace.shared.runningApplications.compactMap { app -> AppRef? in
             guard let bundleID = app.bundleIdentifier else { return nil }
@@ -48,9 +52,9 @@ public final class AXItemDiscovery: ItemDiscovering {
         // 모니터 영역을 접근성 좌표계(왼쪽 위 원점)로 바꿔 넘긴다. x 는 두 좌표계에서 같고 y 만 뒤집힌다.
         let primaryHeight = NSScreen.screens.first?.frame.height ?? 0
         let screens = NSScreen.screens.map { CGRect(x: $0.frame.minX, y: primaryHeight - $0.frame.maxY, width: $0.frame.width, height: $0.frame.height) }
-        let (items, owners) = await Task.detached(priority: .userInitiated) { Self.scan(candidates, screens: screens) }.value
+        let (snapshot, owners) = await Task.detached(priority: .userInitiated) { Self.scan(candidates, screens: screens) }.value
         if scanAll { knownPIDs = owners }
-        return items
+        return snapshot
     }
 
     public func appsOwningItems() async throws -> Set<BundleID> {
@@ -75,11 +79,12 @@ public final class AXItemDiscovery: ItemDiscovering {
         }
     }
 
-    /// (지금 표시된 아이템들, 아이템을 가진 프로세스들)
-    nonisolated private static func scan(_ apps: [AppRef], screens: [CGRect]) -> ([MenuBarItem], Set<pid_t>) {
+    /// (지금 표시된 아이템과 화면 밖으로 밀려난 아이템, 아이템을 가진 프로세스들)
+    nonisolated private static func scan(_ apps: [AppRef], screens: [CGRect]) -> (MenuBarSnapshot, Set<pid_t>) {
         let systemWide = AXUIElementCreateSystemWide()
         AXUIElementSetMessagingTimeout(systemWide, 0.5)
         var items: [MenuBarItem] = []
+        var offscreen: [MenuBarItem] = []
         var owners = Set<pid_t>()
         for app in apps {
             let element = AXUIElementCreateApplication(app.pid)
@@ -91,18 +96,26 @@ public final class AXItemDiscovery: ItemDiscovering {
             if !children.isEmpty { owners.insert(app.pid) }
             for (index, child) in children.enumerated() {
                 guard let frame = frame(of: child), frame.width > 0 else { continue }
+                // 이름으로 쓸 만한 값을 차례로 찾는다. 시스템 아이템은 제목이 비어 있고 식별자만 있는 경우가 많다.
+                func title() -> String? {
+                    [kAXTitleAttribute, kAXDescriptionAttribute, kAXIdentifierAttribute, kAXHelpAttribute]
+                        .lazy.compactMap { attribute(child, $0) as? String }.first { !$0.isEmpty }
+                }
+                // 어느 화면에도 걸치지 않으면 구분자에 밀려 화면 밖에 있는 것이다 (macOS 26 이하, platform-notes 7.8).
+                // macOS 27 은 숨겨진 아이템에 화면 안의 예전 좌표를 돌려주므로 여기에 해당하지 않는다.
+                if !screens.contains(where: { $0.intersects(frame) }) {
+                    offscreen.append(MenuBarItem(bundleID: app.bundleID, appName: app.name, index: index, title: title(), frame: frame, screenMaxX: frame.maxX))
+                    continue
+                }
                 // 그 좌표에 실제로 이 앱의 메뉴바 아이템이 있을 때만 "표시됨"으로 본다.
                 guard let hit = owner(at: CGPoint(x: frame.midX, y: frame.midY), systemWide: systemWide),
                       hit.pid == app.pid, hit.role == "AXMenuBarItem" else { continue }
-                // 이름으로 쓸 만한 값을 차례로 찾는다. 시스템 아이템은 제목이 비어 있고 식별자만 있는 경우가 많다.
-                let title = [kAXTitleAttribute, kAXDescriptionAttribute, kAXIdentifierAttribute, kAXHelpAttribute]
-                    .lazy.compactMap { attribute(child, $0) as? String }.first { !$0.isEmpty }
                 let center = CGPoint(x: frame.midX, y: frame.midY)
                 let screenMaxX = (screens.first { $0.contains(center) } ?? screens.first { center.x >= $0.minX && center.x <= $0.maxX })?.maxX ?? frame.maxX
-                items.append(MenuBarItem(bundleID: app.bundleID, appName: app.name, index: index, title: title, frame: frame, screenMaxX: screenMaxX))
+                items.append(MenuBarItem(bundleID: app.bundleID, appName: app.name, index: index, title: title(), frame: frame, screenMaxX: screenMaxX))
             }
         }
-        return (MenuBarItem.sortedLeftToRight(items), owners)
+        return (MenuBarSnapshot(visible: MenuBarItem.sortedLeftToRight(items), offscreen: offscreen), owners)
     }
 
     nonisolated private static func owner(at point: CGPoint, systemWide: AXUIElement) -> (pid: pid_t, role: String)? {

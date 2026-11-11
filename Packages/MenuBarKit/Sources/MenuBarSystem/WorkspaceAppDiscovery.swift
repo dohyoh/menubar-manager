@@ -10,6 +10,8 @@ public final class WorkspaceAppDiscovery: AppDiscovering {
     public var onChange: (@MainActor () -> Void)?
 
     private let selfBundleID: BundleID
+    /// /Applications 밖의 앱을 "숨김 중에는 표시할 수 없음"으로 표시할지. 허용 목록 방식에만 해당한다.
+    private let marksAppsOutsideApplications: Bool
     private var runningObservation: NSKeyValueObservation?
     private var lastRunning: Set<BundleID> = []
     private var pendingNotify: Task<Void, Never>?
@@ -19,8 +21,9 @@ public final class WorkspaceAppDiscovery: AppDiscovering {
     private var installedCache: (apps: [ManagedApp], at: Date)?
     private static let installedCacheLifetime: TimeInterval = 30
 
-    public init(selfBundleID: BundleID) {
+    public init(selfBundleID: BundleID, marksAppsOutsideApplications: Bool = true) {
         self.selfBundleID = selfBundleID
+        self.marksAppsOutsideApplications = marksAppsOutsideApplications
         lastRunning = Self.runningBundleIDs()
         // 앱 실행 알림(didLaunchApplicationNotification)은 Dock 에 나오지 않는 앱에는 오지 않는다 (검증됨).
         // 메뉴바 앱은 대부분 그런 앱이라, 실행 중인 앱 목록 자체를 관찰한다. (platform-notes 3.27)
@@ -104,7 +107,7 @@ public final class WorkspaceAppDiscovery: AppDiscovering {
         let constraint: Constraint?
         if bundleID == selfBundleID {
             constraint = .protected
-        } else if !(url.path.hasPrefix("/Applications/") || url.path.hasPrefix("/System/")) {
+        } else if marksAppsOutsideApplications, !(url.path.hasPrefix("/Applications/") || url.path.hasPrefix("/System/")) {
             constraint = .outsideApplications
         } else {
             constraint = nil

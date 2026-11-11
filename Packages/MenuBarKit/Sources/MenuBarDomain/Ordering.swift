@@ -185,6 +185,14 @@ public protocol ItemDiscovering: AnyObject {
     func currentItems(fullScan: Bool) async throws -> [MenuBarItem]
     /// 메뉴바 아이콘을 가진 앱들 (지금 숨겨져 있는 것도 포함).
     func appsOwningItems() async throws -> Set<BundleID>
+    /// 표시된 아이템과, 화면 밖으로 밀려난 아이템을 한 번에 읽는다 (구분자 방식의 숨김용).
+    func snapshot(fullScan: Bool) async throws -> MenuBarSnapshot
+}
+
+public extension ItemDiscovering {
+    func snapshot(fullScan: Bool) async throws -> MenuBarSnapshot {
+        MenuBarSnapshot(visible: try await currentItems(fullScan: fullScan))
+    }
 }
 
 /// ⌘ 을 누른 채 드래그하는 동작을 대신 수행한다. 접근성 권한이 필요하다.

@@ -87,6 +87,19 @@ struct OrderingRig {
 @MainActor
 @Suite("순서 조정")
 struct OrderingTests {
+    @Test("숨김에 쓰는 구분자는 순서 목록에 나오지 않고, 그 너머로도 옮길 수 있다")
+    func hidesSeparatorFromList() async {
+        let o = OrderingRig(order: ["a#0", "sep#0", "b#0", "com.apple.clock#0"])
+        o.rig.visibility.separatorIDs = ["sep#0"]
+        await o.rig.coordinator.start()
+        await o.ordering.read()
+        #expect(o.ordering.items.map(\.id) == ["a#0", "b#0", "com.apple.clock#0"])
+        await o.ordering.apply(target: ["b#0", "a#0", "com.apple.clock#0"])
+        #expect(o.ordering.status == .succeeded)
+        #expect(o.bar.order.filter { $0 != "sep#0" } == ["b#0", "a#0", "com.apple.clock#0"])
+        #expect(o.ordering.items.map(\.id) == ["b#0", "a#0", "com.apple.clock#0"])
+    }
+
     @Test("읽는 동안 전부 펼쳤다가, 끝나면 다시 숨긴다")
     func readExpandsThenRestores() async {
         let o = OrderingRig(order: ["a#0", "b#0", "com.apple.clock#0"])

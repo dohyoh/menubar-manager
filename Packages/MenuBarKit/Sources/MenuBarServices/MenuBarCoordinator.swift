@@ -32,6 +32,8 @@ public final class MenuBarCoordinator {
     @ObservationIgnored private let pause: @MainActor (Int) async -> Void
     /// 새로 실행된 앱이 메뉴바 아이콘을 만들 때까지 기다리는 시간(ms)
     public static let newAppSettleMilliseconds = 1500
+    /// 아이콘을 옮겨야 하는 방식에서, 앱이 실행·종료된 뒤 배치를 다시 확인하기까지의 시간들(ms)
+    public static let newItemRecheckMilliseconds = [1500, 4000]
     /// 메뉴바를 쓰는 중이라 자동 숨기기를 미룰 때, 다시 확인하기까지의 시간
     public static let rehideRetrySeconds = 2
     /// 시스템 패널(알림 센터)이 닫혔는지 확인하는 간격. 닫히면 이 시간 안에 다시 숨긴다.
@@ -67,6 +69,10 @@ public final class MenuBarCoordinator {
     public var isHidingSupported: Bool { visibility.isSupported }
     public var isInstalledInApplications: Bool { presence.isInstalledInApplications }
     public var isAccessibilityGranted: Bool { permission?.isAccessibilityGranted ?? false }
+    /// 지금 쓰는 숨김 방식의 성질 (화면에 내놓을 기능을 정할 때 쓴다).
+    public var visibilityTraits: VisibilityTraits { visibility.traits }
+    /// 메뉴바에서 읽은 아이템이 숨김에 쓰는 이 앱의 구분자인가 (순서 편집 목록에서 뺀다).
+    public func isSeparatorItem(_ item: MenuBarItem) -> Bool { visibility.isOwnSeparator(item) }
 
     // MARK: 시작·종료
 
@@ -119,7 +125,8 @@ public final class MenuBarCoordinator {
         guard previous != .reordering else { throw OrderingError.unavailable }
         operationID += 1
         scheduler.cancel()
-        if visibility.isRestricted { visibility.unrestrict() }
+        // 적용이 진행 중일 수도 있으므로(구분자 방식은 아이콘을 옮기는 동안 제한이 풀려 있다) 항상 푼다.
+        visibility.unrestrict()
         setState(.reordering)
 
         let result: Result<T, Error>
@@ -190,6 +197,12 @@ public final class MenuBarCoordinator {
         guard state != .reordering else { return }
         if enabled {
             if let blocker = blockingReason() {
+                if blocker == .accessibilityRequired {
+                    // 켜려는 뜻은 저장해 두고 권한을 요청한다. 허용되면 recheckBlockers() 가 숨김을 켠다.
+                    options.hidingEnabled = true
+                    persist()
+                    permission?.requestAccessibility()
+                }
                 setState(.paused(blocker))
                 return
             }
@@ -268,6 +281,19 @@ public final class MenuBarCoordinator {
         if let found = try? await itemDiscovery.appsOwningItems() { menuBarApps = found }
     }
 
+    /// 숨김을 막던 사정(접근성 권한 등)이 풀렸는지 다시 본다. 풀렸고 숨기기가 켜져 있으면 숨김을 적용한다.
+    public func recheckBlockers() async {
+        guard case .paused(let reason) = state, reason != .userOff else { return }
+        if case .error = reason { return }
+        if let blocker = blockingReason() {
+            setState(.paused(blocker))
+        } else if options.hidingEnabled {
+            await applyHiding()
+        } else {
+            setState(.paused(.userOff))
+        }
+    }
+
     /// 잠자기에서 깨어난 뒤 등, 숨김이 걸려 있어야 하는 상태면 다시 건다.
     public func reapplyIfHiding() async {
         if state == .collapsed { await applyHiding() }
@@ -314,6 +340,7 @@ public final class MenuBarCoordinator {
     private func blockingReason() -> PauseReason? {
         if !presence.isInstalledInApplications { return .notInstalledInApplications }
         if !visibility.isSupported { return .unsupported }
+        if visibility.traits.requiresAccessibility, permission?.isAccessibilityGranted != true { return .accessibilityRequired }
         return nil
     }
 
@@ -373,7 +400,11 @@ public final class MenuBarCoordinator {
             guard myOperation == operationID else { return }
             // fail-open: 실패하면 전부 표시로 돌아간다.
             visibility.unrestrict()
-            setState(.paused(.error(String(describing: error))))
+            if error as? VisibilityError == .accessibilityRequired {
+                setState(.paused(.accessibilityRequired))
+            } else {
+                setState(.paused(.error(String(describing: error))))
+            }
         }
     }
 
@@ -391,6 +422,15 @@ public final class MenuBarCoordinator {
         absorbNewApps()
         // 허용 목록은 기본이 "차단"이다. 새로 실행된 앱이 보이려면 목록을 다시 적용해야 한다.
         if state == .collapsed { await applyHiding() }
+        // 아이콘을 옮겨야 하는 방식에서는, 새 앱이 아이콘을 만든 뒤에야 옮길 수 있다 (새 아이콘은 숨김 쪽에 놓인다 —
+        // platform-notes 7.5). 아이콘이 만들어질 시간을 두고 다시 확인한다. 옮길 것이 없으면 화면에 변화가 없다.
+        if visibility.traits.requiresAccessibility {
+            for delay in Self.newItemRecheckMilliseconds {
+                await pause(delay)
+                guard state == .collapsed else { break }
+                await applyHiding()
+            }
+        }
     }
 
     private func setState(_ new: ManagerState) {

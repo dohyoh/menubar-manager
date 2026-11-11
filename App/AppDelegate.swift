@@ -23,6 +23,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let clockMonitor = ClockClickMonitor()
     private let activityChecker = MenuBarActivityChecker()
     private let hotkeys = GlobalHotkeyCenter()
+    /// 구분자 방식의 숨김(macOS 26 이하)에서만 쓴다.
+    private var separator: StatusItemSeparator?
+    private var permissionWatch: Timer?
     private let store: JSONStateStore
     #if DEBUG
     private var automation: AutomationHook?
@@ -47,9 +50,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let presence = SelfPresenceChecker()
+        // 숨김 방식은 이 Mac 에 있는 기능으로 고른다 (docs/adr/0012-separator-visibility-macos26.md).
+        let visibility: any VisibilityControlling
+        switch VisibilityBackendKind.detect() {
+        case .separator:
+            let separator = StatusItemSeparator()
+            self.separator = separator
+            visibility = SeparatorVisibilityController(
+                separator: separator, discovery: itemDiscovery, reorderer: reorderer,
+                permission: permission, selfBundleID: presence.selfBundleID)
+        case .allowlist, .unavailable:
+            // 기능이 없으면 이 구현이 "지원 안 됨"을 알려 준다.
+            visibility = AssessmentModeVisibilityController()
+        }
+        let traits = visibility.traits
         let coordinator = MenuBarCoordinator(
-            visibility: AssessmentModeVisibilityController(),
-            discovery: WorkspaceAppDiscovery(selfBundleID: presence.selfBundleID),
+            visibility: visibility,
+            discovery: WorkspaceAppDiscovery(selfBundleID: presence.selfBundleID, marksAppsOutsideApplications: traits.hidesAppsOutsideApplications),
             presence: presence,
             store: store,
             scheduler: TaskRehideScheduler(),
@@ -74,7 +91,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let appName = info?["CFBundleDisplayName"] as? String ?? "MenuBarManager"
         let version = info?["CFBundleShortVersionString"] as? String ?? "-"
         infoWindow = HostedWindow(title: L("정보"), resizable: false) {
-            InfoView(appName: appName, version: version)
+            InfoView(appName: appName, version: version, traits: traits)
         }
 
         statusItem = StatusItemController(
@@ -83,6 +100,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             onInfo: { [weak self] in self?.showInfo() },
             onQuit: { NSApp.terminate(nil) }
         )
+        // 구분자는 이 앱의 아이콘을 만든 뒤에 만든다 (새 아이템은 가장 왼쪽에 놓인다).
+        separator?.install()
 
         #if DEBUG
         automation = AutomationHook.makeIfRequested(
@@ -95,9 +114,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         #endif
 
         // 시계를 누르면 알림 센터가 열리도록, 누르는 순간 숨김을 잠깐 푼다.
-        clockMonitor.onMouseDown = { [weak self] point in self?.clockPressed(at: point) }
-        clockMonitor.start()
-        updateClockZone()
+        // 알림 센터를 막는 것은 허용 목록 방식뿐이라, 다른 방식에서는 하지 않는다.
+        if traits.blocksNotificationCenter {
+            clockMonitor.onMouseDown = { [weak self] point in self?.clockPressed(at: point) }
+            clockMonitor.start()
+            updateClockZone()
+        }
+        // 접근성 권한을 기다리는 동안에는, 허용되는 즉시 숨김이 켜지도록 가끔 다시 확인한다.
+        if traits.requiresAccessibility {
+            permissionWatch = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    guard let coordinator = self?.coordinator, coordinator.state == .paused(.accessibilityRequired) else { return }
+                    Task { await coordinator.recheckBlockers() }
+                }
+            }
+        }
 
         coordinator.onHotkeysChange = { [weak self] in self?.registerHotkeys($0) }
         observeSystemEvents()
@@ -171,7 +202,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 시계의 실제 위치를 읽어 클릭 감지 영역을 맞춘다. 접근성 권한이 있을 때만 가능하고,
     /// 없으면 기본 너비를 쓴다. 숨김과 무관하게 시계는 항상 표시되므로 펼칠 필요가 없다.
     private func updateClockZone() {
-        guard permission.isAccessibilityGranted else { return }
+        guard coordinator.visibilityTraits.blocksNotificationCenter, permission.isAccessibilityGranted else { return }
         Task {
             guard let clock = try? await itemDiscovery.currentItems(fullScan: true).last, clock.isSystem else { return }
             clockMonitor.zoneWidth = clock.trailingOffset + 4
@@ -181,6 +212,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     #if DEBUG
     func debugIsMenuBar(at point: CGPoint) -> Bool { clockMonitor.isMenuBar(at: point) }
+    var debugSeparatorDescription: String { separator?.debugDescription ?? "none (not the separator backend)" }
     func debugRenderSettings(to path: String) -> Bool { settingsWindow.renderContent(to: URL(fileURLWithPath: path)) }
 
     /// 탭을 바꾸고, 메인 스레드가 그 화면을 다 그리고 한가해질 때까지 걸린 시간(ms)을 잰다.

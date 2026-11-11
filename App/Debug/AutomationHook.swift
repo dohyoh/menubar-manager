@@ -17,6 +17,7 @@ import MenuBarSystem
 ///   tabtime                                                                                 (탭 전환에 걸리는 시간 재기)
 ///   viewshot <png 경로>                                                                      (설정 창 내용을 화면 없이 그려 저장)
 ///   axstatus | axprompt | axlist | order read | order move <id> <id|end>                       (순서 조정, 접근성 권한 필요)
+///   sep | snapshot | recheck                                                                (구분자 방식의 숨김: 구분자 위치, 화면 안·밖 아이템, 권한 다시 확인)
 ///   drag <x1> <x2> <y> | dragtune <pt> <ms> <ms> | click <x> <y>                              (저수준 입력 합성 — 사용자가 쓰는 중에는 피한다)
 @MainActor
 final class AutomationHook {
@@ -188,6 +189,23 @@ final class AutomationHook {
             // 저장된 설정은 건드리지 않고, 임시 단축키(⌃⌥⇧⌘F19)를 등록해 눌러 본 뒤 원래대로 되돌린다.
             let result = await delegate?.debugHotkeyProbe() ?? "no delegate"
             log("HOTKEYTEST \(result)")
+        case "sep":
+            log("SEP \(delegate?.debugSeparatorDescription ?? "-") traits=\(coordinator.visibilityTraits)")
+        case "snapshot":
+            do {
+                let snapshot = try await itemDiscovery.snapshot(fullScan: true)
+                for item in snapshot.visible {
+                    log("VISIBLE id=\(item.id) x=\(Int(item.frame.minX)) w=\(Int(item.frame.width)) off=\(Int(item.trailingOffset)) separator=\(coordinator.isSeparatorItem(item)) title=\(item.title ?? "-")")
+                }
+                for item in snapshot.offscreen {
+                    log("OFFSCREEN id=\(item.id) x=\(Int(item.frame.minX)) w=\(Int(item.frame.width)) separator=\(coordinator.isSeparatorItem(item)) title=\(item.title ?? "-")")
+                }
+                log("SNAPSHOT visible=\(snapshot.visible.count) offscreen=\(snapshot.offscreen.count)")
+            } catch {
+                log("SNAPSHOT failed: \(error)")
+            }
+        case "recheck":
+            await coordinator.recheckBlockers()
         case "axstatus":
             log("accessibility granted=\(permission.isAccessibilityGranted)")
         case "axprompt":

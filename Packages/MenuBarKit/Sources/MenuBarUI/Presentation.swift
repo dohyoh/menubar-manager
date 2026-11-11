@@ -17,7 +17,7 @@ public enum StatePresentation {
             return "curtains.closed"
         case .expanded, .reordering, .paused(.userOff), .paused(.error):
             return "curtains.open"
-        case .paused(.notInstalledInApplications), .paused(.unsupported):
+        case .paused(.notInstalledInApplications), .paused(.unsupported), .paused(.accessibilityRequired):
             return "exclamationmark.square"
         }
     }
@@ -27,7 +27,7 @@ public enum StatePresentation {
         case .collapsed: return L("MenuBarManager — 숨김 적용 중")
         case .expanded: return L("MenuBarManager — 펼침")
         case .reordering: return L("MenuBarManager — 순서 작업 중")
-        case .paused(.notInstalledInApplications), .paused(.unsupported): return L("MenuBarManager — 숨김을 켤 수 없음")
+        case .paused(.notInstalledInApplications), .paused(.unsupported), .paused(.accessibilityRequired): return L("MenuBarManager — 숨김을 켤 수 없음")
         case .paused: return L("MenuBarManager — 숨기기 꺼짐 (전부 표시)")
         }
     }
@@ -41,6 +41,7 @@ public enum StatePresentation {
         case .paused(.userOff): return L("숨기기가 꺼져 있습니다 (전부 표시)")
         case .paused(.notInstalledInApplications): return L("응용 프로그램 폴더에서 실행해야 숨김을 켤 수 있습니다")
         case .paused(.unsupported): return L("이 macOS 버전에서는 숨김 기능을 쓸 수 없습니다")
+        case .paused(.accessibilityRequired): return L("숨기려면 접근성 권한이 필요합니다")
         case .paused(.error): return L("숨김 적용에 실패했습니다 (전부 표시)")
         }
     }
@@ -50,13 +51,16 @@ public enum StatePresentation {
         switch state {
         case .paused(.notInstalledInApplications): return L("응용 프로그램 폴더로 옮긴 뒤 다시 실행해 주세요")
         case .paused(.unsupported): return L("이 macOS 버전에서는 숨김을 쓸 수 없습니다")
+        case .paused(.accessibilityRequired): return L("접근성 권한을 허용하면 숨길 수 있습니다")
         default: return nil
         }
     }
 
-    /// 사용자가 숨김을 켜고 끌 수 있는 상태인가
+    /// 사용자가 숨김을 켜고 끌 수 있는 상태인가.
+    /// 접근성 권한이 없을 때도 켜기를 받아 준다 — 켜려고 하면 권한을 요청한다.
     public static func canToggleHiding(_ state: ManagerState) -> Bool {
-        state != .reordering && blockerNote(for: state) == nil
+        if state == .paused(.accessibilityRequired) { return true }
+        return state != .reordering && blockerNote(for: state) == nil
     }
 }
 

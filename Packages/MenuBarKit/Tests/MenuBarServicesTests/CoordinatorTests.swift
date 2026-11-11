@@ -10,14 +10,22 @@ final class FakeVisibility: VisibilityControlling {
     var isSupported = true
     var isRestricted = false
     var shouldFail = false
+    /// 적용할 때 던질 오류 (shouldFail 보다 먼저 본다)
+    var restrictError: VisibilityError?
     var restrictCalls: [Allowlist] = []
     var unrestrictCount = 0
+    var traits: VisibilityTraits = .allowlist
+    /// 이 백엔드의 구분자로 취급할 아이템
+    var separatorIDs: Set<MenuBarItem.ID> = []
 
     func restrict(to allowlist: Allowlist) async throws {
         restrictCalls.append(allowlist)
+        if let restrictError { throw restrictError }
         if shouldFail { throw VisibilityError.activationFailed }
         isRestricted = true
     }
+
+    func isOwnSeparator(_ item: MenuBarItem) -> Bool { separatorIDs.contains(item.id) }
 
     func unrestrict() {
         unrestrictCount += 1
@@ -86,13 +94,14 @@ struct Rig {
     let store = FakeStore()
     let scheduler = FakeScheduler()
     let activity = FakeActivity()
+    let permission = FakePermission()
     let coordinator: MenuBarCoordinator
 
     init(hidingEnabled: Bool = true, hidden: Set<BundleID> = ["com.b"], autoRehide: Bool = true) {
         store.state = PersistedState(layout: Layout(hiddenApps: hidden), options: Options(hidingEnabled: hidingEnabled, autoRehide: autoRehide, autoRehideSeconds: 10))
         // 기다림은 실제 시간 대신 한 번 양보하는 것으로 바꾼다 (패널 확인 간격 등).
         coordinator = MenuBarCoordinator(visibility: visibility, discovery: discovery, presence: presence, store: store, scheduler: scheduler, activity: activity,
-                                         pause: { _ in await Task.yield() })
+                                         permission: permission, pause: { _ in await Task.yield() })
     }
 }
 
@@ -683,3 +692,119 @@ struct AskPolicyTests {
         #expect(a.coordinator.menuBarApps == nil)
     }
 }
+
+@MainActor
+@Suite("접근성 권한이 필요한 숨김 방식")
+struct AccessibilityGatedHidingTests {
+    /// 구분자 방식처럼 접근성 권한이 있어야 숨길 수 있는 백엔드로 준비한다.
+    private func makeRig(hidingEnabled: Bool = true, granted: Bool) -> Rig {
+        let rig = Rig(hidingEnabled: hidingEnabled)
+        rig.visibility.traits = .separator
+        rig.permission.isAccessibilityGranted = granted
+        return rig
+    }
+
+    @Test("권한이 없으면 숨김을 켜지 않고 이유를 알린다")
+    func refusesWithoutPermission() async {
+        let rig = makeRig(granted: false)
+        await rig.coordinator.start()
+        #expect(rig.coordinator.state == .paused(.accessibilityRequired))
+        #expect(rig.visibility.restrictCalls.isEmpty)
+        // 시작할 때는 권한 요청 창을 띄우지 않는다.
+        #expect(rig.permission.requestCount == 0)
+    }
+
+    @Test("권한이 있으면 평소처럼 숨긴다")
+    func hidesWithPermission() async {
+        let rig = makeRig(granted: true)
+        await rig.coordinator.start()
+        #expect(rig.coordinator.state == .collapsed)
+    }
+
+    @Test("켜려고 하면 권한을 요청하고, 허용되면 숨김을 켠다")
+    func requestsPermissionThenHides() async {
+        let rig = makeRig(hidingEnabled: false, granted: false)
+        await rig.coordinator.start()
+        await rig.coordinator.setHidingEnabled(true)
+        #expect(rig.permission.requestCount == 1)
+        #expect(rig.coordinator.state == .paused(.accessibilityRequired))
+        #expect(rig.coordinator.options.hidingEnabled)   // 켜려는 뜻은 저장해 둔다
+
+        rig.permission.isAccessibilityGranted = true
+        await rig.coordinator.recheckBlockers()
+        #expect(rig.coordinator.state == .collapsed)
+    }
+
+    @Test("권한을 기다리는 동안 좌클릭하면 다시 요청하고, 허용된 뒤에는 숨긴다")
+    func toggleRetries() async {
+        let rig = makeRig(granted: false)
+        await rig.coordinator.start()
+        await rig.coordinator.toggle()
+        #expect(rig.permission.requestCount == 1)
+        #expect(rig.coordinator.state == .paused(.accessibilityRequired))
+
+        rig.permission.isAccessibilityGranted = true
+        await rig.coordinator.toggle()
+        #expect(rig.coordinator.state == .collapsed)
+    }
+
+    @Test("숨기기를 꺼 둔 채 권한이 허용되면 꺼짐 상태가 된다")
+    func becomesUserOffWhenGranted() async {
+        let rig = makeRig(hidingEnabled: false, granted: false)
+        await rig.coordinator.start()
+        #expect(rig.coordinator.state == .paused(.accessibilityRequired))
+        rig.permission.isAccessibilityGranted = true
+        await rig.coordinator.recheckBlockers()
+        #expect(rig.coordinator.state == .paused(.userOff))
+        #expect(rig.visibility.restrictCalls.isEmpty)
+    }
+
+    @Test("다시 확인해도 권한이 없으면 그대로다")
+    func recheckKeepsBlocked() async {
+        let rig = makeRig(granted: false)
+        await rig.coordinator.start()
+        await rig.coordinator.recheckBlockers()
+        #expect(rig.coordinator.state == .paused(.accessibilityRequired))
+        #expect(rig.visibility.restrictCalls.isEmpty)
+    }
+
+    @Test("적용하는 도중 권한이 없다고 나오면 전부 표시로 돌아가고 이유를 알린다")
+    func reportsPermissionLostWhileApplying() async {
+        let rig = makeRig(granted: true)
+        rig.visibility.restrictError = .accessibilityRequired
+        await rig.coordinator.start()
+        #expect(rig.coordinator.state == .paused(.accessibilityRequired))
+        #expect(rig.visibility.unrestrictCount == 1)
+    }
+
+    @Test("숨김 중에 앱이 실행되면, 아이콘이 만들어질 시간을 두고 배치를 두 번 더 확인한다")
+    func rechecksAfterAppLaunch() async {
+        let rig = makeRig(granted: true)
+        await rig.coordinator.start()
+        #expect(rig.visibility.restrictCalls.count == 1)
+        rig.discovery.apps.append(ManagedApp(bundleID: "com.c", name: "C", isRunning: true))
+        rig.discovery.onChange?()
+        for _ in 0..<4 { await settle() }
+        #expect(rig.visibility.restrictCalls.count == 4)
+        #expect(rig.coordinator.state == .collapsed)
+    }
+
+    @Test("허용 목록 방식은 앱이 실행됐을 때 한 번만 다시 적용한다")
+    func allowlistReappliesOnce() async {
+        let rig = Rig(hidingEnabled: true)
+        await rig.coordinator.start()
+        rig.discovery.apps.append(ManagedApp(bundleID: "com.c", name: "C", isRunning: true))
+        rig.discovery.onChange?()
+        for _ in 0..<4 { await settle() }
+        #expect(rig.visibility.restrictCalls.count == 2)
+    }
+
+    @Test("권한이 필요 없는 방식에서는 권한이 없어도 숨긴다")
+    func allowlistIgnoresPermission() async {
+        let rig = Rig(hidingEnabled: true)
+        rig.permission.isAccessibilityGranted = false
+        await rig.coordinator.start()
+        #expect(rig.coordinator.state == .collapsed)
+    }
+}
+

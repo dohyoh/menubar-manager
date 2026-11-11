@@ -108,7 +108,9 @@ struct OrderEditor: View {
     private var permissionBox: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(L("순서를 바꾸려면 접근성 권한이 필요합니다")).font(.headline)
-            Text(L("이 앱이 ⌘을 누른 채 아이콘을 끄는 동작을 대신 수행하기 때문입니다. 숨기기와 펼치기에는 이 권한이 필요하지 않습니다. 시스템 설정 > 개인정보 보호 및 보안 > 손쉬운 사용에서 MenuBarManager를 켜 주세요."))
+            Text(coordinator.visibilityTraits.requiresAccessibility
+                 ? L("이 앱이 ⌘을 누른 채 아이콘을 끄는 동작을 대신 수행하기 때문입니다. 시스템 설정 > 개인정보 보호 및 보안 > 손쉬운 사용에서 MenuBarManager를 켜 주세요.")
+                 : L("이 앱이 ⌘을 누른 채 아이콘을 끄는 동작을 대신 수행하기 때문입니다. 숨기기와 펼치기에는 이 권한이 필요하지 않습니다. 시스템 설정 > 개인정보 보호 및 보안 > 손쉬운 사용에서 MenuBarManager를 켜 주세요."))
                 .fixedSize(horizontal: false, vertical: true)
             HStack {
                 Button(L("접근성 권한 요청")) { ordering.requestPermission() }

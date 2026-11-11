@@ -305,6 +305,22 @@
         }
       }
     },
+    "구분자 (macOS 26 이하)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Divider (macOS 26 and earlier)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分隔符（macOS 26 及更早版本）"
+          }
+        }
+      }
+    },
     "끄면 숨기기가 켜져 있는 동안 그 아이콘도 숨깁니다. 시계와 제어 센터는 숨기지 않습니다.": {
       "localizations": {
         "en": {
@@ -1137,6 +1153,22 @@
         }
       }
     },
+    "숨기려면 접근성 권한이 필요합니다": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiding needs Accessibility permission"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐藏需要辅助功能权限"
+          }
+        }
+      }
+    },
     "숨긴 앱": {
       "localizations": {
         "en": {
@@ -1265,6 +1297,22 @@
         }
       }
     },
+    "숨김 방식": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiding Method"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐藏方式"
+          }
+        }
+      }
+    },
     "숨김 적용 중": {
       "localizations": {
         "en": {
@@ -1325,6 +1373,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "关闭开关即可隐藏该 App 的图标。列表中也包含没有菜单栏图标的 App — 在“编辑顺序”中允许辅助功能权限后，可以只查看菜单栏中的 App。从控制中心添加到菜单栏的项目（如计时器）在隐藏期间始终隐藏。"
+          }
+        }
+      }
+    },
+    "스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 숨길 앱을 바꾸면 아이콘을 옮기느라 숨긴 아이콘이 잠깐 보이고 포인터가 잠시 움직입니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn a switch off to hide that app's icon. When you change which apps are hidden, hidden icons appear briefly and the pointer moves for a moment while icons are moved."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭开关即可隐藏该 App 的图标。更改要隐藏的 App 时，由于需要移动图标，被隐藏的图标会暂时显示，指针也会短暂移动。"
           }
         }
       }
@@ -1405,6 +1469,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "系统项目 %@"
+          }
+        }
+      }
+    },
+    "시스템 허용 목록": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System allowlist"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统允许列表"
           }
         }
       }
@@ -1601,6 +1681,22 @@
         }
       }
     },
+    "없음": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无"
+          }
+        }
+      }
+    },
     "예": {
       "localizations": {
         "en": {
@@ -1645,6 +1741,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "在“右键 > 设置…”的“菜单栏管理”中关闭某个 App 的开关，即可隐藏它的图标。App 较多时可以用搜索和筛选来查找。在列表下方还可以选择 Wi-Fi、电池等系统图标。"
+          }
+        }
+      }
+    },
+    "우클릭 > 설정…의 \"메뉴바 관리\"에서 앱별 스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 앱이 많으면 검색과 필터로 찾습니다. 숨길 앱을 바꾸면 아이콘을 옮기느라 숨긴 아이콘이 잠깐 보이고 포인터가 잠시 움직입니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Right-click > Settings…, under \"Menu Bar\", turn off an app's switch to hide its icon. Use search and filters if you have many apps. When you change which apps are hidden, hidden icons appear briefly and the pointer moves for a moment while icons are moved."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在“右键 > 设置…”的“菜单栏管理”中关闭某个 App 的开关，即可隐藏它的图标。App 较多时可以用搜索和筛选来查找。更改要隐藏的 App 时，由于需要移动图标，被隐藏的图标会暂时显示，指针也会短暂移动。"
           }
         }
       }
@@ -1761,6 +1873,22 @@
         }
       }
     },
+    "이 macOS 버전에서는 숨길 앱의 아이콘을 이 앱이 대신 옮겨야 해서 접근성 권한이 필요합니다. 시스템 설정 > 개인정보 보호 및 보안 > 손쉬운 사용에서 MenuBarManager를 켜 주세요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On this version of macOS, this app has to move the icons of hidden apps for you, which needs Accessibility permission. Turn on MenuBarManager in System Settings > Privacy & Security > Accessibility."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在此 macOS 版本上，这个 App 需要代你移动要隐藏的 App 的图标，因此需要辅助功能权限。请在“系统设置 > 隐私与安全性 > 辅助功能”中打开 MenuBarManager。"
+          }
+        }
+      }
+    },
     "이 macOS 버전에서는 숨김 기능을 쓸 수 없습니다": {
       "localizations": {
         "en": {
@@ -1809,6 +1937,22 @@
         }
       }
     },
+    "이 앱을 종료하면 숨긴 아이콘은 모두 돌아옵니다. 숨김 중에 새로 실행한 앱의 아이콘은 잠시 뒤에 나타납니다. 아이콘이 보이지 않을 때는 응용 프로그램 폴더에서 이 앱을 다시 열면 설정 창이 나타납니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitting this app brings back every hidden icon. The icon of an app you open while hiding is on appears after a moment. If this app's icon is not visible, open the app again from the Applications folder to show the Settings window."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出这个 App 后，被隐藏的图标会全部恢复。隐藏期间新打开的 App，其图标会稍后出现。看不到图标时，从“应用程序”文件夹再次打开这个 App，就会出现设置窗口。"
+          }
+        }
+      }
+    },
     "이 앱이 ⌘을 누른 채 아이콘을 끄는 동작을 대신 수행하기 때문입니다. 숨기기와 펼치기에는 이 권한이 필요하지 않습니다. 시스템 설정 > 개인정보 보호 및 보안 > 손쉬운 사용에서 MenuBarManager를 켜 주세요.": {
       "localizations": {
         "en": {
@@ -1821,6 +1965,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "因为这个 App 会代你执行“按住 ⌘ 拖动图标”的操作。隐藏和展开不需要此权限。请在“系统设置 > 隐私与安全性 > 辅助功能”中打开 MenuBarManager。"
+          }
+        }
+      }
+    },
+    "이 앱이 ⌘을 누른 채 아이콘을 끄는 동작을 대신 수행하기 때문입니다. 시스템 설정 > 개인정보 보호 및 보안 > 손쉬운 사용에서 MenuBarManager를 켜 주세요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This app performs the ⌘-drag for you. Turn on MenuBarManager in System Settings > Privacy & Security > Accessibility."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "因为这个 App 会代你执行“按住 ⌘ 拖动图标”的操作。请在“系统设置 > 隐私与安全性 > 辅助功能”中打开 MenuBarManager。"
           }
         }
       }
@@ -2001,6 +2161,22 @@
         }
       }
     },
+    "접근성 권한": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accessibility Permission"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "辅助功能权限"
+          }
+        }
+      }
+    },
     "접근성 권한 (순서 조정용)": {
       "localizations": {
         "en": {
@@ -2017,6 +2193,22 @@
         }
       }
     },
+    "접근성 권한 (숨김·순서 조정용)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accessibility Permission (for hiding and reordering)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "辅助功能权限（用于隐藏和调整顺序）"
+          }
+        }
+      }
+    },
     "접근성 권한 요청": {
       "localizations": {
         "en": {
@@ -2029,6 +2221,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "请求辅助功能权限"
+          }
+        }
+      }
+    },
+    "접근성 권한을 허용하면 숨길 수 있습니다": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow Accessibility permission to hide icons"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允许辅助功能权限后即可隐藏"
           }
         }
       }

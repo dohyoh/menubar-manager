@@ -278,10 +278,14 @@ public enum PauseReason: Equatable, Sendable {
     case notInstalledInApplications
     /// 이 macOS 에는 숨김에 필요한 시스템 기능이 없다
     case unsupported
+    /// 이 macOS 에서는 숨길 아이콘을 앱이 옮겨야 해서 접근성 권한이 필요한데, 아직 없다
+    /// (docs/adr/0012-separator-visibility-macos26.md)
+    case accessibilityRequired
     case error(String)
 
-    /// 사용자가 스위치나 좌클릭으로 숨김을 켤 수 있는 상태인가
-    public var canEnable: Bool { self == .userOff || isError }
+    /// 사용자가 스위치나 좌클릭으로 숨김을 켤 수 있는 상태인가.
+    /// 접근성 권한이 없을 때도 켜기를 받아 준다 — 그 순간 권한을 요청하고, 그사이 허용했으면 바로 켠다.
+    public var canEnable: Bool { self == .userOff || self == .accessibilityRequired || isError }
 
     private var isError: Bool {
         if case .error = self { return true }

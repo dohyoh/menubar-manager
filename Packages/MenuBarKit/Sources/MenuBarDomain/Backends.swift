@@ -13,6 +13,16 @@ public protocol VisibilityControlling: AnyObject {
     func restrict(to allowlist: Allowlist) async throws
     /// 제한 해제 — 전부 표시
     func unrestrict()
+    /// 이 방식의 성질 (필요한 권한, 지원하는 기능)
+    var traits: VisibilityTraits { get }
+    /// 메뉴바에서 읽은 아이템이 이 백엔드가 숨김에 쓰는 자기 아이템(구분자)인가.
+    /// 순서 편집 목록에서 빼기 위해 쓴다. 전부 펼쳐 놓은 상태에서만 묻는다.
+    func isOwnSeparator(_ item: MenuBarItem) -> Bool
+}
+
+public extension VisibilityControlling {
+    var traits: VisibilityTraits { .allowlist }
+    func isOwnSeparator(_ item: MenuBarItem) -> Bool { false }
 }
 
 /// 앱 목록 수집. 권한이 필요 없다.
@@ -76,6 +86,8 @@ public protocol RehideScheduling: AnyObject {
 
 public enum VisibilityError: Error, Equatable, Sendable {
     case unsupported
+    /// 이 방식은 접근성 권한이 있어야 숨길 수 있다
+    case accessibilityRequired
     case activationFailed
     case timedOut
 }
