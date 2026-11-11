@@ -28,10 +28,10 @@ public final class SettingsNavigation {
     public var isEditingOrder = false
     /// 등록에 실패한 단축키 (HotkeyAction 의 rawValue). 다른 앱이 이미 쓰는 조합일 때.
     public var hotkeyFailures: Set<Int> = []
-    /// macOS 의 선호 언어 목록 ("시스템 언어 따르기"가 어떤 언어가 되는지 계산할 때 쓴다).
+    /// macOS 의 선호 언어 목록 (어느 언어가 시스템 언어인지 알아낼 때 쓴다).
     public var systemLanguages: [String] = []
-    /// 지금 화면에 쓰이고 있는 언어 코드. 고른 언어와 다르면 다시 시작해야 한다.
-    public var currentLanguageCode = AppLanguage.fallbackCode
+    /// 지금 화면에 쓰이고 있는 언어. 고른 언어와 다르면 다시 시작해야 한다.
+    public var currentLanguage = AppLanguage.fallback
     /// 앱을 다시 시작한다 (언어를 바꾼 뒤).
     public var onRestart: (@MainActor () -> Void)?
     public init() {}
@@ -63,18 +63,34 @@ public struct SettingsView: View {
             .padding(.top, 14)
             .padding(.bottom, 2)
 
-            switch navigation.tab {
-            case .management:
-                MenuBarManagementView(coordinator: coordinator, loginItem: loginItem, ordering: ordering, navigation: navigation)
-            case .general:
-                GeneralSettingsView(coordinator: coordinator, loginItem: loginItem, navigation: navigation)
-            case .diagnostics:
-                DiagnosticsView(coordinator: coordinator, loginItem: loginItem)
+            // 세 탭을 모두 만들어 두고 고른 탭만 보이게 한다.
+            // 누를 때마다 화면을 새로 만들면 폼으로 된 "일반"·"진단"이 한 박자 늦게 나타난다.
+            // 그래서 각 탭은 나타날 때(onAppear)가 아니라 자기 탭이 골라졌을 때 내용을 새로 읽는다.
+            ZStack(alignment: .top) {
+                tabContent(.management) {
+                    MenuBarManagementView(coordinator: coordinator, loginItem: loginItem, ordering: ordering, navigation: navigation)
+                }
+                tabContent(.general) {
+                    GeneralSettingsView(coordinator: coordinator, loginItem: loginItem, navigation: navigation)
+                }
+                tabContent(.diagnostics) {
+                    DiagnosticsView(coordinator: coordinator, loginItem: loginItem, navigation: navigation)
+                }
             }
         }
         .frame(minWidth: 480, maxWidth: .infinity, minHeight: 420, maxHeight: .infinity, alignment: .top)
         // 다른 탭으로 가면 순서 편집을 끝낸다 (돌아왔을 때 순서를 또 읽느라 아이콘이 펼쳐지지 않도록).
         .onChange(of: navigation.tab) { navigation.isEditingOrder = false }
+    }
+
+    /// 고르지 않은 탭은 보이지 않고, 누를 수 없고, 키보드 입력도 받지 않게 한다.
+    private func tabContent<Content: View>(_ tab: SettingsTab, @ViewBuilder _ content: () -> Content) -> some View {
+        let isActive = navigation.tab == tab
+        return content()
+            .opacity(isActive ? 1 : 0)
+            .allowsHitTesting(isActive)
+            .disabled(!isActive)
+            .accessibilityHidden(!isActive)
     }
 }
 
@@ -134,12 +150,23 @@ struct MenuBarManagementView: View {
         }
         .padding(16)
         .onAppear { coordinator.refreshApps() }
-        .task {
-            // 메뉴바 아이콘을 가진 앱을 조사해, 알 수 있으면 그 필터를 기본으로 한다.
-            await coordinator.refreshMenuBarApps()
-            if coordinator.menuBarApps != nil, !didPickFilter { filter = .menuBar }
-            if coordinator.menuBarApps == nil, filter == .menuBar { filter = .running }
+        .task { await refreshMenuBarFilter() }
+        // 다른 탭에 있다가 돌아오면 목록을 새로 읽는다 (탭을 바꿔도 이 화면은 그대로 남아 있다).
+        // 새로 읽는 일은 화면이 먼저 바뀐 뒤에 한다.
+        .onChange(of: navigation.tab) {
+            guard navigation.tab == .management else { return }
+            Task {
+                coordinator.refreshApps()
+                await refreshMenuBarFilter()
+            }
         }
+    }
+
+    /// 메뉴바 아이콘을 가진 앱을 조사해, 알 수 있으면 그 필터를 기본으로 한다.
+    private func refreshMenuBarFilter() async {
+        await coordinator.refreshMenuBarApps()
+        if coordinator.menuBarApps != nil, !didPickFilter { filter = .menuBar }
+        if coordinator.menuBarApps == nil, filter == .menuBar { filter = .running }
     }
 
     @ViewBuilder

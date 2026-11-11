@@ -136,32 +136,72 @@ public enum NewAppPolicy: String, Codable, Sendable, CaseIterable {
 
 /// 화면 언어 설정. 저장 값은 rawValue.
 public enum AppLanguage: String, Codable, CaseIterable, Sendable {
-    /// macOS 의 언어를 따른다. 지원하지 않는 언어이면 영어.
+    /// macOS 의 언어를 따른다 (기본값). 지원하지 않는 언어이면 영어.
+    /// 설정 화면에는 따로 나오지 않고, 시스템 언어에 해당하는 항목에 "(시스템)"이 붙는다.
     case system
     case korean = "ko"
     case english = "en"
+    case chineseSimplified = "zh-Hans"
 
-    /// 앱이 화면을 제공하는 언어
-    public static let supportedCodes = ["ko", "en"]
-    public static let fallbackCode = "en"
+    /// 설정 화면에서 고를 수 있는 언어 (나오는 순서대로)
+    public static let selectable: [AppLanguage] = [.korean, .english, .chineseSimplified]
+    /// macOS 의 언어를 지원하지 않을 때 쓰는 언어
+    public static let fallback: AppLanguage = .english
 
-    /// 시작할 때 강제로 지정할 언어 코드. `system` 이면 nil — 시스템이 고르게 둔다.
-    public var overrideCode: String? { self == .system ? nil : rawValue }
-
-    /// 이 설정으로 실제 화면에 쓰이는 언어 코드.
-    /// - Parameter preferredLanguages: macOS 의 선호 언어 목록 (예: ["ko-KR", "en-US"]). 앞에 있을수록 우선.
-    public func resolvedCode(preferredLanguages: [String]) -> String {
-        if let overrideCode { return overrideCode }
-        for language in preferredLanguages {
-            let code = AppLanguage.baseCode(of: language)
-            if AppLanguage.supportedCodes.contains(code) { return code }
+    /// 그 언어의 말로 적은 이름. 화면 언어와 무관하게 이대로 보여 준다.
+    public var nativeName: String {
+        switch self {
+        case .system: return ""
+        case .korean: return "한국어"
+        case .english: return "English"
+        case .chineseSimplified: return "简体中文"
         }
-        return AppLanguage.fallbackCode
     }
 
-    /// "ko-KR", "zh-Hans-CN", "en_US" 같은 식별자에서 언어 부분만 꺼낸다.
-    public static func baseCode(of identifier: String) -> String {
-        String(identifier.prefix { $0 != "-" && $0 != "_" }).lowercased()
+    /// "ko-KR", "en_US", "zh-Hans-CN" 같은 식별자가 가리키는, 이 앱이 지원하는 언어. 없으면 nil.
+    /// 중국어는 간체만 지원한다 — 번체(zh-Hant, 대만·홍콩·마카오)는 지원하지 않는 언어로 본다.
+    public static func supported(for identifier: String) -> AppLanguage? {
+        let parts = identifier.lowercased().replacingOccurrences(of: "_", with: "-").split(separator: "-").map(String.init)
+        switch parts.first {
+        case "ko": return .korean
+        case "en": return .english
+        case "zh":
+            let rest = parts.dropFirst()
+            if rest.contains("hans") { return .chineseSimplified }
+            if rest.contains("hant") || rest.contains(where: { ["tw", "hk", "mo"].contains($0) }) { return nil }
+            return .chineseSimplified
+        default: return nil
+        }
+    }
+
+    /// macOS 의 선호 언어 중 이 앱이 지원하는 첫 언어. 하나도 없으면 nil.
+    /// - Parameter preferredLanguages: 선호 언어 목록 (예: ["ko-KR", "en-US"]). 앞에 있을수록 우선.
+    public static func systemLanguage(preferredLanguages: [String]) -> AppLanguage? {
+        preferredLanguages.lazy.compactMap { supported(for: $0) }.first
+    }
+
+    /// 이 설정으로 실제 화면에 쓰이는 언어 (`system` 을 실제 언어로 푼 것).
+    public func resolved(preferredLanguages: [String]) -> AppLanguage {
+        guard self == .system else { return self }
+        return AppLanguage.systemLanguage(preferredLanguages: preferredLanguages) ?? AppLanguage.fallback
+    }
+
+    /// 앱을 시작할 때 화면 언어로 지정할 값 (`AppleLanguages`).
+    /// 시스템 언어를 따를 때는 원래 식별자(예: "en-GB")를 앞에 두어 지역별 표기를 살린다.
+    public func launchLanguages(preferredLanguages: [String]) -> [String] {
+        let language = resolved(preferredLanguages: preferredLanguages)
+        if self == .system, let identifier = preferredLanguages.first(where: { AppLanguage.supported(for: $0) == language }),
+           identifier != language.rawValue {
+            return [identifier, language.rawValue]
+        }
+        return [language.rawValue]
+    }
+
+    /// 설정 화면에서 고른 언어를 저장할 값으로 바꾼다.
+    /// 시스템 언어(지원하지 않으면 영어)와 같은 항목을 고르면 `system` — 나중에 macOS 의 언어가 바뀌면 따라간다.
+    public static func stored(forPicked picked: AppLanguage, preferredLanguages: [String]) -> AppLanguage {
+        let system = systemLanguage(preferredLanguages: preferredLanguages) ?? fallback
+        return picked == system ? .system : picked
     }
 }
 

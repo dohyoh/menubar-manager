@@ -38,14 +38,15 @@ struct GeneralSettingsView: View {
             }
 
             Section {
+                // "시스템 언어 따르기" 항목은 따로 두지 않는다. macOS 의 언어에 해당하는 항목에 "(시스템)"을 붙이고,
+                // 저장된 값이 시스템 언어 따르기이면 그 항목이 골라진 것으로 보여 준다.
                 Picker(L("언어"), selection: Binding(
-                    get: { coordinator.options.language },
-                    set: { coordinator.setLanguage($0) }
+                    get: { coordinator.options.language.resolved(preferredLanguages: navigation.systemLanguages) },
+                    set: { coordinator.setLanguage(AppLanguage.stored(forPicked: $0, preferredLanguages: navigation.systemLanguages)) }
                 )) {
-                    Text(L("시스템 언어 따르기")).tag(AppLanguage.system)
-                    // 언어 이름은 번역하지 않고 그 언어로 적는다.
-                    Text(verbatim: "한국어").tag(AppLanguage.korean)
-                    Text(verbatim: "English").tag(AppLanguage.english)
+                    ForEach(AppLanguage.selectable, id: \.self) { language in
+                        Text(languageTitle(language)).tag(language)
+                    }
                 }
                 if needsRestartForLanguage {
                     HStack {
@@ -55,7 +56,7 @@ struct GeneralSettingsView: View {
                     }
                 }
             } footer: {
-                Text(L("\"시스템 언어 따르기\"는 macOS의 언어가 한국어나 영어이면 그 언어로, 그 밖의 언어이면 영어로 표시합니다."))
+                Text(L("\"시스템\"이 붙은 언어가 macOS에서 쓰고 있는 언어입니다. macOS의 언어를 지원하지 않으면 영어로 표시합니다."))
             }
 
             Section {
@@ -113,13 +114,26 @@ struct GeneralSettingsView: View {
         }
         .formStyle(.grouped)
         .onAppear { launchAtLogin = loginItem.isEnabled }
+        // 다른 탭(첫 실행 안내)에서 바꿨을 수 있으므로, 이 탭으로 올 때 다시 읽는다.
+        // 읽는 데 몇 ms 가 걸리므로 화면이 먼저 바뀐 뒤에 한다.
+        .onChange(of: navigation.tab) {
+            guard navigation.tab == .general else { return }
+            Task { launchAtLogin = loginItem.isEnabled }
+        }
     }
 
     // MARK: 언어
 
     /// 고른 언어가 지금 화면의 언어와 다른가. 화면 언어는 앱을 시작할 때 정해지므로 다시 시작해야 바뀐다.
     private var needsRestartForLanguage: Bool {
-        coordinator.options.language.resolvedCode(preferredLanguages: navigation.systemLanguages) != navigation.currentLanguageCode
+        coordinator.options.language.resolved(preferredLanguages: navigation.systemLanguages) != navigation.currentLanguage
+    }
+
+    /// 언어 이름은 번역하지 않고 그 언어의 말로 적는다. macOS 의 언어이면 "(시스템)"을 붙인다.
+    private func languageTitle(_ language: AppLanguage) -> String {
+        language == AppLanguage.systemLanguage(preferredLanguages: navigation.systemLanguages)
+            ? L("\(language.nativeName) (시스템)")
+            : language.nativeName
     }
 
     // MARK: 단축키
@@ -127,7 +141,9 @@ struct GeneralSettingsView: View {
     private func hotkeyRow(_ title: String, action: HotkeyAction) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             LabeledContent(title) {
-                HotkeyRecorder(hotkey: coordinator.options.hotkeys[action.rawValue]) { coordinator.setHotkey($0, for: action) }
+                HotkeyRecorder(hotkey: coordinator.options.hotkeys[action.rawValue], isActive: navigation.tab == .general) {
+                    coordinator.setHotkey($0, for: action)
+                }
             }
             if navigation.hotkeyFailures.contains(action.rawValue) {
                 Text(L("이 조합은 등록하지 못했습니다. 다른 앱이 이미 쓰고 있을 수 있습니다."))
@@ -180,6 +196,8 @@ struct GeneralSettingsView: View {
 /// 단축키 기록 버튼. 누른 뒤 키 조합을 누르면 그 조합을 돌려준다.
 private struct HotkeyRecorder: View {
     let hotkey: Hotkey?
+    /// 이 버튼이 있는 탭이 보이고 있는가. 다른 탭으로 가면 기록을 끝낸다.
+    let isActive: Bool
     let onChange: @MainActor (Hotkey?) -> Void
     @State private var isRecording = false
     @State private var monitor: Any?
@@ -194,6 +212,7 @@ private struct HotkeyRecorder: View {
             }
         }
         .onDisappear { stop() }
+        .onChange(of: isActive) { if !isActive { stop() } }
         // 기록 중에 창을 닫거나 다른 창으로 가면 기록을 끝낸다 (키 입력을 계속 가로채지 않도록).
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didResignKeyNotification)) { _ in
             if isRecording { stop() }

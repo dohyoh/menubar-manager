@@ -13,7 +13,8 @@ import MenuBarSystem
 ///
 ///   state | toggle | hide on|off | sethidden <번들ID> 0|1 | autorehide on|off | seconds <n> | policy show|hide
 ///   settings [order|general|diagnostics] | info | welcome | menushot | menutest | quit
-///   lang system|ko|en | restart                                                             (언어 저장, 앱 다시 시작)
+///   lang system|ko|en|zh-Hans | restart                                                             (언어 저장, 앱 다시 시작)
+///   tabtime                                                                                 (탭 전환에 걸리는 시간 재기)
 ///   viewshot <png 경로>                                                                      (설정 창 내용을 화면 없이 그려 저장)
 ///   axstatus | axprompt | axlist | order read | order move <id> <id|end>                       (순서 조정, 접근성 권한 필요)
 ///   drag <x1> <x2> <y> | dragtune <pt> <ms> <ms> | click <x> <y>                              (저수준 입력 합성 — 사용자가 쓰는 중에는 피한다)
@@ -135,9 +136,22 @@ final class AutomationHook {
         case "welcome":
             delegate?.showWelcome()
         case "lang":
-            // lang system|ko|en — 저장만 한다. 화면은 `restart` 로 다시 시작해야 바뀐다.
+            // lang system|ko|en|zh-Hans — 저장만 한다. 화면은 `restart` 로 다시 시작해야 바뀐다.
             coordinator.setLanguage(AppLanguage(rawValue: parts.dropFirst().first ?? "") ?? .system)
-            log("LANG saved=\(coordinator.options.language.rawValue) current=\(AppLanguageSupport.currentCode) system=\(AppLanguageSupport.systemPreferredLanguages) sample=\(L("설정 열기"))")
+            log("LANG saved=\(coordinator.options.language.rawValue) current=\(AppLanguageSupport.current.rawValue) system=\(AppLanguageSupport.systemPreferredLanguages) sample=\(L("설정 열기"))")
+        case "tabtime":
+            // 탭 전환에 걸리는 시간을 잰다 (설정 창이 열려 있어야 한다)
+            guard let delegate else { return }
+            var lines: [String] = []
+            // 맨 앞의 management 는 같은 탭을 다시 고르는 것 — 재는 방법 자체에 드는 시간(기준값)이다.
+            for tab in [SettingsTab.management, .general, .management, .diagnostics, .management, .general, .management, .diagnostics, .management] {
+                log("TAB \(tab)")   // 화면이 실제로 바뀌는 시각과 맞춰 볼 수 있게, 바꾸기 직전의 시각을 남긴다
+                let ms = await delegate.debugMeasureTabSwitch(to: tab)
+                lines.append("\(tab)=\(String(format: "%.0f", ms))ms")
+                try? await Task.sleep(for: .milliseconds(700))
+            }
+            let login = (0..<3).map { _ in String(format: "%.0f", delegate.debugLoginStatusTime()) }.joined(separator: ",")
+            log("TABTIME \(lines.joined(separator: " ")) | loginStatus=\(login)ms")
         case "viewshot":
             // viewshot <png 경로> — 설정 창의 내용을 화면을 거치지 않고 그려 저장한다 (화면이 잠겨 있어도 된다)
             guard parts.count >= 2 else { return log("usage: viewshot <path>") }

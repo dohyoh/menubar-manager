@@ -33,7 +33,7 @@
 │   ├── main.swift                   # NSApplication 시작
 │   ├── AppDelegate.swift            # 의존성 조립, 생명주기, 창 열기, 설치 위치 안내
 │   ├── StatusItemController.swift   # 메뉴바 아이콘 — 좌클릭 토글 / 우클릭 메뉴
-│   ├── Info.plist                   # LSUIElement = YES, 지원 언어(ko·en, 그 밖의 환경은 en), 아이콘
+│   ├── Info.plist                   # LSUIElement = YES, 지원 언어(ko·en·zh-Hans, 그 밖의 환경은 en), 아이콘
 │   ├── Resources/AppIcon.icns       # 앱 아이콘 (scripts/make-icon.swift 로 생성)
 │   └── Debug/AutomationHook.swift   # Debug 전용 명령 채널 (자동 검증용)
 │
@@ -55,7 +55,7 @@
 │   │   │   ├── SystemServices.swift                       # SelfPresenceChecker, LoginItemManager
 │   │   │   ├── AccessibilityBackends.swift                # 접근성 권한, 아이템 열거, ⌘+드래그 합성, 메뉴바 사용 중·알림 센터 감지, 시계 클릭 감지
 │   │   │   ├── GlobalHotkeyCenter.swift                   # 전역 단축키 (Carbon 핫키)
-│   │   │   └── AppLanguageSupport.swift                   # 화면 언어 고정, 앱 다시 실행
+│   │   │   └── AppLanguageSupport.swift                   # 화면 언어 지정, 앱 다시 실행
 │   │   ├── MenuBarPrivateBridge/    # Objective-C. 비공개 API 문자열은 여기에만
 │   │   │   ├── include/MenuBarPrivateBridge.h
 │   │   │   └── Bridge.m
@@ -69,7 +69,7 @@
 │   │       ├── InfoView.swift               # 정보 화면 + 설명 문구(InfoContent)
 │   │       ├── Presentation.swift           # 상태별 문구·아이콘, HostedWindow
 │   │       ├── Strings.swift                # L("…") — 모든 사용자 문자열이 거치는 번역 함수
-│   │       └── Resources/Localizable.xcstrings   # 한국어 원문 + 영어 번역
+│   │       └── Resources/Localizable.xcstrings   # 한국어 원문 + 영어·중국어(간체) 번역
 │   └── Tests/
 │       ├── MenuBarDomainTests/      # 허용 목록, 목록 필터, 새 앱 처리, 이동 계획 (24개)
 │       └── MenuBarServicesTests/    # 상태 머신·저장소·순서 조정 — 가짜 백엔드 사용 (34개)
@@ -139,7 +139,7 @@ swift test --package-path Packages/MenuBarKit
 | 오류 | OS 접점은 `throws` + 도메인 오류 타입. `try!`·강제 언래핑 금지 (System 모듈 특히) |
 | 로그 | `os.Logger`, 카테고리 = 모듈명. 개인 식별 정보는 `.private` |
 | 주석 | "왜"만 적음. OS 동작에 기댄 코드는 [platform-notes.md](platform-notes.md)의 해당 절을 링크 |
-| 문자열 | 사용자에게 보이는 문자열은 전부 `L("…")`로 감싼다. 추가·수정 후 `python3 scripts/strings.py sync`로 카탈로그에 넣고 영어 번역을 채운 뒤 `check` |
+| 문자열 | 사용자에게 보이는 문자열은 전부 `L("…")`로 감싼다. 추가·수정 후 `python3 scripts/strings.py sync`로 카탈로그에 넣고 영어·중국어(간체) 번역을 채운 뒤 `check`. 언어를 더하려면 `strings.py`의 `TRANSLATIONS`, `App/Info.plist`의 `CFBundleLocalizations`, `AppLanguage`를 함께 고친다 |
 | 커밋 | 한 가지 변경 = 한 커밋. 문서 갱신은 같은 커밋에 포함 |
 
 ## 6. 테스트 전략

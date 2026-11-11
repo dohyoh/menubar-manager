@@ -121,7 +121,7 @@ flowchart LR
 | **Mac** | Apple silicon and Intel (universal). Not yet tested on an Intel Mac. |
 | **Location** | The app must be in the Applications folder. |
 | **Accessibility permission** | Optional. Needed for reordering and a few conveniences. Hiding and expanding work without it. |
-| **Language** | English and Korean. Follows the macOS language (English for any other language). Change it in **Settings > General**. |
+| **Language** | English, Korean, and Simplified Chinese. Starts in the macOS language (English if that language isn't supported). Change it in **Settings > General**. |
 
 ## Good to know
 

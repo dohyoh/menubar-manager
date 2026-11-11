@@ -22,7 +22,7 @@
 | 메뉴바 아이콘 우클릭 | 메뉴: 숨기기 스위치 · (새로 나타난 앱 N개…) · 설정… · 정보 · 종료 | `MenuBarUI/StatusMenuController` |
 | 설정 창 > 메뉴바 관리 | 앱별 표시 여부, 검색·필터(메뉴바 / 실행 중 / 숨긴 앱 / 전체), 새로 나타난 앱, 시스템 아이콘(Wi-Fi·배터리) 표시 여부 | `MenuBarUI/SettingsView` |
 | 설정 창 > 메뉴바 관리 > 순서 편집 | 관리 목록과 같은 자리에서 메뉴바 순서 읽기, 목록 드래그, 적용 (접근성 권한 필요). 적용·취소하면 관리 목록으로 복귀 | `MenuBarUI/OrderEditor` + `MenuBarServices/OrderingController` |
-| 설정 창 > 일반 | 로그인 시 실행, 펼친 뒤 자동으로 다시 숨기기, 새 앱 정책, 전역 단축키, 백업 | `MenuBarUI/GeneralSettingsView` |
+| 설정 창 > 일반 | 로그인 시 실행, 화면 언어, 펼친 뒤 자동으로 다시 숨기기, 새 앱 정책, 전역 단축키, 백업 | `MenuBarUI/GeneralSettingsView` |
 | 설정 창 > 진단 | 앱·macOS 버전, 상태, 숨김 기능·설치 위치·접근성 권한 등 표시와 복사 | `MenuBarUI/DiagnosticsView` |
 | 전역 단축키 | 펼치기 ↔ 숨기기, 설정 열기 (사용자가 지정) | `MenuBarSystem/GlobalHotkeyCenter` → `AppDelegate` |
 | 시계 누름 (숨김 중) | 알림 센터가 열리도록 숨김을 잠깐 풂 | `MenuBarSystem/ClockClickMonitor` → `Coordinator.expandForSystemUI()` |
@@ -112,7 +112,7 @@ struct Options: Codable {
     var autoRehide: Bool = true           // 펼친 뒤 자동으로 다시 숨기기
     var autoRehideSeconds: Int = 10       // 설정 > 일반에서 3·5·10·15·30·60초 중 선택
     var hotkeys: [Int: Hotkey] = [:]      // 전역 단축키 (HotkeyAction → 키 코드·조합 키·표시 문자열)
-    var language: AppLanguage = .system   // 화면 언어: .system | .korean("ko") | .english("en"). 다시 시작할 때 적용
+    var language: AppLanguage = .system   // 화면 언어: .system(macOS 를 따름) | .korean | .english | .chineseSimplified. 다시 시작할 때 적용
 }
 ```
 
@@ -279,8 +279,8 @@ protocol CompatibilityChecking: Sendable {
 
 ```
 로그인 → 앱 실행
-  → (main.swift 맨 앞) 저장된 설정의 화면 언어가 한국어/English 이면 그 언어로 고정   // FR-21
-      └─ "시스템 언어 따르기"이면 아무것도 하지 않음 — macOS 가 고르고, 한국어·영어가 아니면 영어
+  → (main.swift 맨 앞) 저장된 설정으로 화면 언어를 정해 지정                        // FR-21
+      └─ 저장 값이 system 이면 macOS 의 선호 언어 중 지원하는 첫 언어, 없으면 영어
   → (paused)
   → isInstalledInApplications ?
       └─ 아니오: paused(.notInstalledInApplications) + 안내 창
@@ -294,7 +294,9 @@ protocol CompatibilityChecking: Sendable {
 
 진단 결과(앱·macOS 버전, 상태, 숨김 기능·설치 위치·접근성 권한 등)는 설정 > 진단에서 보고 복사할 수 있습니다.
 
-**화면 언어를 바꾸면 (FR-21):** 고른 값을 저장하고, 지금 화면의 언어와 다르면 설정 > 일반에 "앱을 다시 시작하면 적용됩니다"와 [지금 다시 시작]을 보여 줍니다. 다시 시작은 이 프로세스가 끝난 것을 확인한 뒤 같은 위치의 앱을 다시 여는 방식입니다 — 두 프로세스가 함께 돌면 숨김 제한과 전역 단축키 등록이 겹치기 때문입니다. 언어 판단(`AppLanguage.resolvedCode`)은 `MenuBarDomain`에, 언어 고정과 다시 실행(`AppLanguageSupport`, `AppRelauncher`)은 `MenuBarSystem`에 있습니다.
+**화면 언어 (FR-21):** 설정 화면에는 한국어 / English / 简体中文만 나오고, macOS의 언어에 해당하는 항목에 "(시스템)"이 붙습니다. 저장 값이 `system`이면 그 항목이 골라진 것으로 보여 주고, 사용자가 그 항목을 고르면 다시 `system`으로 저장합니다 — 나중에 macOS의 언어가 바뀌면 따라가기 위해서입니다. 고른 언어가 지금 화면의 언어와 다르면 "앱을 다시 시작하면 적용됩니다"와 [지금 다시 시작]을 보여 줍니다. 다시 시작은 이 프로세스가 끝난 것을 확인한 뒤 같은 위치의 앱을 다시 여는 방식입니다 — 두 프로세스가 함께 돌면 숨김 제한과 전역 단축키 등록이 겹치기 때문입니다. 언어 판단(`AppLanguage`)은 `MenuBarDomain`에, 언어 지정과 다시 실행(`AppLanguageSupport`, `AppRelauncher`)은 `MenuBarSystem`에 있습니다.
+
+**설정 창의 탭:** 세 탭(메뉴바 관리·일반·진단)은 창을 만들 때 모두 만들어 두고, 고른 탭만 보이게 합니다. 누를 때마다 새로 만들면 폼으로 된 화면이 70~100ms 뒤에야 나타났습니다. 그래서 각 탭은 "나타날 때"가 아니라 "자기 탭이 골라졌을 때" 내용을 새로 읽고, 그 일은 화면이 바뀐 뒤로 미룹니다. 고르지 않은 탭은 누를 수 없고 키보드 입력도 받지 않게 합니다.
 
 ### 7.7 숨김 중에 시계를 누름 — 알림 센터
 

@@ -6,7 +6,7 @@
 
     scripts/strings.py list     코드에서 찾은 키를 출력
     scripts/strings.py sync     카탈로그에 없는 키를 추가하고, 코드에서 사라진 키를 제거
-    scripts/strings.py check    모든 키에 영어 번역이 있는지 검사 (없으면 종료 코드 1)
+    scripts/strings.py check    모든 키에 번역(영어, 중국어 간체)이 있는지 검사 (없으면 종료 코드 1)
 
 삽입 값(\\(...))은 키에서 %lld(정수) 또는 %@(그 밖)로 바뀐다.
 정수로 보는 경우: 식이 `.count` 로 끝나거나 `$0` 인 경우. 그 밖의 정수를 넣게 되면 이 규칙을 고친다.
@@ -19,6 +19,8 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SOURCES = [ROOT / "App", ROOT / "Packages/MenuBarKit/Sources/MenuBarUI"]
 CATALOG = ROOT / "Packages/MenuBarKit/Sources/MenuBarUI/Resources/Localizable.xcstrings"
+# 번역해 두는 언어 (원문 한국어 제외). 언어를 추가하면 App/Info.plist 의 CFBundleLocalizations 와 AppLanguage 도 맞춘다.
+TRANSLATIONS = {"en": "영어", "zh-Hans": "중국어"}
 ESCAPES = {'"': '"', "\\": "\\", "n": "\n", "t": "\t"}
 
 
@@ -70,8 +72,8 @@ def load_catalog():
     return {"sourceLanguage": "ko", "strings": {}, "version": "1.0"}
 
 
-def english(entry):
-    return entry.get("localizations", {}).get("en", {}).get("stringUnit", {}).get("value")
+def translation(entry, language):
+    return entry.get("localizations", {}).get(language, {}).get("stringUnit", {}).get("value")
 
 
 def main():
@@ -100,16 +102,20 @@ def main():
 
     missing_in_catalog = [k for k in code if k not in strings]
     stale = [k for k in strings if k not in code]
-    untranslated = [k for k in code if k in strings and not english(strings[k])]
-    mismatched = []
-    for key in code:
-        value = english(strings.get(key, {}))
-        if value and sorted(re.findall(r"%(?:\d+\$)?(lld|@)", key)) != sorted(re.findall(r"%(?:\d+\$)?(lld|@)", value)):
-            mismatched.append(key)
-    for title, items in [("카탈로그에 없음", missing_in_catalog), ("코드에서 사라짐", stale), ("영어 번역 없음", untranslated), ("삽입 값 개수·종류가 다름", mismatched)]:
+    groups = [("카탈로그에 없음", missing_in_catalog), ("코드에서 사라짐", stale)]
+    for language, name in TRANSLATIONS.items():
+        untranslated = [k for k in code if k in strings and not translation(strings[k], language)]
+        mismatched = []
+        for key in code:
+            value = translation(strings.get(key, {}), language)
+            # 삽입 값은 종류와 순서가 원문과 같아야 한다 (번역에서 순서를 바꾸려면 %1$@ 형식을 쓴다).
+            if value and re.findall(r"%(?:\d+\$)?(lld|@)", key) != re.findall(r"%(?:\d+\$)?(lld|@)", value):
+                mismatched.append(key)
+        groups += [(f"{name} 번역 없음", untranslated), (f"{name} 번역의 삽입 값이 원문과 다름", mismatched)]
+    for title, items in groups:
         for item in items:
             print(f"[{title}] {item}")
-    problems = len(missing_in_catalog) + len(stale) + len(untranslated) + len(mismatched)
+    problems = sum(len(items) for _, items in groups)
     print(f"키 {len(code)}개 검사, 문제 {problems}개")
     return 1 if problems else 0
 

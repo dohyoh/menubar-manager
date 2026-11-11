@@ -40,8 +40,8 @@
 | **1** | 从[最新版本](https://github.com/dohyoh/menubar-manager/releases/latest)下载 `MenuBarManager-<版本>.zip` 并解压。 |
 | **2** | 把 `MenuBarManager.app` 移到“**应用程序**”文件夹。放在其他位置时隐藏功能无法使用。 |
 | **3** | 打开 App。第一次打开时会出现设置窗口。 |
-| **4** | 在 **Menu Bar** 标签页中，关闭想隐藏的 App 的开关。 |
-| **5** | 右键点击菜单栏上的窗帘图标，打开 **Hide** 开关。 |
+| **4** | 在**菜单栏管理**标签页中，关闭想隐藏的 App 的开关。 |
+| **5** | 右键点击菜单栏上的窗帘图标，打开**隐藏**开关。 |
 
 <details>
 <summary><b>macOS 提示无法打开 App？</b></summary>
@@ -70,8 +70,8 @@ flowchart LR
     O(["已关闭<br/>全部显示"])
     H -- "左键点击图标" --> E
     E -- "再点一次，或等待 10 秒" --> H
-    H -- "右键，关闭 Hide" --> O
-    O -- "打开 Hide" --> H
+    H -- "右键，关闭“隐藏”" --> O
+    O -- "打开“隐藏”" --> H
 ```
 
 <table>
@@ -81,13 +81,13 @@ flowchart LR
 | 操作 | 结果 |
 |---|---|
 | **左键点击**窗帘图标 | 显示被隐藏的图标 / 重新隐藏 |
-| **右键点击**窗帘图标 | Hide 开关、Settings（设置）、About（关于）、Quit（退出） |
+| **右键点击**窗帘图标 | “隐藏”开关、设置、关于、退出 |
 | **点击时钟** | 隐藏期间也能打开通知中心 |
 | **自定义快捷键** | 展开 / 隐藏，或打开设置 |
 
 </td>
 <td width="270" align="center">
-<img src="docs/images/menu-en.png" alt="右键菜单" width="240">
+<img src="docs/images/menu-zh.png" alt="右键菜单" width="240">
 </td>
 </tr>
 </table>
@@ -96,22 +96,22 @@ flowchart LR
 
 <table>
 <tr>
-<th width="50%">Menu Bar — 选择要隐藏的图标</th>
-<th width="50%">General — 选项</th>
+<th width="50%">菜单栏管理 — 选择要隐藏的图标</th>
+<th width="50%">通用 — 选项</th>
 </tr>
 <tr>
-<td valign="top" align="center"><img src="docs/images/settings-menubar-en.png" alt="Menu Bar 标签页（用示例 App 绘制的示意图）" width="400"></td>
-<td valign="top" align="center"><img src="docs/images/settings-general-en.png" alt="General 标签页" width="400"></td>
+<td valign="top" align="center"><img src="docs/images/settings-menubar-zh.png" alt="“菜单栏管理”标签页（用示例 App 绘制的示意图）" width="400"></td>
+<td valign="top" align="center"><img src="docs/images/settings-general-zh.png" alt="“通用”标签页" width="400"></td>
 </tr>
 </table>
 
 | 标签页 | 可以做什么 |
 |---|---|
-| **Menu Bar** | 设置每个 App 和系统图标是否显示，搜索和筛选列表，**Edit Order**（编辑顺序） |
-| **General** | 登录时启动、语言、自动重新隐藏、新 App 的处理方式、全局快捷键、备份 |
-| **Diagnostics** | 查看功能不工作的原因并复制诊断信息 |
+| **菜单栏管理** | 设置每个 App 和系统图标是否显示，搜索和筛选列表，**编辑顺序** |
+| **通用** | 登录时启动、语言、自动重新隐藏、新 App 的处理方式、全局快捷键、备份 |
+| **诊断** | 查看功能不工作的原因并拷贝诊断信息 |
 
-<sub>Menu Bar 的图片是用示例 App 绘制的示意图，其余图片是真实截图。App 界面目前提供英语和韩语，中文系统下显示为英语。</sub>
+<sub>“菜单栏管理”的图片是用示例 App 绘制的示意图，其余图片是真实截图。</sub>
 
 ## 系统要求
 
@@ -121,7 +121,7 @@ flowchart LR
 | **Mac** | Apple 芯片和 Intel（通用二进制）。尚未在 Intel Mac 上测试。 |
 | **位置** | App 必须放在“应用程序”文件夹中。 |
 | **辅助功能权限** | 可选。调整顺序和少数便利功能需要它。隐藏和展开不需要权限。 |
-| **语言** | 英语、韩语。默认跟随 macOS 的语言（其他语言时显示英语），可在 **Settings > General** 中更改。 |
+| **语言** | 简体中文、英语、韩语。默认使用 macOS 的语言（不支持该语言时显示英语），可在**设置 > 通用**中更改。 |
 
 ## 须知
 

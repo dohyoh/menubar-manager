@@ -1,5 +1,5 @@
 """README·사용 안내서용 그림의 HTML 을 만든다 (make.sh 가 부른다).
-  python3 gen.py <작업 폴더>   — <작업 폴더>/syms.json 을 읽어 hero.html, settings-menubar-{en,ko}.html 을 쓴다.
+  python3 gen.py <작업 폴더>   — <작업 폴더>/syms.json 을 읽어 hero.html, settings-menubar-{en,ko,zh}.html 을 쓴다.
 앱 목록은 예시 앱이다. 화면 문구가 바뀌면 아래 T 의 문구를 Localizable.xcstrings 와 맞춘다.
 """
 import html, json, os, sys
@@ -13,7 +13,7 @@ def sym(name, h=16, color=None, extra=''):
 BASE = '''<!doctype html><meta charset="utf-8"><style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:transparent}
-body{font-family:-apple-system,"SF Pro Text","Apple SD Gothic Neo",sans-serif;-webkit-font-smoothing:antialiased}
+body{font-family:-apple-system,"SF Pro Text","Apple SD Gothic Neo","PingFang SC",sans-serif;-webkit-font-smoothing:antialiased}
 .s{display:inline-block;background:currentColor;-webkit-mask-size:contain;-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;flex:none}
 %s</style>%s'''
 
@@ -58,6 +58,12 @@ T = {
             sysfoot='끄면 숨기기가 켜져 있는 동안 그 아이콘도 숨깁니다. 시계와 제어 센터는 숨기지 않습니다.',
             state='숨김 적용 중', count='전체 5개 · 숨김 2개', edit='순서 편집', off='숨기기 끄기',
             note='스위치를 끄면 그 앱의 아이콘이 숨겨집니다. 제어 센터에서 메뉴바로 꺼낸 항목(타이머 등)은 숨김 중에는 항상 숨겨집니다.'),
+ 'zh': dict(title='设置', tabs=['菜单栏管理', '通用', '诊断'], search='搜索 App 名称',
+            filters=['菜单栏', '正在运行', '已隐藏', '全部'], shown='显示（3）', hiddenh='隐藏（2）', sysh='系统图标',
+            running='正在运行', me='这个 App — 始终显示', battery='电池',
+            sysfoot='关闭后，在隐藏开启期间该图标也会被隐藏。时钟和控制中心不会被隐藏。',
+            state='隐藏中', count='共 5 个 · 隐藏 2 个', edit='编辑顺序', off='关闭隐藏',
+            note='关闭开关即可隐藏该 App 的图标。从控制中心添加到菜单栏的项目（如计时器）在隐藏期间始终隐藏。'),
 }
 set_css = '''
 .win{width:580px;border-radius:13px;background:#1f1f1f;color:#ececec;overflow:hidden;

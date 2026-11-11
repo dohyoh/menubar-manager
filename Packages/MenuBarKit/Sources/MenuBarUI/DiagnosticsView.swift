@@ -8,6 +8,7 @@ import MenuBarServices
 struct DiagnosticsView: View {
     let coordinator: MenuBarCoordinator
     let loginItem: any LoginItemManaging
+    let navigation: SettingsNavigation
     @State private var launchAtLogin = false
     @State private var didCopy = false
 
@@ -33,7 +34,16 @@ struct DiagnosticsView: View {
         }
         .formStyle(.grouped)
         .onAppear { launchAtLogin = loginItem.isEnabled }
-        .task { await coordinator.refreshMenuBarApps() }
+        // 이 탭으로 올 때마다 새로 읽는다 (탭을 바꿔도 이 화면은 그대로 남아 있다).
+        .onChange(of: navigation.tab) {
+            guard navigation.tab == .diagnostics else { return }
+            didCopy = false
+            // 새로 읽는 일은 화면이 먼저 바뀐 뒤에 한다.
+            Task {
+                launchAtLogin = loginItem.isEnabled
+                await coordinator.refreshMenuBarApps()
+            }
+        }
     }
 
     private struct Row {

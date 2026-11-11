@@ -258,26 +258,68 @@ struct HotkeyFormatterTests {
 
 @Suite("화면 언어")
 struct AppLanguageTests {
-    @Test("시스템 언어 따르기: 선호 언어 중 지원하는 첫 언어를 쓴다")
-    func systemPicksFirstSupported() {
-        #expect(AppLanguage.system.resolvedCode(preferredLanguages: ["ko-KR", "en-US"]) == "ko")
-        #expect(AppLanguage.system.resolvedCode(preferredLanguages: ["en-US", "ko-KR"]) == "en")
-        #expect(AppLanguage.system.resolvedCode(preferredLanguages: ["zh-Hans-CN", "ko-KR"]) == "ko")
+    @Test("시스템 언어: 선호 언어 중 지원하는 첫 언어")
+    func systemLanguageIsFirstSupported() {
+        #expect(AppLanguage.systemLanguage(preferredLanguages: ["ko-KR", "en-US"]) == .korean)
+        #expect(AppLanguage.systemLanguage(preferredLanguages: ["en-GB", "ko-KR"]) == .english)
+        #expect(AppLanguage.systemLanguage(preferredLanguages: ["fr-FR", "zh-Hans-CN", "ko-KR"]) == .chineseSimplified)
+        #expect(AppLanguage.systemLanguage(preferredLanguages: ["fr-FR", "ja-JP"]) == nil)
+        #expect(AppLanguage.systemLanguage(preferredLanguages: []) == nil)
     }
 
-    @Test("시스템 언어 따르기: 지원하는 언어가 없으면 영어")
-    func systemFallsBackToEnglish() {
-        #expect(AppLanguage.system.resolvedCode(preferredLanguages: ["zh-Hans-CN", "ja-JP"]) == "en")
-        #expect(AppLanguage.system.resolvedCode(preferredLanguages: []) == "en")
+    @Test("중국어는 간체만 지원한다")
+    func chineseVariants() {
+        #expect(AppLanguage.supported(for: "zh-Hans") == .chineseSimplified)
+        #expect(AppLanguage.supported(for: "zh-Hans-CN") == .chineseSimplified)
+        #expect(AppLanguage.supported(for: "zh_CN") == .chineseSimplified)
+        #expect(AppLanguage.supported(for: "zh") == .chineseSimplified)
+        #expect(AppLanguage.supported(for: "zh-Hant-TW") == nil)
+        #expect(AppLanguage.supported(for: "zh-HK") == nil)
+        #expect(AppLanguage.supported(for: "ko") == .korean)
+        #expect(AppLanguage.supported(for: "en_US") == .english)
+        #expect(AppLanguage.supported(for: "ja-JP") == nil)
+    }
+
+    @Test("시스템 언어를 따르면 그 언어로, 지원하지 않으면 영어로 표시한다")
+    func systemResolves() {
+        #expect(AppLanguage.system.resolved(preferredLanguages: ["ko-KR", "en-US"]) == .korean)
+        #expect(AppLanguage.system.resolved(preferredLanguages: ["zh-Hans-CN"]) == .chineseSimplified)
+        #expect(AppLanguage.system.resolved(preferredLanguages: ["ja-JP"]) == .english)
+        #expect(AppLanguage.system.resolved(preferredLanguages: ["zh-Hant-TW"]) == .english)
     }
 
     @Test("언어를 직접 고르면 시스템 언어와 무관하게 그 언어를 쓴다")
     func explicitChoiceWins() {
-        #expect(AppLanguage.korean.resolvedCode(preferredLanguages: ["en-US"]) == "ko")
-        #expect(AppLanguage.english.resolvedCode(preferredLanguages: ["ko-KR"]) == "en")
-        #expect(AppLanguage.system.overrideCode == nil)
-        #expect(AppLanguage.korean.overrideCode == "ko")
-        #expect(AppLanguage.english.overrideCode == "en")
+        #expect(AppLanguage.korean.resolved(preferredLanguages: ["en-US"]) == .korean)
+        #expect(AppLanguage.english.resolved(preferredLanguages: ["ko-KR"]) == .english)
+        #expect(AppLanguage.chineseSimplified.resolved(preferredLanguages: ["ko-KR"]) == .chineseSimplified)
+    }
+
+    @Test("시작할 때 지정하는 언어: 시스템 언어를 따를 때는 원래 식별자를 앞에 둔다")
+    func launchLanguages() {
+        #expect(AppLanguage.system.launchLanguages(preferredLanguages: ["en-GB", "ko-KR"]) == ["en-GB", "en"])
+        #expect(AppLanguage.system.launchLanguages(preferredLanguages: ["fr-FR", "ko-KR"]) == ["ko-KR", "ko"])
+        #expect(AppLanguage.system.launchLanguages(preferredLanguages: ["zh-Hans"]) == ["zh-Hans"])
+        #expect(AppLanguage.system.launchLanguages(preferredLanguages: ["ja-JP"]) == ["en"])
+        #expect(AppLanguage.english.launchLanguages(preferredLanguages: ["ko-KR"]) == ["en"])
+        #expect(AppLanguage.chineseSimplified.launchLanguages(preferredLanguages: ["ko-KR"]) == ["zh-Hans"])
+    }
+
+    @Test("설정 화면에서 시스템 언어와 같은 항목을 고르면 '시스템 언어 따르기'로 저장한다")
+    func storedValueForPickedLanguage() {
+        let korean = ["ko-KR", "en-US"]
+        #expect(AppLanguage.stored(forPicked: .korean, preferredLanguages: korean) == .system)
+        #expect(AppLanguage.stored(forPicked: .english, preferredLanguages: korean) == .english)
+        #expect(AppLanguage.stored(forPicked: .chineseSimplified, preferredLanguages: korean) == .chineseSimplified)
+        // 시스템 언어를 지원하지 않으면 영어가 기본 자리다.
+        #expect(AppLanguage.stored(forPicked: .english, preferredLanguages: ["ja-JP"]) == .system)
+        #expect(AppLanguage.stored(forPicked: .korean, preferredLanguages: ["ja-JP"]) == .korean)
+    }
+
+    @Test("고를 수 있는 언어에는 '시스템 언어 따르기'가 없고, 이름은 그 언어의 말로 적는다")
+    func selectableLanguages() {
+        #expect(AppLanguage.selectable == [.korean, .english, .chineseSimplified])
+        #expect(AppLanguage.selectable.map(\.nativeName) == ["한국어", "English", "简体中文"])
     }
 
     @Test("언어 항목이 없는 예전 설정 파일과 모르는 값은 시스템 언어 따르기로 읽는다")
@@ -287,7 +329,7 @@ struct AppLanguageTests {
         #expect(old.hidingEnabled)
         let unknown = try JSONDecoder().decode(Options.self, from: Data(#"{"language":"fr"}"#.utf8))
         #expect(unknown.language == .system)
-        let english = try JSONDecoder().decode(Options.self, from: Data(#"{"language":"en"}"#.utf8))
-        #expect(english.language == .english)
+        let chinese = try JSONDecoder().decode(Options.self, from: Data(#"{"language":"zh-Hans"}"#.utf8))
+        #expect(chinese.language == .chineseSimplified)
     }
 }

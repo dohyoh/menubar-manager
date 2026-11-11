@@ -7,7 +7,7 @@ import MenuBarSystem
 
 // 설정에서 고른 화면 언어는 문자열을 처음 찾기 전에 지정해야 하므로 가장 먼저 한다.
 let stateStore = AppDelegate.makeStateStore()
-AppLanguageSupport.apply(code: stateStore.load().options.language.overrideCode)
+AppLanguageSupport.apply(stateStore.load().options.language)
 
 let app = NSApplication.shared
 let delegate = AppDelegate(store: stateStore)

@@ -119,7 +119,7 @@ Open **Settings > General**.
 | Option | What it does | Default |
 |---|---|---|
 | **Launch at login** | Starts the app when you log in | Off |
-| **Language** | **Follow System Language**: Korean or English when macOS uses one of them, English otherwise. Or choose **한국어** or **English**. A change takes effect after a restart; click **Restart Now** right below. | Follow System Language |
+| **Language** | **한국어**, **English**, or **简体中文**. The language macOS is using is marked **(System)** and is selected at first. If macOS uses a language the app doesn't support, English is selected. A change takes effect after a restart; click **Restart Now** right below. | macOS language |
 | **Hide again automatically after expanding** | After a left-click expand, hides the icons again after the chosen time. It waits while you are using an expanded icon's menu. | On |
 | **Hide again after** | 3, 5, 10, 15, 30, or 60 seconds | 10 sec |
 | **Newly installed or first-run apps** | **Show**: the new icon is visible. **Hide**: new apps are hidden automatically. **Ask**: new apps are listed under **New Apps** in the Menu Bar tab so you can decide (needs the Accessibility permission). | Show |

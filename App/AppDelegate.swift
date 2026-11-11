@@ -65,7 +65,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let loginItem = self.loginItem
         let navigation = settingsNavigation
         navigation.systemLanguages = AppLanguageSupport.systemPreferredLanguages
-        navigation.currentLanguageCode = AppLanguageSupport.currentCode
+        navigation.currentLanguage = AppLanguageSupport.current
         navigation.onRestart = { [weak self] in self?.restart() }
         settingsWindow = HostedWindow(title: L("설정"), resizable: true, minSize: NSSize(width: 480, height: 420), initialSize: NSSize(width: 580, height: 600)) {
             SettingsView(coordinator: coordinator, loginItem: loginItem, ordering: ordering, navigation: navigation)
@@ -182,6 +182,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     #if DEBUG
     func debugIsMenuBar(at point: CGPoint) -> Bool { clockMonitor.isMenuBar(at: point) }
     func debugRenderSettings(to path: String) -> Bool { settingsWindow.renderContent(to: URL(fileURLWithPath: path)) }
+
+    /// 탭을 바꾸고, 메인 스레드가 그 화면을 다 그리고 한가해질 때까지 걸린 시간(ms)을 잰다.
+    func debugMeasureTabSwitch(to tab: SettingsTab) async -> Double {
+        let start = CFAbsoluteTimeGetCurrent()
+        settingsNavigation.tab = tab
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            // 화면 갱신은 런루프가 쉬기 직전에 일어난다. 두 번째로 쉬려는 순간이면 갱신이 끝난 뒤다.
+            var remaining = 2
+            var observer: CFRunLoopObserver?
+            observer = CFRunLoopObserverCreateWithHandler(nil, CFRunLoopActivity.beforeWaiting.rawValue, true, CFIndex.max) { _, _ in
+                remaining -= 1
+                guard remaining == 0 else { return CFRunLoopWakeUp(CFRunLoopGetMain()) }
+                if let observer { CFRunLoopRemoveObserver(CFRunLoopGetMain(), observer, .commonModes) }
+                continuation.resume()
+            }
+            CFRunLoopAddObserver(CFRunLoopGetMain(), observer, .commonModes)
+        }
+        return (CFAbsoluteTimeGetCurrent() - start) * 1000
+    }
+
+    /// 로그인 항목 상태를 한 번 읽는 데 걸리는 시간(ms).
+    func debugLoginStatusTime() -> Double {
+        let start = CFAbsoluteTimeGetCurrent()
+        _ = loginItem.isEnabled
+        return (CFAbsoluteTimeGetCurrent() - start) * 1000
+    }
 
     /// 자동 검증용: 임시 단축키(⌃⌥⇧⌘Y)를 "설정 열기"에 걸고 그 키를 합성해 눌러, 설정 창이 뜨는지 본다.
     /// 저장된 설정은 바꾸지 않고, 끝나면 저장된 단축키로 되돌린다.
