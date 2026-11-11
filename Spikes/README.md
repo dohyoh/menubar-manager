@@ -98,3 +98,49 @@ echo "restrict com.crowdcafe.windowmagnet" > ~/Library/Logs/MenuBarSpike/cmd
 2. `axlist` → 로그에 `AXITEM` 줄이 나오는지 확인 (S5).
 3. 두 아이템의 x좌표로 `drag` → 화면 캡처로 순서가 바뀌었는지 확인 (S6).
 4. 결과를 platform-notes에 `검증됨`으로 옮기고 ADR-0004를 확정합니다.
+
+## SeparatorSpike (macOS 26)
+
+macOS 26 이하의 "구분자 확장" 숨김이 되는지 확인하는 명령줄 프로그램입니다 ([ADR-0012](../docs/adr/0012-separator-visibility-macos26.md), [platform-notes 7절](../docs/architecture/platform-notes.md#7-macos-26에서-확인한-것-)). 권한이 필요 없고, 자기 상태 아이템(H · S · V, 나중에 N)만 만들었다가 끝나면 스스로 종료합니다. 다른 앱의 아이콘 순서는 건드리지 않습니다.
+
+```bash
+swiftc -O Spikes/SeparatorSpike/main.swift -o build/sepspike
+```
+
+```bash
+build/sepspike --lengths 10000,2056,500
+```
+
+| 인자 | 동작 |
+|---|---|
+| `--lengths a,b,…` | 구분자 S의 길이를 차례로 바꿔 가며 H(왼쪽)·V(오른쪽)와 다른 아이콘 창의 위치를 출력 (기본 10000) |
+| `--hold <초>` | 마지막에 구분자를 펼친 채 기다림. 그동안 `kill -9 <pid>`로 강제 종료해 복구를 확인 |
+
+검증 현황 (2026-11-11, macOS 26.5.2): 숨김 ✅ · 복구 ✅ · 강제 종료 후 복구 ✅ · 새 아이콘은 숨김 쪽에 놓임 ✅.
+
+### AXApp — 접근성 권한이 필요한 검증
+
+`Spikes/SeparatorSpike/AXApp`은 같은 아이콘 세 개(H · S · V)를 가진 앱으로, 제품의 접근성 코드(`MenuBarSystem`의 `AXItemDiscovery`, `EventSynthesisReorderer`)를 그대로 가져다 씁니다. `xcodegen` 없이 `swift build`만으로 만들어지고, 설치하지 않고 빌드 폴더에서 실행합니다.
+
+```bash
+./Spikes/SeparatorSpike/AXApp/build.sh run
+```
+
+- 처음 실행하면 시스템 설정 > 개인정보 보호 및 보안 > 손쉬운 사용에서 **SeparatorSpike**를 허용합니다. 임시 서명이라 다시 빌드하면 다시 허용해야 합니다.
+- 0.2초마다 `<폴더>/cmd`를 읽어 실행하고 `<폴더>/app.log`에 적습니다. `<폴더>` 기본값은 `~/Library/Logs/SeparatorSpike`, 실행 시 `--args -dir <경로>`로 바꿀 수 있습니다.
+- 드래그 검증은 자기 아이콘(H · S · V)끼리 하면 다른 앱의 순서를 건드리지 않습니다. 다른 앱의 아이콘을 옮겼으면 원래 자리로 되돌립니다.
+
+| 명령 | 동작 |
+|---|---|
+| `report` | 자기 아이콘의 위치와 화면 안·밖의 아이콘 창 목록 |
+| `expand [길이]` / `collapse` | 구분자 S를 늘임(기본 10000) / 되돌림 |
+| `newitem` | 아이콘을 하나 더 만듦 |
+| `axstatus` / `axprompt` | 접근성 권한 확인 / 요청 창 띄우기 |
+| `axlist` | 제품 코드로 읽은 "지금 표시된 아이템" (T1) |
+| `axraw` | 걸러 내지 않은 원본: 앱마다 `AXExtrasMenuBar`의 자식, 좌표, 그 좌표에 실제로 있는 요소 (T1·T3) |
+| `hit <x> <y>` | 그 좌표의 접근성 요소 |
+| `drag <x1> <x2> <y>` / `dragtune <pt> <ms> <ms>` | ⌘+드래그 합성 (T2) / 속도 조정 |
+| `quit` | 종료 |
+
+검증 현황 (2026-11-11): T1 아이콘과 앱의 대응 읽기 ✅ · T2 구분자 너머로 옮기기 ✅ (양방향, 다른 프로세스의 아이콘 포함) · T3 화면 밖 아이콘의 좌표 ✅.
+
